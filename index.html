@@ -31,7 +31,7 @@
 
 
 /* Real BumbleBee / Camaro visual: use a licensed real-world reference photo in the actual app */
-.bumble-hero{position:relative;display:block;min-height:490px;overflow:hidden;background:#0a0d11 url("https://commons.wikimedia.org/wiki/Special:FilePath/Transformers_-_Revenge_of_the_Fallen_vehicles_at_Holloman_AFB_2008-09-22.jpg") center 42%/cover no-repeat;border-color:#6c521d}
+.bumble-hero{position:relative;display:block;min-height:490px;overflow:hidden;background:#0a0d11 url("about:blank") center 42%/cover no-repeat;border-color:#6c521d}
 .bumble-hero .robot-scene{position:absolute;inset:0;width:100%;height:100%;min-height:0;display:block;z-index:0;background:linear-gradient(90deg,#090c10a8 0%,#090c1020 38%,#090c10d9 63%,#090c10f5 100%);overflow:hidden}
 .bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090c10e8 0%,transparent 27%,#090c1022 100%)}
 .bumble-hero .scene-grid{display:none}
@@ -79,7 +79,7 @@
   </header>
   <div class="content">
    <section class="view active" id="view-home">
-    <div class="hero bumble-hero"><div class="robot-scene"><img class="real-bumblebee-photo" src="https://commons.wikimedia.org/wiki/Special:FilePath/Transformers_-_Revenge_of_the_Fallen_vehicles_at_Holloman_AFB_2008-09-22.jpg" alt="BumbleBee yellow Chevrolet Camaro and robot display" fetchpriority="high"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
+    <div class="hero bumble-hero"><div class="robot-scene"><img class="real-bumblebee-photo" src="about:blank" alt="BumbleBee yellow Chevrolet Camaro and robot display" fetchpriority="high"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
 <defs><linearGradient id="beeGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a0"/><stop offset=".28" stop-color="#f6c33c"/><stop offset=".62" stop-color="#a96712"/><stop offset=".82" stop-color="#ffdc65"/><stop offset="1" stop-color="#6f410b"/></linearGradient><linearGradient id="beeMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#68737d"/><stop offset=".4" stop-color="#161c23"/><stop offset="1" stop-color="#8a949b"/></linearGradient><linearGradient id="beeEye" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a3f1ff"/><stop offset=".48" stop-color="#39aaff"/><stop offset="1" stop-color="#1450cc"/></linearGradient><filter id="beeGlow"><feGaussianBlur stdDeviation="8"/></filter></defs>
 <ellipse cx="214" cy="477" rx="126" ry="15" fill="#f4b72b" opacity=".2"/>
 <g transform="translate(322 154) rotate(18)"><path d="M-40-61Q0-90 39-58L55 4 28 54-22 41-49 0Z" fill="#10151b" stroke="#747d85" stroke-width="7"/><path d="M-28-51 6-68 33-42 38-2 15 28-18 21-34-7Z" fill="url(#beeGold)" stroke="#d9aa36" stroke-width="3"/><circle cy="-15" r="28" fill="#11171e" stroke="#515b64" stroke-width="8"/><circle cy="-15" r="15" fill="url(#beeMetal)" stroke="#d59b26" stroke-width="4"/></g>
@@ -178,7 +178,7 @@ renderChat();renderTasks();renderMemories();loadPrefs();
 <style id="bumblebee-real-camaro-fix-v2">
 /* V2: enforce the real Camaro/robot image after all legacy styles. */
 .bumble-hero{position:relative!important;isolation:isolate;overflow:hidden!important;background:#090c10!important}
-.bumble-hero:before{content:"";position:absolute!important;inset:0!important;z-index:0!important;display:block!important;background-image:linear-gradient(90deg,rgba(5,8,12,.12) 0%,rgba(5,8,12,.16) 35%,rgba(5,8,12,.90) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.72),transparent 42%),url("https://commons.wikimedia.org/wiki/Special:FilePath/Transformers_-_Revenge_of_the_Fallen_vehicles_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,center 43%!important;background-size:cover,cover,cover!important;background-repeat:no-repeat!important;pointer-events:none}
+.bumble-hero:before{content:"";position:absolute!important;inset:0!important;z-index:0!important;display:block!important;background-image:linear-gradient(90deg,rgba(5,8,12,.12) 0%,rgba(5,8,12,.16) 35%,rgba(5,8,12,.90) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.72),transparent 42%),url("about:blank")!important;background-position:center,center,center 43%!important;background-size:cover,cover,cover!important;background-repeat:no-repeat!important;pointer-events:none}
 .bumble-hero:after{z-index:1!important;pointer-events:none!important}
 .bumble-hero .robot-scene{position:absolute!important;inset:0!important;min-height:0!important;width:100%!important;height:100%!important;display:block!important;z-index:0!important;background:transparent!important;overflow:hidden!important}
 .bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,8,12,.35),transparent 45%)!important}
@@ -186,8 +186,8 @@ renderChat();renderTasks();renderMemories();loadPrefs();
 .bumble-hero .bee-copy{position:relative!important;z-index:2!important;width:54%!important;min-height:490px!important;margin-left:auto!important;padding:48px 34px 40px 10px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.72) 22%,rgba(9,12,16,.95) 100%)!important}
 .bumble-hero h1{font-size:clamp(38px,5vw,68px)!important;text-shadow:0 3px 24px #000!important}
 .bumble-hero p{color:#e0e3e7!important;text-shadow:0 2px 12px #000!important}
-@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.02),rgba(5,8,12,.35) 42%,rgba(5,8,12,.96) 78%),linear-gradient(0deg,rgba(5,8,12,.6),transparent 40%),url("https://commons.wikimedia.org/wiki/Special:FilePath/Transformers_-_Revenge_of_the_Fallen_vehicles_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}.bumble-hero .bee-copy{width:65%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}.bumble-hero h1{font-size:clamp(31px,6vw,46px)!important}.bumble-hero p{font-size:12px!important}}
-@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.04),rgba(5,8,12,.42) 36%,rgba(5,8,12,.96) 75%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%),url("https://commons.wikimedia.org/wiki/Special:FilePath/Transformers_-_Revenge_of_the_Fallen_vehicles_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}}
+@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.02),rgba(5,8,12,.35) 42%,rgba(5,8,12,.96) 78%),linear-gradient(0deg,rgba(5,8,12,.6),transparent 40%),url("about:blank")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}.bumble-hero .bee-copy{width:65%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}.bumble-hero h1{font-size:clamp(31px,6vw,46px)!important}.bumble-hero p{font-size:12px!important}}
+@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.04),rgba(5,8,12,.42) 36%,rgba(5,8,12,.96) 75%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%),url("about:blank")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}}
 </style>
 
 
@@ -218,6 +218,29 @@ renderChat();renderTasks();renderMemories();loadPrefs();
 @keyframes beeCorePulse{0%,100%{transform:scale(.98);filter:drop-shadow(0 0 7px rgba(255,197,43,.25))}50%{transform:scale(1.045);filter:drop-shadow(0 0 22px rgba(255,197,43,.75))}}
 .bumble-hero .real-bumblebee-photo{object-position:35% center!important}
 .bumble-hero .robot-scene:after{background:linear-gradient(90deg,rgba(5,8,12,.02) 0%,rgba(5,8,12,.12) 34%,rgba(5,8,12,.86) 69%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.60),transparent 46%)!important}
+</style>
+
+
+
+<!-- BUMBLEBEE_REAL_CAMARO_FIX_V2 -->
+<style id="bumblebee-transformer-stage">
+/* Replace the unrelated showroom photo with an animated, original robot stage. */
+.bumble-hero{position:relative!important;isolation:isolate;overflow:hidden!important;min-height:520px!important;background:radial-gradient(ellipse at 24% 55%,#42300d 0%,#1b1a15 26%,#0b0e12 65%)!important;border-color:#70551a!important}
+.bumble-hero:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(90deg,transparent 0%,rgba(7,10,14,.12) 35%,rgba(7,10,14,.78) 58%,#090c10 82%),repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,198,49,.045) 39px 40px),repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,198,49,.04) 39px 40px)!important}
+.bumble-hero .robot-scene{position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:58%!important;height:100%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 63%,rgba(255,187,30,.23),transparent 54%)!important;z-index:1!important}
+.bumble-hero .real-bumblebee-photo{display:none!important}
+.bumble-hero .robot-scene:before{content:"";position:absolute;left:9%;right:5%;bottom:10%;height:2px;background:linear-gradient(90deg,transparent,#f2bf32,transparent);box-shadow:0 0 22px #e9ae2670}
+.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(7,10,14,.55),transparent 30%,rgba(255,193,40,.045) 50%,transparent 52%);pointer-events:none}
+.bumble-hero .scene-grid{display:block!important;opacity:.35!important;mask-image:radial-gradient(ellipse at 50% 55%,#000,transparent 73%)}
+.bumble-hero .bee-robot{display:block!important;position:relative!important;width:100%!important;height:95%!important;max-height:500px!important;z-index:2!important;transform-origin:50% 85%;animation:beeHeroIdle 4s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(255,184,25,.28))!important}
+@keyframes beeHeroIdle{0%,100%{transform:translateY(4px) scale(1)}50%{transform:translateY(-7px) scale(1.015)}}
+.bumble-hero .bee-copy{position:relative!important;z-index:4!important;width:49%!important;min-height:520px!important;margin-left:auto!important;padding:45px 30px 38px 8px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.72) 20%,rgba(9,12,16,.97) 100%)!important}
+.bumble-hero .eyebrow{color:#f5cc54!important}
+.bumble-hero h1{font-size:clamp(38px,5vw,64px)!important}
+.bumble-hero .bee-tags span:first-child{border-color:#d8a52c!important;color:#ffe17a!important}
+@media(max-width:850px){.bumble-hero{min-height:450px!important}.bumble-hero .robot-scene{width:54%!important}.bumble-hero .bee-robot{width:125%!important;height:88%!important;max-height:420px!important;transform:translateX(-6%)!important}.bumble-hero .bee-copy{width:58%!important;min-height:450px!important;padding:30px 18px 28px 0!important}.bumble-hero:before{background:linear-gradient(90deg,transparent 0%,rgba(7,10,14,.12) 25%,rgba(7,10,14,.8) 52%,#090c10 79%),repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,198,49,.035) 39px 40px),repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,198,49,.035) 39px 40px)!important}}
+@media(max-width:520px){.bumble-hero{min-height:430px!important}.bumble-hero .robot-scene{width:52%!important;opacity:.95}.bumble-hero .bee-robot{width:155%!important;height:76%!important;max-height:350px!important;transform:translateX(-12%)!important}.bumble-hero .bee-copy{width:64%!important;min-height:430px!important;padding:26px 12px 24px 0!important}.bumble-hero h1{font-size:clamp(31px,7vw,42px)!important}.bumble-hero p{font-size:11px!important}}
+@media(prefers-reduced-motion:reduce){.bumble-hero .bee-robot{animation:none!important}}
 </style>
 
 </body>
