@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101317">
-<meta name="description" content="BumbleBee — a personal AI companion and action system.">
-<title>BumbleBee · Personal AI Companion</title>
+<meta name="description" content="BEECORE — an original personal AI companion and action system.">
+<title>BEECORE · Personal AI Companion</title>
 <style>
 :root{color-scheme:dark;--bg:#080a0d;--panel:#101419;--panel2:#171d23;--panel3:#202830;--line:#2b333b;--muted:#929da7;--text:#edf0f2;--yellow:#f5bd35;--yellow2:#ffe29a;--green:#83dfad;--red:#ff8888;--radius:16px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-size:14px;background:radial-gradient(ellipse at 72% -10%,#46371633,transparent 40%),linear-gradient(135deg,#090b0e,#0a0d11 55%,#0b0d10)}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}a{color:var(--yellow2)}
@@ -31,7 +31,7 @@
 .side-bottom{margin-top:auto;display:grid;gap:20px}.status-card{padding:13px;border:1px solid #ffffff12;background:linear-gradient(135deg,#171d23,#0d1014);border-radius:10px}.status-line{display:flex;align-items:center;gap:8px;font-size:10px}.tiny{font-size:10px;line-height:1.6;color:#818c96}.dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px #83dfad30}.dot.warn{background:#e0a84b;box-shadow:0 0 10px #e0a84b35}.status-card .tiny{color:#8c969f}
 .main{min-width:0}.topbar{height:83px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 clamp(20px,3vw,48px);border-bottom:1px solid #ffffff0d;background:#0a0d10d9;backdrop-filter:blur(18px);position:sticky;top:0;z-index:15}.top-left{display:flex;align-items:center;gap:17px;min-width:0}.top-title{font-size:17px;font-weight:750;letter-spacing:-.025em}.top-sub{font-size:11px;color:#8b96a0;margin-top:5px}.top-actions{display:flex;align-items:center;gap:10px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff14;border-radius:5px;padding:8px 10px;background:#ffffff04;color:#b9c1c8;font-size:10px;white-space:nowrap}.icon-btn{width:37px;height:37px;display:grid;place-items:center;border:1px solid #ffffff17;border-radius:7px;background:#ffffff05;color:#c4ccd3}.icon-btn:hover{border-color:#f5bd3570;color:var(--yellow2)}.mobile-brand{display:none}
 .content{max-width:1500px;margin:0 auto;padding:clamp(18px,2.6vw,38px) clamp(16px,3vw,48px) 55px}.view{display:none;animation:viewIn .32s ease both}.view.active{display:block}@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.hero{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:0 20px 55px #0005}.bumble-hero{position:relative;display:block;min-height:570px;height:clamp(520px,66vh,690px);padding:0;isolation:isolate;border-color:#55504a;background:radial-gradient(ellipse at 30% 53%,#4a402c 0%,#191b1d 39%,#0b0d10 75%)}.bumble-hero:before{content:"B-127";position:absolute;right:22px;top:18px;font:9px ui-monospace,monospace;letter-spacing:.2em;color:#ffffff50;z-index:4}.bumble-hero:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent 32%,#090b0e33 53%,#090b0ed9 100%),linear-gradient(0deg,#080a0d 0%,transparent 32%),repeating-linear-gradient(0deg,transparent 0 59px,#ffffff06 60px 61px)}.bumble-hero .robot-scene{position:absolute;inset:0;width:68%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1;background:radial-gradient(ellipse at 50% 60%,#a8874230,transparent 56%)}.bumble-hero .robot-scene:before{content:"";position:absolute;left:8%;right:4%;bottom:14%;height:1px;background:linear-gradient(90deg,transparent,#f5bd35a8,transparent);box-shadow:0 0 24px #e8b33155;z-index:2}.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#080a0d60,transparent 40%),linear-gradient(90deg,transparent 65%,#080a0d80 100%);z-index:2}.bumble-hero .scene-grid{position:absolute;inset:0;background-image:linear-gradient(#d6dce10a 1px,transparent 1px),linear-gradient(90deg,#d6dce10a 1px,transparent 1px);background-size:36px 36px;transform:perspective(500px) rotateX(62deg) scale(1.4);transform-origin:50% 75%;opacity:.5}.bumble-hero .real-bumblebee-photo,.bumble-hero .bee-robot{display:none}.bumble-hero .bee-model{position:absolute;inset:0;width:100%;height:100%;border:0;background:#090c10;z-index:1}.bumble-hero .bee-copy{position:absolute;right:0;bottom:0;width:48%;min-height:100%;margin:0;padding:48px clamp(24px,4vw,58px) 45px 24px;display:flex;flex-direction:column;justify-content:flex-end;z-index:3;background:linear-gradient(90deg,transparent,#0b0d10ad 14%,#0b0d10f2 38%)}.bumble-hero .eyebrow{color:#d7b45f;font:9px ui-monospace,monospace;letter-spacing:.22em}.bumble-hero h1{font-size:clamp(42px,5.2vw,76px);line-height:.91;letter-spacing:-.065em;margin:17px 0 16px;font-weight:850}.bumble-hero h1 span{color:var(--yellow);text-shadow:0 0 30px #f4c54220}.bumble-hero p{max-width:440px;color:#bdc3c9;font-size:13px;line-height:1.8}.bee-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.bee-tags span{border:1px solid #ffffff1a;background:#090b0dc9;border-radius:3px;padding:6px 8px;font:9px ui-monospace,monospace;letter-spacing:.1em;color:#c4cbd1}.bee-tags span:first-child{border-color:#c5a04b80;color:#ffe29a}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:21px}.model-credit{position:absolute;left:13px;bottom:10px;z-index:4;font:9px ui-monospace,monospace;color:#c9c3b1;background:#080a0dc9;padding:6px 8px;border:1px solid #ffffff12;border-radius:3px}.model-credit a{color:#e4c878;text-decoration:none}
+.hero{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:0 20px 55px #0005}.bumble-hero{position:relative;display:block;min-height:570px;height:clamp(520px,66vh,690px);padding:0;isolation:isolate;border-color:#55504a;background:radial-gradient(ellipse at 30% 53%,#4a402c 0%,#191b1d 39%,#0b0d10 75%)}.bumble-hero:before{content:"BC-01";position:absolute;right:22px;top:18px;font:9px ui-monospace,monospace;letter-spacing:.2em;color:#ffffff50;z-index:4}.bumble-hero:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent 32%,#090b0e33 53%,#090b0ed9 100%),linear-gradient(0deg,#080a0d 0%,transparent 32%),repeating-linear-gradient(0deg,transparent 0 59px,#ffffff06 60px 61px)}.bumble-hero .robot-scene{position:absolute;inset:0;width:68%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1;background:radial-gradient(ellipse at 50% 60%,#a8874230,transparent 56%)}.bumble-hero .robot-scene:before{content:"";position:absolute;left:8%;right:4%;bottom:14%;height:1px;background:linear-gradient(90deg,transparent,#f5bd35a8,transparent);box-shadow:0 0 24px #e8b33155;z-index:2}.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#080a0d60,transparent 40%),linear-gradient(90deg,transparent 65%,#080a0d80 100%);z-index:2}.bumble-hero .scene-grid{position:absolute;inset:0;background-image:linear-gradient(#d6dce10a 1px,transparent 1px),linear-gradient(90deg,#d6dce10a 1px,transparent 1px);background-size:36px 36px;transform:perspective(500px) rotateX(62deg) scale(1.4);transform-origin:50% 75%;opacity:.5}.bumble-hero .real-beecore-photo,.bumble-hero .bee-robot{display:none}.bumble-hero .bee-model{position:absolute;inset:0;width:100%;height:100%;border:0;background:#090c10;z-index:1}.bumble-hero .bee-copy{position:absolute;right:0;bottom:0;width:48%;min-height:100%;margin:0;padding:48px clamp(24px,4vw,58px) 45px 24px;display:flex;flex-direction:column;justify-content:flex-end;z-index:3;background:linear-gradient(90deg,transparent,#0b0d10ad 14%,#0b0d10f2 38%)}.bumble-hero .eyebrow{color:#d7b45f;font:9px ui-monospace,monospace;letter-spacing:.22em}.bumble-hero h1{font-size:clamp(42px,5.2vw,76px);line-height:.91;letter-spacing:-.065em;margin:17px 0 16px;font-weight:850}.bumble-hero h1 span{color:var(--yellow);text-shadow:0 0 30px #f4c54220}.bumble-hero p{max-width:440px;color:#bdc3c9;font-size:13px;line-height:1.8}.bee-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.bee-tags span{border:1px solid #ffffff1a;background:#090b0dc9;border-radius:3px;padding:6px 8px;font:9px ui-monospace,monospace;letter-spacing:.1em;color:#c4cbd1}.bee-tags span:first-child{border-color:#c5a04b80;color:#ffe29a}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:21px}.model-credit{position:absolute;left:13px;bottom:10px;z-index:4;font:9px ui-monospace,monospace;color:#c9c3b1;background:#080a0dc9;padding:6px 8px;border:1px solid #ffffff12;border-radius:3px}.model-credit a{color:#e4c878;text-decoration:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:0 14px;border:1px solid #ffffff20;border-radius:6px;background:#ffffff07;color:#dce1e5;font-size:11px;font-weight:650;transition:transform .18s,border-color .18s,background .18s}.btn:hover{transform:translateY(-1px);border-color:#f5bd3570;background:#ffffff0c}.btn.primary{border-color:#f5bd35;background:linear-gradient(135deg,#f6c94c,#d89a1e);color:#17130a;box-shadow:0 7px 22px #f5bd3517}.btn.primary:hover{background:linear-gradient(135deg,#ffdc72,#e6a923)}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:34px 0 15px}.section-head h2{font-size:19px;letter-spacing:-.035em;margin:0;font-weight:750}.section-head p{margin:7px 0 0;color:#89949e;font-size:11px;line-height:1.6}.badge{display:inline-flex;align-items:center;white-space:nowrap;border:1px solid #ffffff17;border-radius:4px;padding:6px 8px;color:#aab3bb;background:#ffffff04;font:9px ui-monospace,monospace;letter-spacing:.08em}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tile{min-width:0;padding:19px;border:1px solid #ffffff12;border-radius:11px;background:linear-gradient(145deg,#151a20,#0f1317);transition:transform .2s,border-color .2s,background .2s}.tile:hover{transform:translateY(-2px);border-color:#b18a3655;background:linear-gradient(145deg,#1a2026,#101418)}.tile-icon{width:35px;height:35px;display:grid;place-items:center;margin-bottom:16px;border:1px solid #f5bd3533;border-radius:8px;background:#f5bd350c;color:var(--yellow);font-size:18px}.tile h3{margin:0 0 8px;font-size:13px}.tile p{margin:0;color:#8e99a3;font-size:11px;line-height:1.75;min-height:58px}.mini-link{margin-top:16px;padding:0;border:0;background:none;color:#e3c56e;font-size:10px;font-weight:650}.mini-link:hover{color:#ffe6a0}
@@ -45,41 +45,35 @@
 </style>
 </head>
 <body>
-<div class="boot bee-splash" id="boot" aria-label="BumbleBee B-127 startup">
+<div class="boot bee-splash" id="boot" aria-label="BEECORE BC-01 startup">
  <div class="bee-grid"></div><div class="bee-scanlines"></div><div class="bee-vignette"></div><div class="bee-corner tl"></div><div class="bee-corner tr"></div><div class="bee-corner bl"></div><div class="bee-corner br"></div>
  <div class="bee-splash-core" id="splashContainer">
-  <div class="bee-kicker">CYBERTRONIAN SIGNAL DETECTED</div>
+  <div class="bee-kicker">AUTONOMOUS SYSTEM INITIALIZING</div>
   <div class="bee-reticle"><div class="bee-ring ring-a"></div><div class="bee-ring ring-b"></div><div class="bee-crosshair"></div>
-   <svg class="bee-insignia" viewBox="0 0 240 260" role="img" aria-label="Metallic Transformers insignia">
+   <svg class="bee-insignia core-emblem" viewBox="0 0 240 260" role="img" aria-label="Original BEECORE energy-core emblem">
  <defs>
-  <linearGradient id="beeSteel" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#bfc5ca"/><stop offset=".19" stop-color="#646d76"/><stop offset=".47" stop-color="#252a30"/><stop offset=".72" stop-color="#7d858d"/><stop offset="1" stop-color="#30363c"/></linearGradient>
-  <linearGradient id="beeBevel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e1e5e8"/><stop offset=".2" stop-color="#8e969e"/><stop offset=".52" stop-color="#454c54"/><stop offset="1" stop-color="#181c21"/></linearGradient>
-  <linearGradient id="beeEdge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c8cdd1"/><stop offset=".48" stop-color="#3c434a"/><stop offset="1" stop-color="#aeb5bb"/></linearGradient>
-  <filter id="beeDepth" x="-20%" y="-15%" width="140%" height="140%"><feGaussianBlur in="SourceAlpha" stdDeviation="2"/><feOffset dy="3"/><feComponentTransfer><feFuncA type="linear" slope=".65"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="coreMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0b0"/><stop offset=".28" stop-color="#e4ad31"/><stop offset=".62" stop-color="#78521a"/><stop offset="1" stop-color="#f5ce65"/></linearGradient>
+  <radialGradient id="coreLight"><stop stop-color="#fff8d7"/><stop offset=".35" stop-color="#f5bd35"/><stop offset="1" stop-color="#f5bd35" stop-opacity="0"/></radialGradient>
  </defs>
- <g filter="url(#beeDepth)">
-  <path class="bee-shell" d="M120 5 151 19 192 17 207 42 233 77 220 119 214 177 197 215 163 242 143 257 128 224 112 224 97 257 77 242 43 215 26 177 20 119 7 77 33 42 48 17 89 19Z"/>
-  <path class="bee-plate" d="M47 24 78 30 103 50 120 56 137 50 162 30 193 24 214 61 225 82 204 110 196 143 172 160 150 151 137 129 129 115 131 204 143 222 97 222 109 204 111 115 103 129 90 151 68 160 44 143 36 110 15 82 26 61Z"/>
-  <path class="bee-cut" d="M76 48 120 61 164 48 145 68 120 86 95 68Z"/>
-  <path class="bee-ridge" d="M17 83 45 99 75 124 93 145 79 151 52 129 31 116Z M223 83 195 99 165 124 147 145 161 151 188 129 209 116Z"/>
-  <path class="bee-cut" d="M33 145 75 163 91 183 70 176 42 163Z M207 145 165 163 149 183 170 176 198 163Z"/>
-  <path class="bee-facet" d="M28 169 61 186 76 216 94 235 80 238 51 213 36 187Z M212 169 179 186 164 216 146 235 160 238 189 213 204 187Z"/>
-  <path class="bee-center" d="M106 91 120 102 134 91 130 127 140 154 137 214 120 226 103 214 100 154 110 127Z"/>
-  <path class="bee-cut" d="M39 133 80 151 74 162 48 153Z M201 133 160 151 166 162 192 153Z"/>
-  <path class="bee-facet" d="M89 226 120 233 151 226 161 246 120 253 79 246Z"/>
-  <path class="bee-highlight" d="M48 26 79 33 103 52 M192 26 161 33 137 52 M29 80 49 112 70 130 M211 80 191 112 170 130 M105 94 120 106 135 94 M105 212 120 220 135 212"/>
- </g>
+ <circle cx="120" cy="125" r="95" fill="url(#coreLight)" opacity=".28"/>
+ <path d="M120 15 191 56 191 138 120 180 49 138 49 56Z" fill="#11161b" stroke="url(#coreMetal)" stroke-width="3"/>
+ <path d="M120 35 173 66 173 128 120 159 67 128 67 66Z" fill="#20272e" stroke="#7f8a94" stroke-width="2"/>
+ <path d="M120 53 155 73 155 114 120 134 85 114 85 73Z" fill="#090c10" stroke="#f5bd35" stroke-width="2"/>
+ <path d="M120 68 140 80 140 103 120 115 100 103 100 80Z" fill="url(#coreMetal)"/>
+ <path d="M120 82 128 87 128 96 120 101 112 96 112 87Z" fill="#fff7d7"/>
+ <path d="M49 75 26 88 26 123 49 136 M191 75 214 88 214 123 191 136 M84 158 84 191 120 212 156 191 156 158" fill="none" stroke="#68737d" stroke-width="5" stroke-linejoin="bevel"/>
+ <path d="M120 15V4 M49 56 39 50 M191 56 201 50 M26 105H12 M214 105H228 M120 212V230" stroke="#f5bd35" stroke-width="2" opacity=".8"/>
 </svg>
   </div>
-  <div class="bee-name">BUMBLEBEE</div><div class="bee-subtitle">DESIGNATION B-127 <span>//</span> AUTOBOT SCOUT</div>
+  <div class="bee-name">BEECORE</div><div class="bee-subtitle">PERSONAL AI <span>//</span> ORIGINAL SYSTEM</div>
   <div class="bee-equalizer" id="radioBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bee-terminal" id="terminalLog" aria-live="polite">INITIALIZING ALLSPARK KERNEL...</div><div class="bee-progress"><span id="progressFill"></span></div>
+  <div class="bee-terminal" id="terminalLog" aria-live="polite">INITIALIZING BEECORE SYSTEM...</div><div class="bee-progress"><span id="progressFill"></span></div>
  </div>
- <div class="bee-foot-left">ALLSPARK BOOT SEQUENCE</div><div class="bee-foot-right">SECURE CHANNEL // B-127</div><button class="bee-skip" id="skipBoot" type="button">SKIP INTRO ↗</button>
+ <div class="bee-foot-left">BEECORE STARTUP SEQUENCE</div><div class="bee-foot-right">SECURE LOCAL INTERFACE</div><button class="bee-skip" id="skipBoot" type="button">SKIP INTRO ↗</button>
 </div>
 <div class="shell">
  <aside class="sidebar">
-  <div class="brand"><div class="bee-mark">⬡</div><div><div class="brand-name">BUMBLEBEE</div><div class="eyebrow">Personal intelligence</div></div></div>
+  <div class="brand"><div class="bee-mark">⬡</div><div><div class="brand-name">BEECORE</div><div class="eyebrow">Personal intelligence</div></div></div>
   <div class="nav-label">Workspace</div>
   <nav class="nav" id="sideNav">
    <button class="active" data-view="home"><span class="nav-icon">⌂</span>Home</button>
@@ -96,15 +90,39 @@
  </aside>
  <main class="main">
   <header class="topbar">
-   <div class="top-left"><div class="mobile-brand"><div class="bee-mark">⬡</div>BUMBLEBEE</div><div class="top-copy"><div class="top-title" id="topTitle">Your command deck</div><div class="top-sub" id="topSub">Personal intelligence · Local interface</div></div></div>
+   <div class="top-left"><div class="mobile-brand"><div class="bee-mark">⬡</div>BEECORE</div><div class="top-copy"><div class="top-title" id="topTitle">Your command deck</div><div class="top-sub" id="topSub">Personal intelligence · Local interface</div></div></div>
    <div class="top-actions"><span class="pill"><span class="dot warn" id="topDot"></span><span id="topStatus">AI not connected</span></span><button class="icon-btn" id="settingsShortcut" aria-label="Open settings">⚙</button></div>
   </header>
   <div class="content">
    <section class="view active" id="view-home">
-    <div class="hero bumble-hero"><div class="robot-scene"><div class="scene-grid"></div><iframe class="bee-model" id="bee-model-frame" title="BumbleBee movie-style 3D robot model by shamus" src="about:blank" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="model-credit">3D character by <a href="https://sketchfab.com/3d-models/bumblebee-transformers-dark-of-the-moon-0f4349c43b3447a0b957663c2a40fc68" target="_blank" rel="noopener noreferrer">shamus · CC BY</a></div><div class="bee-copy"><div class="eyebrow">AUTONOMOUS COMPANION SYSTEM</div><h1>Meet your<br><span>BumbleBee.</span></h1><p>Not just answers. A companion built to understand your intent, plan the work, use the right tools, and show you what actually got done.</p><div class="bee-tags"><span>01 THINK</span><span>02 PLAN</span><span>03 ACT</span><span>04 VERIFY</span></div><div class="hero-actions"><button class="btn primary" data-go="command">◉ &nbsp; Talk to BumbleBee ↗</button><button class="btn" data-go="settings">Connect intelligence</button></div></div></div>
+    <div class="hero bumble-hero"><div class="robot-scene original-scene" aria-label="Original futuristic electric performance coupe concept">
+ <div class="scene-grid"></div>
+ <div class="scene-halo"></div>
+ <svg class="concept-vehicle" viewBox="0 0 760 520" role="img" aria-label="Original angular yellow electric performance coupe concept">
+  <defs>
+   <linearGradient id="carPaint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a3"/><stop offset=".22" stop-color="#f6c544"/><stop offset=".58" stop-color="#c88918"/><stop offset=".82" stop-color="#5c4218"/><stop offset="1" stop-color="#f6c544"/></linearGradient>
+   <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#394a58"/><stop offset="1" stop-color="#080d12"/></linearGradient>
+   <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c5cdd2"/><stop offset=".5" stop-color="#303941"/><stop offset="1" stop-color="#8b969f"/></linearGradient>
+  </defs>
+  <ellipse cx="380" cy="405" rx="285" ry="33" fill="#f5bd35" opacity=".12"/>
+  <path d="M92 340 121 287 209 252 279 181 413 165 497 210 575 235 650 288 669 341 639 371 548 381 188 381 115 368Z" fill="url(#carPaint)" stroke="#15191d" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M232 254 296 194 407 184 474 219 509 253Z" fill="url(#glass)" stroke="#303a43" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M355 190 354 251 M414 188 455 252" stroke="#8d9ba5" stroke-width="3" opacity=".7"/>
+  <path d="M125 292 225 274 267 293 244 312 130 319Z M515 267 584 284 634 312 563 308 531 293Z" fill="#151c22" stroke="url(#steel)" stroke-width="3"/>
+  <path d="M106 337 187 329 219 345 190 356 117 354Z M586 339 650 332 653 350 602 360 572 351Z" fill="#f5f7f8" stroke="#20262c" stroke-width="4"/>
+  <path d="M269 314 488 314 531 344 491 358 254 358 223 342Z" fill="#12171c" stroke="#444e57" stroke-width="4"/>
+  <path d="M289 324 468 324 488 337 285 337Z" fill="#f5bd35" opacity=".8"/>
+  <path d="M157 360 217 360 238 379 218 420 161 420 139 391Z M551 360 610 360 631 391 609 420 553 420 532 379Z" fill="#080b0e" stroke="url(#steel)" stroke-width="5"/>
+  <circle cx="188" cy="390" r="27" fill="#151b20" stroke="#78848e" stroke-width="4"/><circle cx="188" cy="390" r="12" fill="none" stroke="#f5bd35" stroke-width="3"/>
+  <circle cx="582" cy="390" r="27" fill="#151b20" stroke="#78848e" stroke-width="4"/><circle cx="582" cy="390" r="12" fill="none" stroke="#f5bd35" stroke-width="3"/>
+  <path d="M98 340 121 347 164 345 M609 344 651 340 M279 181 305 171 413 165 436 177" fill="none" stroke="#fff0b0" stroke-width="3" opacity=".65"/>
+  <path d="M76 438H684" stroke="#f5bd35" stroke-width="2" opacity=".55"/><path d="M122 449H250 M510 449H638" stroke="#f5bd35" stroke-width="1" opacity=".35"/>
+ </svg>
+ <div class="scene-data"><span>CONCEPT 01</span><span>EV PERFORMANCE PLATFORM</span><span>ORIGINAL DESIGN</span></div>
+</div><div class="bee-copy"><div class="eyebrow">INDEPENDENT PERSONAL AI SYSTEM</div><h1>Meet<br><span>BEECORE.</span></h1><p>More than answers. A companion built to understand your intent, plan the work, use the right tools, and show you what actually got done.</p><div class="bee-tags"><span>01 THINK</span><span>02 PLAN</span><span>03 ACT</span><span>04 VERIFY</span></div><div class="hero-actions"><button class="btn primary" data-go="command">◉ &nbsp; Talk to BEECORE ↗</button><button class="btn" data-go="settings">Connect intelligence</button></div></div></div>
     <div class="section-head"><div><h2>Capability deck</h2><p>Designed around useful work, not decorative screens.</p></div><span class="badge">FOUNDATION V1</span></div>
     <div class="grid">
-     <article class="tile"><div class="tile-icon">◉</div><h3>Command</h3><p>Talk to BumbleBee, enter requests, and see honest action status.</p><button class="mini-link" data-go="command">Open command →</button></article>
+     <article class="tile"><div class="tile-icon">◉</div><h3>Command</h3><p>Talk to BEECORE, enter requests, and see honest action status.</p><button class="mini-link" data-go="command">Open command →</button></article>
      <article class="tile"><div class="tile-icon">⌕</div><h3>Insights</h3><p>Research and evidence-backed answers, once a research provider is connected.</p><button class="mini-link" data-go="insights">View research status →</button></article>
      <article class="tile"><div class="tile-icon">↗</div><h3>Journey</h3><p>Keep a clear view of planned work, reminders, and execution receipts.</p><button class="mini-link" data-go="journey">View tasks →</button></article>
      <article class="tile"><div class="tile-icon">◇</div><h3>Memory</h3><p>Review and remove locally stored notes. Memory stays under your control.</p><button class="mini-link" data-go="memory">Manage memory →</button></article>
@@ -114,10 +132,10 @@
    </section>
    <section class="view" id="view-command">
     <div class="section-head" style="margin-top:0"><div><h2>Command console</h2><p>One input for questions, plans, and future tool actions.</p></div><span class="badge">LOCAL SHELL</span></div>
-    <div class="chat-layout"><div class="chat-panel"><div class="panel-head"><div><strong>BumbleBee</strong><div class="tiny" style="margin-top:4px">Personality online · Reasoning provider disconnected</div></div><span class="badge">HONEST MODE</span></div>
-    <div class="chat-stream" id="chatStream" aria-live="polite"><div class="message bot">BumbleBee online. My interface is ready, but my AI reasoning provider is not connected yet. I won't pretend otherwise.<small>SYSTEM · READY</small></div></div>
-    <div class="quick-row"><button class="chip" data-prompt="What can you do right now?">Capabilities</button><button class="chip" data-prompt="Show system status">System status</button><button class="chip" data-prompt="Help me plan BumbleBee's next build phase">Build roadmap</button></div>
-    <form class="composer" id="chatForm"><textarea id="chatInput" rows="1" placeholder="Give BumbleBee a command…" aria-label="Message BumbleBee"></textarea><button type="button" class="icon-btn" id="voiceBtn" title="Voice input" aria-label="Voice input">🎙</button><button class="send" aria-label="Send message">↑</button></form></div>
+    <div class="chat-layout"><div class="chat-panel"><div class="panel-head"><div><strong>BEECORE</strong><div class="tiny" style="margin-top:4px">Personality online · Reasoning provider disconnected</div></div><span class="badge">HONEST MODE</span></div>
+    <div class="chat-stream" id="chatStream" aria-live="polite"><div class="message bot">BEECORE online. My interface is ready, but my AI reasoning provider is not connected yet. I won't pretend otherwise.<small>SYSTEM · READY</small></div></div>
+    <div class="quick-row"><button class="chip" data-prompt="What can you do right now?">Capabilities</button><button class="chip" data-prompt="Show system status">System status</button><button class="chip" data-prompt="Help me plan BEECORE's next build phase">Build roadmap</button></div>
+    <form class="composer" id="chatForm"><textarea id="chatInput" rows="1" placeholder="Give BEECORE a command…" aria-label="Message BEECORE"></textarea><button type="button" class="icon-btn" id="voiceBtn" title="Voice input" aria-label="Voice input">🎙</button><button class="send" aria-label="Send message">↑</button></form></div>
     <div class="side-stack"><div class="panel"><h3>Runtime status</h3><div class="cap-row"><span class="dot"></span><div><b>Interface</b><span>Loaded locally</span></div></div><div class="cap-row"><span class="dot warn"></span><div><b>AI reasoning</b><span>Provider not configured</span></div></div><div class="cap-row"><span class="dot warn"></span><div><b>External tools</b><span>Not connected in this build</span></div></div></div>
     <div class="panel"><h3>Execution contract</h3><div class="cap-row"><div><b>1 · Understand</b><span>Interpret intent and inputs.</span></div></div><div class="cap-row"><div><b>2 · Confirm</b><span>Ask before consequential actions.</span></div></div><div class="cap-row"><div><b>3 · Verify</b><span>Report success only with evidence.</span></div></div></div></div></div>
    </section>
@@ -149,7 +167,7 @@
     <div class="section-head"><div><h2>Readiness checklist</h2><p>Open items that block real AI execution.</p></div></div><div class="list"><div class="list-item"><div><strong>Approved JARVIS UI baseline</strong><small>Preserve exact original spacing and intro once source is available.</small></div><span class="badge">VERIFY SOURCE</span></div><div class="list-item"><div><strong>Server-side provider gateway</strong><small>Secrets, rate limits, timeouts, and structured tool calling.</small></div><span class="badge">NOT CONNECTED</span></div><div class="list-item"><div><strong>Skill registry & permissions</strong><small>Typed inputs, explicit approvals, execution receipts.</small></div><span class="badge">PLANNED</span></div><div class="list-item"><div><strong>Automated quality checks</strong><small>Mobile, accessibility, failure-path and security tests.</small></div><span class="badge">PLANNED</span></div></div>
    </section>
   </div>
-  <footer class="footer"><span>BUMBLEBEE · PERSONAL INTELLIGENCE SYSTEM</span><span>LOCAL UI · NO PROVIDER CONNECTED</span></footer>
+  <footer class="footer"><span>BEECORE · PERSONAL INTELLIGENCE SYSTEM</span><span>LOCAL UI · NO PROVIDER CONNECTED</span></footer>
  </main>
 </div>
 <nav class="mobile-nav" id="mobileNav" aria-label="Main navigation"><button class="active" data-view="home"><span>⌂</span>Home</button><button data-view="command"><span>◉</span>Command</button><button data-view="insights"><span>⌕</span>Insights</button><button data-view="journey"><span>↗</span>Journey</button><button data-view="memory"><span>◇</span>Memory</button></nav>
@@ -162,15 +180,15 @@ let tasks=safeGet('tasks',[]), memories=safeGet('memories',[]), chat=safeGet('ch
 const titles={home:['Your command deck','Personal intelligence · Local interface'],command:['Command console','Natural language · Provider disconnected'],insights:['Insights','Research and evidence'],journey:['Journey & action ledger','Plans, tasks, execution receipts'],memory:['Memory vault','Your notes · Local storage'],settings:['System settings','Providers, privacy, readiness']};
 function go(view){if(!titles[view])return;$$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=titles[view][0];$('#topSub').textContent=titles[view][1];window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));$('#settingsShortcut').addEventListener('click',()=>go('settings'));
-const logs=["INITIALIZING ALLSPARK KERNEL...","CALIBRATING RADIO VOCAL SYNTHESIZER...","SCANNING VEHICULAR CHASSIS: CAMARO Z28...","OPTICAL RECOGNITION: ONLINE","SECURE LINK: OPTIMUS PRIME ESTABLISHED","SYSTEM READY. AT YOUR SERVICE."];const terminalEl=$('#terminalLog'),progressEl=$('#progressFill'),wave=$('#radioBars');let logIndex=0,progress=0,bootInterval=null,bootExitTimer=null,bootDone=false;function finishBoot(){if(bootDone)return;bootDone=true;if(bootInterval)clearInterval(bootInterval);if(bootExitTimer)clearTimeout(bootExitTimer);$('#boot').classList.add('hidden')}$('#skipBoot').addEventListener('click',finishBoot);bootInterval=setInterval(()=>{if(bootDone){clearInterval(bootInterval);return}progress=Math.min(100,progress+2);progressEl.style.width=progress+'%';const nextLog=Math.min(logs.length-1,Math.floor(progress/18));if(nextLog!==logIndex){logIndex=nextLog;terminalEl.textContent=logs[logIndex]}if(progress>45)wave.classList.add('active');if(progress>=100){clearInterval(bootInterval);terminalEl.textContent=logs[logs.length-1];terminalEl.style.color='#00d2ff';bootExitTimer=setTimeout(()=>{const panel=$('#splashContainer');panel.style.transition='opacity .55s ease,transform .55s ease';panel.style.opacity='0';panel.style.transform='scale(1.04)';bootExitTimer=setTimeout(finishBoot,570)},600)}},55);
+const logs=["INITIALIZING BEECORE SYSTEM...","CALIBRATING RADIO VOCAL SYNTHESIZER...","CALIBRATING MOBILITY INTERFACE...","OPTICAL RECOGNITION: ONLINE","LOCAL SYSTEM LINK ESTABLISHED","SYSTEM READY. AT YOUR SERVICE."];const terminalEl=$('#terminalLog'),progressEl=$('#progressFill'),wave=$('#radioBars');let logIndex=0,progress=0,bootInterval=null,bootExitTimer=null,bootDone=false;function finishBoot(){if(bootDone)return;bootDone=true;if(bootInterval)clearInterval(bootInterval);if(bootExitTimer)clearTimeout(bootExitTimer);$('#boot').classList.add('hidden')}$('#skipBoot').addEventListener('click',finishBoot);bootInterval=setInterval(()=>{if(bootDone){clearInterval(bootInterval);return}progress=Math.min(100,progress+2);progressEl.style.width=progress+'%';const nextLog=Math.min(logs.length-1,Math.floor(progress/18));if(nextLog!==logIndex){logIndex=nextLog;terminalEl.textContent=logs[logIndex]}if(progress>45)wave.classList.add('active');if(progress>=100){clearInterval(bootInterval);terminalEl.textContent=logs[logs.length-1];terminalEl.style.color='#00d2ff';bootExitTimer=setTimeout(()=>{const panel=$('#splashContainer');panel.style.transition='opacity .55s ease,transform .55s ease';panel.style.opacity='0';panel.style.transform='scale(1.04)';bootExitTimer=setTimeout(finishBoot,570)},600)}},55);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addMessage(role,text,meta=''){const stream=$('#chatStream'),el=document.createElement('div');el.className='message '+role;el.innerHTML=esc(text)+(meta?'<small>'+esc(meta)+'</small>':'');stream.appendChild(el);stream.scrollTop=stream.scrollHeight;if(role==='user'){chat.push({role,text,meta,at:Date.now()});if(prefs.persistChat)safeSet('chat',chat.slice(-80))}else if(role==='bot'){chat.push({role,text,meta,at:Date.now()});if(prefs.persistChat)safeSet('chat',chat.slice(-80));if(prefs.speech&&'speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1.02;speechSynthesis.speak(u)}}}
-function renderChat(){const s=$('#chatStream');s.innerHTML='';if(!chat.length){addMessage('bot',"BumbleBee online. My interface is ready, but my AI reasoning provider is not connected yet. I won't pretend otherwise.",'SYSTEM · READY');return}chat.slice(-80).forEach(m=>{const el=document.createElement('div');el.className='message '+(m.role==='user'?'user':'bot');el.innerHTML=esc(m.text)+(m.meta?'<small>'+esc(m.meta)+'</small>':'');s.appendChild(el)});s.scrollTop=s.scrollHeight}
-function localReply(q){const t=q.toLowerCase();if(/^(hi|hello|hey|hello bumblebee|hi bumblebee)[!. ]*$/.test(t))return "Hey. BumbleBee is online at the interface layer. Connect an AI provider in Settings and I'll be ready for real reasoning.";
+function renderChat(){const s=$('#chatStream');s.innerHTML='';if(!chat.length){addMessage('bot',"BEECORE online. My interface is ready, but my AI reasoning provider is not connected yet. I won't pretend otherwise.",'SYSTEM · READY');return}chat.slice(-80).forEach(m=>{const el=document.createElement('div');el.className='message '+(m.role==='user'?'user':'bot');el.innerHTML=esc(m.text)+(m.meta?'<small>'+esc(m.meta)+'</small>':'');s.appendChild(el)});s.scrollTop=s.scrollHeight}
+function localReply(q){const t=q.toLowerCase();if(/^(hi|hello|hey|hello beecore|hi beecore)[!. ]*$/.test(t))return "Hey. BEECORE is online at the interface layer. Connect an AI provider in Settings and I'll be ready for real reasoning.";
 if(t.includes('status')||t.includes('connected')||t.includes('system'))return "System status\n• Interface: running\n• Local tasks and notes: available\n• AI reasoning: not connected\n• Live research and external tools: not connected\n• Provider secrets: intentionally not accepted in this browser UI.";
 if(t.includes('what can you do')||t.includes('capabilities'))return "Available in this build: navigate the workspace, maintain a local task ledger, save/delete local notes, and use browser voice input where supported. Real AI reasoning, live research, and external actions are not connected yet.";
 if(t.includes('roadmap')||t.includes('next build')||t.includes('build phase'))return "Recommended build order\n1. Recover and compare the approved JARVIS interface baseline.\n2. Add a server-side provider gateway with streaming and secret management.\n3. Implement typed skill contracts and a confirmation gate.\n4. Add research with source citations, then task execution and receipts.\n5. Test mobile layout, accessibility, timeouts, and provider failures.";
-if(t.includes('help'))return "Try: “show system status”, “what can you do right now?”, or “help me plan BumbleBee's next build phase”. Those run locally. Other requests need the reasoning provider connection.";
+if(t.includes('help'))return "Try: “show system status”, “what can you do right now?”, or “help me plan BEECORE's next build phase”. Those run locally. Other requests need the reasoning provider connection.";
 return "I received your request, but I can't reason through it yet because no AI provider is connected. Nothing was sent to an external service and no external action was attempted. Open Settings to configure the provider preference; a secure server-side gateway still needs to be implemented."}
 $('#chatForm').addEventListener('submit',e=>{e.preventDefault();const input=$('#chatInput'),q=input.value.trim();if(!q)return;addMessage('user',q,'YOU');input.value='';addMessage('bot',localReply(q),'LOCAL RESPONSE · NO MODEL CALL')});
 $$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('#chatInput').value=b.dataset.prompt;go('command');$('#chatInput').focus()}));
@@ -183,42 +201,6 @@ function loadPrefs(){$('#providerSelect').value=prefs.provider||'unconfigured';$
 $('#saveProviderBtn').addEventListener('click',()=>{prefs.provider=$('#providerSelect').value;prefs.endpoint=$('#endpointInput').value.trim();safeSet('prefs',prefs);loadPrefs();$('#settingsFeedback').textContent='Preference saved on this device. No provider was contacted; a secure server gateway is still required.'});
 $('#savePrivacyBtn').addEventListener('click',()=>{prefs.speech=$('#speechToggle').checked;prefs.persistChat=$('#persistChatToggle').checked;safeSet('prefs',prefs);if(!prefs.persistChat){chat=[];try{localStorage.removeItem('bb:chat')}catch{}$('#chatStream').innerHTML='<div class="message bot">Local conversation history is disabled. New messages will not be saved between sessions.<small>PRIVACY SETTING</small></div>'}else safeSet('chat',chat.slice(-80));$('#privacyFeedback').textContent='Privacy preferences saved on this device.'});
 renderChat();renderTasks();renderMemories();loadPrefs();
-})();
-</script>
-
-<script>
-/* Initialize the 3D viewer with a dark studio background instead of Sketchfab's white default. */
-(function(){
-  var frame=document.getElementById('bee-model-frame');
-  if(!frame)return;
-  var apiScript=document.createElement('script');
-  apiScript.src='https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js';
-  apiScript.onload=function(){
-    var client=new Sketchfab(frame);
-    client.init('0f4349c43b3447a0b957663c2a40fc68',{
-      autostart:1,
-      autospin:0.12,
-      camera:1,
-      transparent:0,
-      ui_theme:'dark',
-      ui_controls:0,
-      ui_infos:0,
-      ui_inspector:0,
-      ui_stop:0,
-      ui_watermark:1,
-      ui_watermark_link:1,
-      success:function(api){
-        api.start(function(){
-          api.addEventListener('viewerready',function(){
-            api.setBackground({color:[0.025,0.032,0.045]});
-            api.setEnvironment({lightIntensity:0.85,exposure:0.8});
-          });
-        });
-      },
-      error:function(){frame.src='https://sketchfab.com/models/0f4349c43b3447a0b957663c2a40fc68/embed?autostart=1&autospin=0.12&ui_theme=dark&ui_controls=0&ui_infos=0&ui_stop=0&ui_watermark=1&ui_watermark_link=1';}
-    });
-  };
-  document.head.appendChild(apiScript);
 })();
 </script>
 
