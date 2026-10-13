@@ -173,5 +173,21 @@ $('#savePrivacyBtn').addEventListener('click',()=>{prefs.speech=$('#speechToggle
 renderChat();renderTasks();renderMemories();loadPrefs();
 })();
 </script>
+
+<!-- BUMBLEBEE_REAL_CAMARO_FIX_V2 -->
+<style id="bumblebee-real-camaro-fix-v2">
+/* V2: enforce the real Camaro/robot image after all legacy styles. */
+.bumble-hero{position:relative!important;isolation:isolate;overflow:hidden!important;background:#090c10!important}
+.bumble-hero:before{content:"";position:absolute!important;inset:0!important;z-index:0!important;display:block!important;background-image:linear-gradient(90deg,rgba(5,8,12,.12) 0%,rgba(5,8,12,.16) 35%,rgba(5,8,12,.90) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.72),transparent 42%),url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,center 43%!important;background-size:cover,cover,cover!important;background-repeat:no-repeat!important;pointer-events:none}
+.bumble-hero:after{z-index:1!important;pointer-events:none!important}
+.bumble-hero .robot-scene{position:absolute!important;inset:0!important;min-height:0!important;width:100%!important;height:100%!important;display:block!important;z-index:0!important;background:transparent!important;overflow:hidden!important}
+.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,8,12,.35),transparent 45%)!important}
+.bumble-hero .bee-robot,.bumble-hero .scene-grid{display:none!important}
+.bumble-hero .bee-copy{position:relative!important;z-index:2!important;width:54%!important;min-height:490px!important;margin-left:auto!important;padding:48px 34px 40px 10px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.72) 22%,rgba(9,12,16,.95) 100%)!important}
+.bumble-hero h1{font-size:clamp(38px,5vw,68px)!important;text-shadow:0 3px 24px #000!important}
+.bumble-hero p{color:#e0e3e7!important;text-shadow:0 2px 12px #000!important}
+@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.02),rgba(5,8,12,.35) 42%,rgba(5,8,12,.96) 78%),linear-gradient(0deg,rgba(5,8,12,.6),transparent 40%),url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}.bumble-hero .bee-copy{width:65%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}.bumble-hero h1{font-size:clamp(31px,6vw,46px)!important}.bumble-hero p{font-size:12px!important}}
+@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.04),rgba(5,8,12,.42) 36%,rgba(5,8,12,.96) 75%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%),url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}}
+</style>
 </body>
 </html>
