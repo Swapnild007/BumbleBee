@@ -29,6 +29,21 @@
 @media(max-width:850px){.bumble-hero{grid-template-columns:39% 61%;min-height:380px}.robot-scene{min-height:380px}.bee-robot{width:145%}.bee-copy{padding-right:18px}.bumble-hero h1{font-size:clamp(34px,5.5vw,48px)}}
 @media(max-width:600px){.bumble-hero{display:flex;flex-direction:column;min-height:0}.robot-scene{min-height:300px;height:300px;flex:none;align-items:flex-start}.bee-robot{height:340px;width:auto;max-width:120%;transform:translateY(-9px)}.bumble-hero:after{background:linear-gradient(0deg,#0b0e13 0,#0b0e13ed 27%,transparent 73%)}.bee-copy{padding:0 20px 22px;margin-top:-3px}.bumble-hero h1{font-size:45px}.bumble-hero p{font-size:12px}.bee-tags{margin-top:14px}}
 
+
+/* Real BumbleBee / Camaro visual: use a licensed real-world reference photo in the actual app */
+.bumble-hero{position:relative;display:block;min-height:490px;overflow:hidden;background:#0a0d11 url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg") center 42%/cover no-repeat;border-color:#6c521d}
+.bumble-hero .robot-scene{position:absolute;inset:0;width:100%;height:100%;min-height:0;display:block;z-index:0;background:linear-gradient(90deg,#090c10a8 0%,#090c1020 38%,#090c10d9 63%,#090c10f5 100%);overflow:hidden}
+.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090c10e8 0%,transparent 27%,#090c1022 100%)}
+.bumble-hero .scene-grid{display:none}
+.bumble-hero .bee-robot{display:none}
+.bumble-hero .bee-copy{position:relative;z-index:2;min-height:490px;width:54%;margin-left:auto;padding:48px 34px 40px 10px;justify-content:center;background:linear-gradient(90deg,transparent,#090c10d9 15%,#090c10ed 100%)}
+.bumble-hero h1{font-size:clamp(42px,5vw,68px);text-shadow:0 3px 24px #000}
+.bumble-hero p{color:#d0d5db;text-shadow:0 2px 12px #000;max-width:460px}
+.bumble-hero .eyebrow{color:#ffdc62}
+.bee-tags span{background:#080b10c9;border-color:#9b792d}
+@media(max-width:850px){.bumble-hero{min-height:470px}.bumble-hero .bee-copy{min-height:470px;width:61%;padding-right:22px}.bumble-hero h1{font-size:clamp(38px,6vw,52px)}}
+@media(max-width:600px){.bumble-hero{min-height:680px;background-position:36% top;background-size:auto 390px;background-color:#0a0d11;background-repeat:no-repeat}.bumble-hero .robot-scene{height:390px;background:linear-gradient(180deg,#090c1000 0%,#090c1000 42%,#090c10 100%)}.bumble-hero .robot-scene:after{background:linear-gradient(180deg,#090c1000 0%,#090c1000 43%,#090c10 100%)}.bumble-hero .bee-copy{width:100%;min-height:0;margin:0;padding:345px 20px 24px;background:linear-gradient(180deg,transparent 0,#090c10 13%,#090c10 100%);justify-content:flex-end}.bumble-hero h1{font-size:clamp(42px,12vw,54px);margin-top:12px}.bumble-hero p{font-size:13px}.bee-tags{margin-top:15px}.bumble-hero .hero-actions{gap:8px}.bumble-hero .hero-actions button{font-size:12px}}
+
 </style>
 </head>
 <body>
