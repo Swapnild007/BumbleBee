@@ -79,7 +79,7 @@
   </header>
   <div class="content">
    <section class="view active" id="view-home">
-    <div class="hero bumble-hero"><div class="robot-scene"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
+    <div class="hero bumble-hero"><div class="robot-scene"><img class="real-bumblebee-photo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg" alt="BumbleBee yellow Chevrolet Camaro and robot display" fetchpriority="high"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
 <defs><linearGradient id="beeGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a0"/><stop offset=".28" stop-color="#f6c33c"/><stop offset=".62" stop-color="#a96712"/><stop offset=".82" stop-color="#ffdc65"/><stop offset="1" stop-color="#6f410b"/></linearGradient><linearGradient id="beeMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#68737d"/><stop offset=".4" stop-color="#161c23"/><stop offset="1" stop-color="#8a949b"/></linearGradient><linearGradient id="beeEye" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a3f1ff"/><stop offset=".48" stop-color="#39aaff"/><stop offset="1" stop-color="#1450cc"/></linearGradient><filter id="beeGlow"><feGaussianBlur stdDeviation="8"/></filter></defs>
 <ellipse cx="214" cy="477" rx="126" ry="15" fill="#f4b72b" opacity=".2"/>
 <g transform="translate(322 154) rotate(18)"><path d="M-40-61Q0-90 39-58L55 4 28 54-22 41-49 0Z" fill="#10151b" stroke="#747d85" stroke-width="7"/><path d="M-28-51 6-68 33-42 38-2 15 28-18 21-34-7Z" fill="url(#beeGold)" stroke="#d9aa36" stroke-width="3"/><circle cy="-15" r="28" fill="#11171e" stroke="#515b64" stroke-width="8"/><circle cy="-15" r="15" fill="url(#beeMetal)" stroke="#d59b26" stroke-width="4"/></g>
@@ -189,5 +189,19 @@ renderChat();renderTasks();renderMemories();loadPrefs();
 @media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.02),rgba(5,8,12,.35) 42%,rgba(5,8,12,.96) 78%),linear-gradient(0deg,rgba(5,8,12,.6),transparent 40%),url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}.bumble-hero .bee-copy{width:65%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}.bumble-hero h1{font-size:clamp(31px,6vw,46px)!important}.bumble-hero p{font-size:12px!important}}
 @media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.04),rgba(5,8,12,.42) 36%,rgba(5,8,12,.96) 75%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%),url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bumblebee_at_Holloman_AFB_2008-09-22.jpg/1024px-Bumblebee_at_Holloman_AFB_2008-09-22.jpg")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}}
 </style>
+
+
+<style id="bumblebee-real-image-v3">
+/* V3: use a real image element so the hero visual is not dependent on CSS background loading. */
+.bumble-hero{position:relative!important;overflow:hidden!important;background:#090c10!important}
+.bumble-hero .robot-scene{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;display:block!important;z-index:0!important;background:transparent!important;overflow:hidden!important}
+.bumble-hero .real-bumblebee-photo{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover!important;object-position:center 43%!important;opacity:1!important;visibility:visible!important;z-index:0!important}
+.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(5,8,12,.05) 0%,rgba(5,8,12,.2) 35%,rgba(5,8,12,.88) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.68),transparent 45%)!important;pointer-events:none}
+.bumble-hero .bee-robot,.bumble-hero .scene-grid{display:none!important}
+.bumble-hero .bee-copy{position:relative!important;z-index:3!important;width:54%!important;min-height:490px!important;margin-left:auto!important;padding:48px 34px 40px 10px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.75) 22%,rgba(9,12,16,.96) 100%)!important}
+@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero .real-bumblebee-photo{object-position:35% center!important}.bumble-hero .robot-scene:after{background:linear-gradient(90deg,rgba(5,8,12,.03),rgba(5,8,12,.36) 42%,rgba(5,8,12,.94) 79%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%)!important}.bumble-hero .bee-copy{width:66%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}}
+@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}}
+</style>
+
 </body>
 </html>
