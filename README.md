@@ -1,79 +1,58 @@
-# BumbleBee
+# BEECORE
 
-**A personal AI companion and action system.** BumbleBee replaces JARVIS, taking inspiration from the loyalty, courage, adaptability, and expressive communication associated with the Transformers character while using an original identity and implementation.
+A mobile-first personal assistant foundation focused on real capabilities, honest status, and privacy.
 
-## Current build
+## Current implementation
 
-The first mobile-first, single-file web interface is now committed at [`index.html`](./index.html).
+The GitHub Pages app is in `index.html`. It currently provides:
 
-It includes:
-- Cinematic startup sequence with skip and timeout fallback
-- Responsive desktop navigation and compact mobile navigation
-- Home capability deck and command console
-- Local-only task ledger and user-created memory notes
-- Browser voice input where supported, and optional speech synthesis
-- Provider preference settings and privacy controls
-- Honest runtime status: no AI provider or external tools are connected yet
+- A mobile-first, voice-oriented assistant interface.
+- Local task and note storage in browser storage.
+- A real on-device language-model integration using the open-source [WebLLM](https://github.com/mlc-ai/web-llm) runtime.
+- An explicit **Prepare local brain** action. The app does not download a large model until the user asks it to.
+- Multi-turn chat history stored locally.
+- Browser speech-recognition support where available; this is not guaranteed to work offline.
+- A service worker and web app manifest for the application shell.
 
-**Important:** this is the interface foundation, not a fully connected AI agent. The command console only handles a few explicit local status/help prompts; it clearly identifies other requests as unsupported until a reasoning provider is integrated. Provider secrets must never be placed in client-side code.
+## Local model requirements
 
-## Product principles
+The configured model is `Llama-3.2-1B-Instruct-q4f16_1-MLC`, provided through WebLLM's prebuilt model configuration. WebLLM uses WebGPU for in-browser inference and caches model artifacts through the browser cache.
 
-- **Companion, not a chatbot skin:** personality supports useful work; it never substitutes for capability.
-- **Action with accountability:** distinguish suggestions, attempted actions, and confirmed outcomes.
-- **User control:** explicit permission for consequential actions; visible settings for providers, privacy, and memory.
-- **Replaceable intelligence:** provider integrations sit behind a common interface.
-- **Useful by default:** menus open working capabilities, not decorative placeholder screens.
-- **Mobile-first:** preserve approved JARVIS UI decisions wherever source is available; do not claim pixel-perfect preservation without comparing the original source.
-- **Original identity:** yellow, black, and steel visual language with expressive motion, without copying Transformers artwork, logos, or proprietary character assets.
+First-time setup requires a compatible browser, internet access, and a substantial model download. Browser GPU support and available memory vary by device. The first model initialization has **not yet been verified on the target phone**.
 
-## Capability areas
+Do not assume complete offline readiness merely because the page shell is cached. The runtime module is loaded from a CDN and model artifacts must be available in cache. Offline cold-start behavior must be tested on the actual device before it can be called reliable.
 
-1. **Command** — conversation, voice, intent routing, tool-assisted execution.
-2. **Home** — assistant status, current context, quick actions.
-3. **Insights** — web research, analysis, source-backed answers, knowledge capture.
-4. **Journey** — reminders, goals, workflows, and execution history.
-5. **Memory** — user-approved preferences and durable facts, with review and deletion controls.
-6. **Settings** — model/provider configuration, privacy, permissions, voice, diagnostics.
+## What is not implemented yet
 
-## Target architecture
+- Native Android runtime or Android system integrations.
+- Reliable offline speech recognition and offline speech synthesis.
+- A permissioned skill registry for external actions.
+- Web research, file-system automation, email sending, or other external tools.
+- Verified on-device performance and offline cold-start behavior.
 
-```text
-Web UI / Voice
-      |
-Intent Router
-      |
-Orchestrator ---- Conversation State
-      |           Personal Memory (consent-controlled)
-      |           Task / Event Store
-      |
-Skill & Tool Registry
-      |
-Permission / Confirmation Gate
-      |
-Provider Adapter (replaceable LLMs)
-      |
-Tools: research, files, reminders, media, workflows
-      |
-Execution receipts, audit events, user-visible status
-```
+The app must never claim an external action succeeded without a verifiable result. A language model response alone is not evidence that an action happened.
 
-## Implementation sequence
+## Architecture references used
 
-- **P0 — Foundation:** preserve/compare approved UI source, secure provider gateway, provider abstraction, intent/action contracts, error handling.
-- **P1 — Core assistant:** streaming conversation, voice, skill registry, confirmation gates, execution receipts, memory controls.
-- **P2 — Useful skills:** research with sources, task/reminder workflows, file assistance, official media integrations.
-- **P3 — Reliability:** automated tests, bounded retries, audit history, accessibility, mobile checks, deployment checks.
+- [WebLLM](https://github.com/mlc-ai/web-llm): open-source WebGPU inference, model loading, and chat completion APIs.
+- [Vesta](https://github.com/RisorseArtificiali/vesta): native Android local-model assistant architecture, memory, and system actions.
+- [OffHand](https://github.com/MRDarshan7/OffHand): offline-first voice processing, action validation, and explicit confirmation.
 
-## Non-negotiable reliability rules
+These projects are technical references, not code copied wholesale into BEECORE. Review their licenses and attribution requirements before adopting source files or dependencies.
 
-- Never claim an action succeeded unless the connected tool confirms success.
-- Never put API keys or tokens in client-side code or commit them to the repository.
-- Ask before sending messages, deleting data, making purchases, or taking other consequential actions.
-- Keep conversation context, personal memory, and external knowledge distinct.
-- Clearly label demo/mock data and unavailable integrations.
-- Prefer official APIs and supported playback handoffs over unauthorized extraction.
+## Next engineering gates
 
-## Architecture contract
+1. Verify WebGPU availability on the target phone.
+2. Download and initialize the local model; verify a multi-turn conversation.
+3. Reload after caching and test airplane-mode cold start.
+4. Add a typed skill registry with validation, permission gates, and execution receipts.
+5. Integrate voice components only after their online/offline behavior is known.
+6. Run mobile tests and document verified device/browser versions.
 
-See [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) for request lifecycle, action states, skill interface expectations, memory domains, and security rules.
+## Privacy and credentials
+
+The local-model path does not require an API key. Do not put provider secrets into client-side code or commit them to the repository. If a remote model is added later, use a secure server-side gateway and explicit user configuration.
+
+## License
+
+Review each dependency's own license before redistributing or bundling it. The repository's license and third-party licenses should be kept distinct.
