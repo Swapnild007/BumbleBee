@@ -1,0 +1,11 @@
+{
+  "name": "BEECORE · Personal Intelligence",
+  "short_name": "BEECORE",
+  "description": "A local-first personal assistant foundation.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d0e",
+  "theme_color": "#0b0d0e",
+  "orientation": "portrait-primary"
+}
