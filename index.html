@@ -13,36 +13,29 @@
 @media(max-width:650px){.shell{display:block;padding-bottom:70px}.sidebar{display:none}.topbar{height:62px;padding:0 16px}.mobile-brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.1em}.mobile-brand .bee-mark{width:30px;height:30px;border-radius:10px}.top-left>.top-copy{display:none}.pill{font-size:10px;padding:6px 8px}.content{padding:18px 14px 28px}.hero{padding:24px 20px;min-height:230px}.hero:after{right:-150px}.grid{gap:9px}.tile{padding:13px}.tile h3{font-size:12px}.section-head{margin-top:23px}.settings-grid{grid-template-columns:1fr}.chat-stream{max-height:45vh;min-height:230px;padding:13px}.side-stack{grid-template-columns:1fr}.side-stack .panel:last-child{grid-column:auto}.mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px calc(7px + env(safe-area-inset-bottom));background:#101419f2;border-top:1px solid var(--line);backdrop-filter:blur(18px)}.mobile-nav button{display:grid;justify-items:center;gap:4px;border:0;background:none;color:#87939e;padding:5px 1px;font-size:9px}.mobile-nav button span:first-child{font-size:17px}.mobile-nav button.active{color:var(--yellow)}.footer{padding-bottom:15px}.footer span:last-child{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
-/* BumbleBee visual identity layer */
-.bumble-hero{padding:0;min-height:410px;display:grid;grid-template-columns:42% 58%;align-items:stretch;background:radial-gradient(ellipse at 26% 48%,#8b621e4d,transparent 48%),linear-gradient(110deg,#1c1a12,#11151b 55%,#0b0e13);box-shadow:0 22px 70px #0005}
-.bumble-hero:after{content:"";position:absolute;inset:0;width:auto;height:auto;right:0;top:0;border:0;border-radius:0;box-shadow:none;pointer-events:none;background:linear-gradient(90deg,transparent 25%,#0b0e12a6 44%,#0b0e13 78%)}
-.robot-scene{position:relative;min-height:410px;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1}
-.scene-grid{position:absolute;inset:0;background-image:linear-gradient(#e7b82a0b 1px,transparent 1px),linear-gradient(90deg,#e7b82a0b 1px,transparent 1px);background-size:29px 29px;mask-image:linear-gradient(90deg,#000,transparent)}
-.bee-robot{position:relative;width:115%;height:108%;max-height:490px;filter:drop-shadow(0 8px 25px #e5a21a27);z-index:1}
-.bee-copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:34px clamp(18px,3vw,38px) 34px 0}
-.bumble-hero h1{font-size:clamp(38px,5vw,65px);line-height:.96;letter-spacing:-.055em;margin:14px 0 13px;max-width:none}
+
+/* BumbleBee cinematic character stage: single source of truth */
+.bumble-hero{position:relative;display:block;min-height:590px;height:clamp(520px,68vh,680px);padding:0;overflow:hidden;isolation:isolate;border-color:#6f551d;background:radial-gradient(ellipse at 31% 40%,#5b4215 0%,#29200f 25%,#11151a 58%,#080a0d 100%);box-shadow:0 24px 80px #0009}
+.bumble-hero:after{content:"";position:absolute;inset:0;z-index:0;width:auto;height:auto;right:auto;top:auto;border:0;border-radius:0;box-shadow:none;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 42px,#f5c54208 43px 44px),repeating-linear-gradient(90deg,transparent 0 42px,#f5c54208 43px 44px),radial-gradient(ellipse at 34% 45%,transparent 0%,#080a0d25 65%,#050608c9 100%)}
+.bumble-hero .robot-scene{position:absolute;inset:0;width:58%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1;background:radial-gradient(ellipse at 52% 63%,#f4b72b2b,transparent 55%)}
+.bumble-hero .robot-scene:before{content:"";position:absolute;left:8%;right:4%;bottom:13%;height:2px;background:linear-gradient(90deg,transparent,#e7b52f,transparent);box-shadow:0 0 24px #e8b33170}
+.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#080a0d85,transparent 32%),linear-gradient(90deg,transparent 56%,#080a0d55 100%)}
+.bumble-hero .real-bumblebee-photo,.bumble-hero .scene-grid{display:none}
+.bumble-hero .bee-robot{display:block;position:absolute;left:0;top:2%;width:auto;height:94%;max-width:100%;max-height:600px;z-index:1;transform-origin:48% 82%;animation:beeHeroIdle 4.6s ease-in-out infinite;filter:drop-shadow(0 16px 30px #ffb21445)}
+.bumble-hero .bee-copy{position:absolute;right:0;bottom:0;width:54%;min-height:0;height:100%;margin:0;padding:42px clamp(22px,4vw,46px) 38px;display:flex;flex-direction:column;justify-content:flex-end;z-index:3;background:linear-gradient(90deg,transparent 0%,#090c10a8 15%,#090c10f2 48%,#090c10 100%)}
+.bumble-hero .eyebrow{color:#ffda67;font-size:10px;letter-spacing:.22em}
+.bumble-hero h1{font-size:clamp(42px,6vw,72px);line-height:.93;letter-spacing:-.06em;margin:12px 0}
 .bumble-hero h1 span{color:var(--yellow);text-shadow:0 0 28px #f4c54225}
-.bumble-hero p{max-width:450px;font-size:13px}
-.bee-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:19px}
-.bee-tags span{border:1px solid #3a4147;background:#0b1015b5;border-radius:6px;padding:5px 8px;font-size:9px;letter-spacing:1px;color:#cbd2da}
-.bee-tags span:first-child{color:var(--yellow);border-color:#8c6c24}
-@media(max-width:850px){.bumble-hero{grid-template-columns:39% 61%;min-height:380px}.robot-scene{min-height:380px}.bee-robot{width:145%}.bee-copy{padding-right:18px}.bumble-hero h1{font-size:clamp(34px,5.5vw,48px)}}
-@media(max-width:600px){.bumble-hero{display:flex;flex-direction:column;min-height:0}.robot-scene{min-height:300px;height:300px;flex:none;align-items:flex-start}.bee-robot{height:340px;width:auto;max-width:120%;transform:translateY(-9px)}.bumble-hero:after{background:linear-gradient(0deg,#0b0e13 0,#0b0e13ed 27%,transparent 73%)}.bee-copy{padding:0 20px 22px;margin-top:-3px}.bumble-hero h1{font-size:45px}.bumble-hero p{font-size:12px}.bee-tags{margin-top:14px}}
-
-
-/* Real BumbleBee / Camaro visual: use a licensed real-world reference photo in the actual app */
-.bumble-hero{position:relative;display:block;min-height:490px;overflow:hidden;background:#0a0d11 url("about:blank") center 42%/cover no-repeat;border-color:#6c521d}
-.bumble-hero .robot-scene{position:absolute;inset:0;width:100%;height:100%;min-height:0;display:block;z-index:0;background:linear-gradient(90deg,#090c10a8 0%,#090c1020 38%,#090c10d9 63%,#090c10f5 100%);overflow:hidden}
-.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090c10e8 0%,transparent 27%,#090c1022 100%)}
-.bumble-hero .scene-grid{display:none}
-.bumble-hero .bee-robot{display:none}
-.bumble-hero .bee-copy{position:relative;z-index:2;min-height:490px;width:54%;margin-left:auto;padding:48px 34px 40px 10px;justify-content:center;background:linear-gradient(90deg,transparent,#090c10d9 15%,#090c10ed 100%)}
-.bumble-hero h1{font-size:clamp(42px,5vw,68px);text-shadow:0 3px 24px #000}
-.bumble-hero p{color:#d0d5db;text-shadow:0 2px 12px #000;max-width:460px}
-.bumble-hero .eyebrow{color:#ffdc62}
-.bee-tags span{background:#080b10c9;border-color:#9b792d}
-@media(max-width:850px){.bumble-hero{min-height:470px}.bumble-hero .bee-copy{min-height:470px;width:61%;padding-right:22px}.bumble-hero h1{font-size:clamp(38px,6vw,52px)}}
-@media(max-width:600px){.bumble-hero{min-height:680px;background-position:36% top;background-size:auto 390px;background-color:#0a0d11;background-repeat:no-repeat}.bumble-hero .robot-scene{height:390px;background:linear-gradient(180deg,#090c1000 0%,#090c1000 42%,#090c10 100%)}.bumble-hero .robot-scene:after{background:linear-gradient(180deg,#090c1000 0%,#090c1000 43%,#090c10 100%)}.bumble-hero .bee-copy{width:100%;min-height:0;margin:0;padding:345px 20px 24px;background:linear-gradient(180deg,transparent 0,#090c10 13%,#090c10 100%);justify-content:flex-end}.bumble-hero h1{font-size:clamp(42px,12vw,54px);margin-top:12px}.bumble-hero p{font-size:13px}.bee-tags{margin-top:15px}.bumble-hero .hero-actions{gap:8px}.bumble-hero .hero-actions button{font-size:12px}}
+.bumble-hero p{max-width:420px;color:#d1d4d8;font-size:13px;line-height:1.65}
+.bumble-hero .bee-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}
+.bumble-hero .bee-tags span{border:1px solid #514322;background:#080b10c9;border-radius:6px;padding:5px 8px;font-size:9px;letter-spacing:1px;color:#cbd2da}
+.bumble-hero .bee-tags span:first-child{border-color:#d8a52c;color:#ffe17a}
+.bumble-hero .hero-actions{margin-top:18px}
+@keyframes beeHeroIdle{0%,100%{transform:translateY(3px)}50%{transform:translateY(-6px)}}
+@media(max-width:850px){.bumble-hero{min-height:500px;height:clamp(470px,65vh,580px)}.bumble-hero .robot-scene{width:55%}.bumble-hero .bee-robot{height:88%;max-height:500px;left:-4%}.bumble-hero .bee-copy{width:59%;padding:30px 20px 28px 8px}.bumble-hero h1{font-size:clamp(36px,6vw,52px)}}
+@media(max-width:650px){.bumble-hero{height:600px;min-height:600px;border-radius:20px}.bumble-hero:after{background:repeating-linear-gradient(0deg,transparent 0 42px,#f5c54207 43px 44px),radial-gradient(ellipse at 50% 30%,transparent,#05060870 75%)}.bumble-hero .robot-scene{width:100%;height:66%;align-items:flex-start;justify-content:center}.bumble-hero .bee-robot{height:100%;max-height:410px;max-width:100%;left:50%;top:0;transform:translateX(-50%);animation:beeHeroMobile 4.6s ease-in-out infinite}.bumble-hero .robot-scene:before{left:15%;right:15%;bottom:5%}.bumble-hero .robot-scene:after{background:linear-gradient(0deg,#080a0df2,transparent 55%)}.bumble-hero .bee-copy{left:0;right:0;bottom:0;width:100%;height:auto;padding:25px 20px 22px;background:linear-gradient(0deg,#090b0e 0%,#090b0ef5 75%,#090b0e00 100%)}.bumble-hero .eyebrow{font-size:9px}.bumble-hero h1{font-size:clamp(38px,10vw,54px);margin:9px 0 10px}.bumble-hero p{font-size:12px;max-width:100%}.bumble-hero .bee-tags{gap:5px;margin-top:11px}.bumble-hero .bee-tags span{font-size:8px;padding:5px 7px}.bumble-hero .hero-actions{margin-top:13px;gap:8px}.bumble-hero .hero-actions .btn{padding:10px 12px;font-size:11px}}
+@keyframes beeHeroMobile{0%,100%{transform:translate(-50%,3px)}50%{transform:translate(-50%,-5px)}}
+@media(prefers-reduced-motion:reduce){.bumble-hero .bee-robot{animation:none}}
 
 </style>
 </head>
@@ -79,7 +72,7 @@
   </header>
   <div class="content">
    <section class="view active" id="view-home">
-    <div class="hero bumble-hero"><div class="robot-scene"><img class="real-bumblebee-photo" src="about:blank" alt="BumbleBee yellow Chevrolet Camaro and robot display" fetchpriority="high"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
+    <div class="hero bumble-hero"><div class="robot-scene"><div class="scene-grid"></div><svg class="bee-robot" viewBox="0 0 420 500" role="img" aria-label="Original yellow and black transforming robotic companion">
 <defs><linearGradient id="beeGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a0"/><stop offset=".28" stop-color="#f6c33c"/><stop offset=".62" stop-color="#a96712"/><stop offset=".82" stop-color="#ffdc65"/><stop offset="1" stop-color="#6f410b"/></linearGradient><linearGradient id="beeMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#68737d"/><stop offset=".4" stop-color="#161c23"/><stop offset="1" stop-color="#8a949b"/></linearGradient><linearGradient id="beeEye" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a3f1ff"/><stop offset=".48" stop-color="#39aaff"/><stop offset="1" stop-color="#1450cc"/></linearGradient><filter id="beeGlow"><feGaussianBlur stdDeviation="8"/></filter></defs>
 <ellipse cx="214" cy="477" rx="126" ry="15" fill="#f4b72b" opacity=".2"/>
 <g transform="translate(322 154) rotate(18)"><path d="M-40-61Q0-90 39-58L55 4 28 54-22 41-49 0Z" fill="#10151b" stroke="#747d85" stroke-width="7"/><path d="M-28-51 6-68 33-42 38-2 15 28-18 21-34-7Z" fill="url(#beeGold)" stroke="#d9aa36" stroke-width="3"/><circle cy="-15" r="28" fill="#11171e" stroke="#515b64" stroke-width="8"/><circle cy="-15" r="15" fill="url(#beeMetal)" stroke="#d59b26" stroke-width="4"/></g>
@@ -173,121 +166,5 @@ $('#savePrivacyBtn').addEventListener('click',()=>{prefs.speech=$('#speechToggle
 renderChat();renderTasks();renderMemories();loadPrefs();
 })();
 </script>
-
-<!-- BUMBLEBEE_REAL_CAMARO_FIX_V2 -->
-<style id="bumblebee-real-camaro-fix-v2">
-/* V2: enforce the real Camaro/robot image after all legacy styles. */
-.bumble-hero{position:relative!important;isolation:isolate;overflow:hidden!important;background:#090c10!important}
-.bumble-hero:before{content:"";position:absolute!important;inset:0!important;z-index:0!important;display:block!important;background-image:linear-gradient(90deg,rgba(5,8,12,.12) 0%,rgba(5,8,12,.16) 35%,rgba(5,8,12,.90) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.72),transparent 42%),url("about:blank")!important;background-position:center,center,center 43%!important;background-size:cover,cover,cover!important;background-repeat:no-repeat!important;pointer-events:none}
-.bumble-hero:after{z-index:1!important;pointer-events:none!important}
-.bumble-hero .robot-scene{position:absolute!important;inset:0!important;min-height:0!important;width:100%!important;height:100%!important;display:block!important;z-index:0!important;background:transparent!important;overflow:hidden!important}
-.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,8,12,.35),transparent 45%)!important}
-.bumble-hero .bee-robot,.bumble-hero .scene-grid{display:none!important}
-.bumble-hero .bee-copy{position:relative!important;z-index:2!important;width:54%!important;min-height:490px!important;margin-left:auto!important;padding:48px 34px 40px 10px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.72) 22%,rgba(9,12,16,.95) 100%)!important}
-.bumble-hero h1{font-size:clamp(38px,5vw,68px)!important;text-shadow:0 3px 24px #000!important}
-.bumble-hero p{color:#e0e3e7!important;text-shadow:0 2px 12px #000!important}
-@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.02),rgba(5,8,12,.35) 42%,rgba(5,8,12,.96) 78%),linear-gradient(0deg,rgba(5,8,12,.6),transparent 40%),url("about:blank")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}.bumble-hero .bee-copy{width:65%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}.bumble-hero h1{font-size:clamp(31px,6vw,46px)!important}.bumble-hero p{font-size:12px!important}}
-@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}.bumble-hero:before{background-image:linear-gradient(90deg,rgba(5,8,12,.04),rgba(5,8,12,.42) 36%,rgba(5,8,12,.96) 75%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%),url("about:blank")!important;background-position:center,center,left center!important;background-size:cover,cover,auto 100%!important}}
-</style>
-
-
-<style id="bumblebee-real-image-v3">
-/* V3: use a real image element so the hero visual is not dependent on CSS background loading. */
-.bumble-hero{position:relative!important;overflow:hidden!important;background:#090c10!important}
-.bumble-hero .robot-scene{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;display:block!important;z-index:0!important;background:transparent!important;overflow:hidden!important}
-.bumble-hero .real-bumblebee-photo{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover!important;object-position:center 43%!important;opacity:1!important;visibility:visible!important;z-index:0!important}
-.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(5,8,12,.05) 0%,rgba(5,8,12,.2) 35%,rgba(5,8,12,.88) 70%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.68),transparent 45%)!important;pointer-events:none}
-.bumble-hero .bee-robot,.bumble-hero .scene-grid{display:none!important}
-.bumble-hero .bee-copy{position:relative!important;z-index:3!important;width:54%!important;min-height:490px!important;margin-left:auto!important;padding:48px 34px 40px 10px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.75) 22%,rgba(9,12,16,.96) 100%)!important}
-@media(max-width:850px){.bumble-hero{min-height:440px!important}.bumble-hero .real-bumblebee-photo{object-position:35% center!important}.bumble-hero .robot-scene:after{background:linear-gradient(90deg,rgba(5,8,12,.03),rgba(5,8,12,.36) 42%,rgba(5,8,12,.94) 79%),linear-gradient(0deg,rgba(5,8,12,.65),transparent 45%)!important}.bumble-hero .bee-copy{width:66%!important;min-height:440px!important;padding:28px 18px 28px 4px!important}}
-@media(max-width:520px){.bumble-hero{min-height:420px!important}.bumble-hero .bee-copy{width:72%!important;min-height:420px!important;padding-right:14px!important}}
-</style>
-
-
-
-<!-- BUMBLEBEE_TRANSFORMER_INTRO_V2 -->
-<style id="bumblebee-transformer-intro-v2">
-/* Cinematic boot sequence: amber optics, scan sweep, mechanical pulse. */
-#intro,.intro-screen,.boot-screen,.splash-screen{background:radial-gradient(ellipse at 50% 48%,#29200b 0%,#101115 33%,#07090c 76%)!important}
-#intro:before,.intro-screen:before,.boot-screen:before,.splash-screen:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,199,45,.025) 4px 5px),linear-gradient(90deg,transparent 49.8%,rgba(255,199,45,.11) 50%,transparent 50.2%);animation:beeScan 5s linear infinite}
-#intro:after,.intro-screen:after,.boot-screen:after,.splash-screen:after{content:"";position:absolute;left:0;right:0;top:-25%;height:20%;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(255,197,43,.10),transparent);animation:beeSweep 3.6s ease-in-out infinite}
-@keyframes beeScan{0%,100%{opacity:.35}50%{opacity:1}}
-@keyframes beeSweep{0%{top:-25%}100%{top:110%}}
-/* Make the intro mark feel like a glowing Autobot-inspired ignition core. */
-#intro svg,.intro-screen svg,.boot-screen svg,.splash-screen svg{filter:drop-shadow(0 0 12px rgba(255,197,43,.45));animation:beeCorePulse 2.2s ease-in-out infinite}
-@keyframes beeCorePulse{0%,100%{transform:scale(.98);filter:drop-shadow(0 0 7px rgba(255,197,43,.25))}50%{transform:scale(1.045);filter:drop-shadow(0 0 22px rgba(255,197,43,.75))}}
-.bumble-hero .real-bumblebee-photo{object-position:35% center!important}
-.bumble-hero .robot-scene:after{background:linear-gradient(90deg,rgba(5,8,12,.02) 0%,rgba(5,8,12,.12) 34%,rgba(5,8,12,.86) 69%,#090c10 100%),linear-gradient(0deg,rgba(5,8,12,.60),transparent 46%)!important}
-</style>
-
-
-
-<!-- BUMBLEBEE_REAL_CAMARO_FIX_V2 -->
-<style id="bumblebee-transformer-stage">
-/* Replace the unrelated showroom photo with an animated, original robot stage. */
-.bumble-hero{position:relative!important;isolation:isolate;overflow:hidden!important;min-height:520px!important;background:radial-gradient(ellipse at 24% 55%,#42300d 0%,#1b1a15 26%,#0b0e12 65%)!important;border-color:#70551a!important}
-.bumble-hero:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(90deg,transparent 0%,rgba(7,10,14,.12) 35%,rgba(7,10,14,.78) 58%,#090c10 82%),repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,198,49,.045) 39px 40px),repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,198,49,.04) 39px 40px)!important}
-.bumble-hero .robot-scene{position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:58%!important;height:100%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 63%,rgba(255,187,30,.23),transparent 54%)!important;z-index:1!important}
-.bumble-hero .real-bumblebee-photo{display:none!important}
-.bumble-hero .robot-scene:before{content:"";position:absolute;left:9%;right:5%;bottom:10%;height:2px;background:linear-gradient(90deg,transparent,#f2bf32,transparent);box-shadow:0 0 22px #e9ae2670}
-.bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(7,10,14,.55),transparent 30%,rgba(255,193,40,.045) 50%,transparent 52%);pointer-events:none}
-.bumble-hero .scene-grid{display:block!important;opacity:.35!important;mask-image:radial-gradient(ellipse at 50% 55%,#000,transparent 73%)}
-.bumble-hero .bee-robot{display:block!important;position:relative!important;width:100%!important;height:95%!important;max-height:500px!important;z-index:2!important;transform-origin:50% 85%;animation:beeHeroIdle 4s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(255,184,25,.28))!important}
-@keyframes beeHeroIdle{0%,100%{transform:translateY(4px) scale(1)}50%{transform:translateY(-7px) scale(1.015)}}
-.bumble-hero .bee-copy{position:relative!important;z-index:4!important;width:49%!important;min-height:520px!important;margin-left:auto!important;padding:45px 30px 38px 8px!important;justify-content:center!important;background:linear-gradient(90deg,transparent,rgba(9,12,16,.72) 20%,rgba(9,12,16,.97) 100%)!important}
-.bumble-hero .eyebrow{color:#f5cc54!important}
-.bumble-hero h1{font-size:clamp(38px,5vw,64px)!important}
-.bumble-hero .bee-tags span:first-child{border-color:#d8a52c!important;color:#ffe17a!important}
-@media(max-width:850px){.bumble-hero{min-height:450px!important}.bumble-hero .robot-scene{width:54%!important}.bumble-hero .bee-robot{width:125%!important;height:88%!important;max-height:420px!important;transform:translateX(-6%)!important}.bumble-hero .bee-copy{width:58%!important;min-height:450px!important;padding:30px 18px 28px 0!important}.bumble-hero:before{background:linear-gradient(90deg,transparent 0%,rgba(7,10,14,.12) 25%,rgba(7,10,14,.8) 52%,#090c10 79%),repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,198,49,.035) 39px 40px),repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,198,49,.035) 39px 40px)!important}}
-@media(max-width:520px){.bumble-hero{min-height:430px!important}.bumble-hero .robot-scene{width:52%!important;opacity:.95}.bumble-hero .bee-robot{width:155%!important;height:76%!important;max-height:350px!important;transform:translateX(-12%)!important}.bumble-hero .bee-copy{width:64%!important;min-height:430px!important;padding:26px 12px 24px 0!important}.bumble-hero h1{font-size:clamp(31px,7vw,42px)!important}.bumble-hero p{font-size:11px!important}}
-@media(prefers-reduced-motion:reduce){.bumble-hero .bee-robot{animation:none!important}}
-</style>
-
-
-
-<!-- BUMBLEBEE_CINEMATIC_HOMEPAGE_V3 -->
-<style id="bumblebee-cinematic-home-v3">
-/* Recompose the landing page around the character, not a dashboard card layout. */
-#view-home .bumble-hero{
- position:relative!important;display:block!important;min-height:610px!important;height:clamp(540px,68vh,700px)!important;
- padding:0!important;overflow:hidden!important;isolation:isolate!important;border-radius:24px!important;
- background:radial-gradient(ellipse at 34% 43%,#624711 0%,#29200e 22%,#101319 57%,#090b0e 100%)!important;
- border:1px solid rgba(255,204,69,.32)!important;box-shadow:0 24px 90px #0009!important
-}
-#view-home .bumble-hero:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(0deg,#090b0efc 0%,rgba(9,11,14,.83) 17%,rgba(9,11,14,.14) 47%,rgba(9,11,14,.12) 100%),linear-gradient(90deg,rgba(9,11,14,.04) 0%,transparent 45%,rgba(9,11,14,.65) 100%)!important}
-#view-home .bumble-hero:after{content:"";position:absolute;z-index:0;inset:0;width:auto;height:auto;right:0;top:0;border:0;border-radius:0;box-shadow:none;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 43px,rgba(255,199,47,.035) 44px 45px),repeating-linear-gradient(90deg,transparent 0 43px,rgba(255,199,47,.035) 44px 45px),radial-gradient(ellipse at 35% 48%,transparent 0%,rgba(0,0,0,.12) 65%,#050608 100%)!important}
-#view-home .bumble-hero .robot-scene{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;overflow:hidden!important;background:transparent!important;z-index:0!important}
-#view-home .bumble-hero .scene-grid{display:none!important}
-#view-home .bumble-hero .bee-robot{display:block!important;position:absolute!important;left:0!important;top:1%!important;width:auto!important;height:94%!important;max-height:620px!important;max-width:75%!important;transform-origin:48% 82%!important;animation:beeHeroIdle 4.6s ease-in-out infinite!important;filter:drop-shadow(0 18px 35px rgba(255,178,20,.35))!important;z-index:1!important}
-#view-home .bumble-hero .robot-scene:before{content:"";position:absolute;left:6%;bottom:18%;width:48%;height:3px;background:linear-gradient(90deg,transparent,#e7b52f,transparent);box-shadow:0 0 28px #e8b3317d;z-index:2}
-#view-home .bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(0deg,rgba(8,10,13,.7),transparent 34%),linear-gradient(90deg,transparent 48%,rgba(8,10,13,.32) 68%,rgba(8,10,13,.72) 100%)!important}
-#view-home .bumble-hero .bee-copy{position:absolute!important;right:0!important;bottom:0!important;width:56%!important;min-height:0!important;margin:0!important;padding:38px clamp(22px,4vw,46px) 34px!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;z-index:4!important;background:linear-gradient(0deg,rgba(8,10,13,.96),rgba(8,10,13,.78) 68%,transparent)!important}
-#view-home .bumble-hero .eyebrow{font-size:10px!important;letter-spacing:.22em!important;color:#ffda67!important}
-#view-home .bumble-hero h1{font-size:clamp(42px,6vw,76px)!important;line-height:.91!important;letter-spacing:-.065em!important;margin:12px 0 13px!important;text-shadow:0 4px 32px #000!important}
-#view-home .bumble-hero p{font-size:13px!important;line-height:1.65!important;color:#d1d4d8!important;max-width:420px!important}
-#view-home .bumble-hero .bee-tags{margin-top:15px!important}
-#view-home .bumble-hero .hero-actions{margin-top:18px!important}
-#view-home .section-head{margin-top:26px!important}
-@media(max-width:650px){
- #view-home .bumble-hero{height:590px!important;min-height:590px!important;border-radius:20px!important}
- #view-home .bumble-hero:before{background:linear-gradient(0deg,#090b0eff 0%,rgba(9,11,14,.94) 22%,rgba(9,11,14,.52) 45%,rgba(9,11,14,.05) 100%)!important}
- #view-home .bumble-hero .robot-scene{align-items:flex-start!important;justify-content:center!important}
- #view-home .bumble-hero .bee-robot{height:76%!important;max-height:430px!important;max-width:100%!important;left:50%!important;top:0!important;transform:translateX(-50%)!important;animation:beeHeroMobile 4.6s ease-in-out infinite!important;filter:drop-shadow(0 15px 28px rgba(255,178,20,.35))!important}
- #view-home .bumble-hero .robot-scene:before{left:15%!important;width:70%!important;bottom:38%!important}
- #view-home .bumble-hero .robot-scene:after{background:linear-gradient(0deg,rgba(8,10,13,.92),transparent 64%)!important}
- #view-home .bumble-hero .bee-copy{right:0!important;left:0!important;bottom:0!important;width:100%!important;padding:25px 20px 22px!important;background:linear-gradient(0deg,#090b0e 0%,rgba(9,11,14,.97) 70%,rgba(9,11,14,.1) 100%)!important}
- #view-home .bumble-hero .eyebrow{font-size:9px!important}
- #view-home .bumble-hero h1{font-size:clamp(38px,10vw,54px)!important;margin:9px 0 10px!important}
- #view-home .bumble-hero p{font-size:12px!important;max-width:100%!important}
- #view-home .bumble-hero .bee-tags{gap:5px!important;margin-top:11px!important}
- #view-home .bumble-hero .bee-tags span{font-size:8px!important;padding:5px 7px!important}
- #view-home .bumble-hero .hero-actions{margin-top:13px!important;gap:8px!important}
- #view-home .bumble-hero .hero-actions .btn{padding:10px 12px!important;font-size:11px!important}
- #view-home .grid{gap:9px!important}
-}
-@keyframes beeHeroMobile{0%,100%{transform:translate(-50%,3px) scale(1)}50%{transform:translate(-50%,-5px) scale(1.012)}}
-@media(prefers-reduced-motion:reduce){#view-home .bumble-hero .bee-robot{animation:none!important}}
-</style>
-
 </body>
 </html>
