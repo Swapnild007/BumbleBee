@@ -22,7 +22,7 @@
 .bumble-hero .robot-scene:before{content:"";position:absolute;left:8%;right:4%;bottom:13%;height:2px;background:linear-gradient(90deg,transparent,#e7b52f,transparent);box-shadow:0 0 24px #e8b33170;pointer-events:none;z-index:2}
 .bumble-hero .robot-scene:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#080a0d45,transparent 32%),linear-gradient(90deg,transparent 72%,#080a0d22 100%);z-index:2}
 .bumble-hero .real-bumblebee-photo,.bumble-hero .scene-grid,.bumble-hero .bee-robot{display:none}
-.bumble-hero .bee-model{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;z-index:1}
+.bumble-hero .bee-model{position:absolute;inset:0;width:100%;height:100%;border:0;background:#090c10;z-index:1}
 .bumble-hero .bee-copy{position:absolute;right:0;bottom:0;width:54%;min-height:0;height:100%;margin:0;padding:42px clamp(22px,4vw,46px) 38px;display:flex;flex-direction:column;justify-content:flex-end;z-index:3;background:linear-gradient(90deg,transparent 0%,#090c10a8 15%,#090c10f2 48%,#090c10 100%)}
 .bumble-hero .eyebrow{color:#ffda67;font-size:10px;letter-spacing:.22em}
 .bumble-hero h1{font-size:clamp(42px,6vw,72px);line-height:.93;letter-spacing:-.06em;margin:12px 0}
@@ -73,7 +73,7 @@
   </header>
   <div class="content">
    <section class="view active" id="view-home">
-    <div class="hero bumble-hero"><div class="robot-scene"><div class="scene-grid"></div><iframe class="bee-model" title="BumbleBee movie-style 3D robot model by shamus" src="https://sketchfab.com/models/0f4349c43b3447a0b957663c2a40fc68/embed?autostart=1&autospin=0.15&transparent=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=1&ui_watermark_link=1" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="model-credit">3D character by <a href="https://sketchfab.com/3d-models/bumblebee-transformers-dark-of-the-moon-0f4349c43b3447a0b957663c2a40fc68" target="_blank" rel="noopener noreferrer">shamus · CC BY</a></div><div class="bee-copy"><div class="eyebrow">AUTONOMOUS COMPANION SYSTEM</div><h1>Meet your<br><span>BumbleBee.</span></h1><p>Not just answers. A companion built to understand your intent, plan the work, use the right tools, and show you what actually got done.</p><div class="bee-tags"><span>01 THINK</span><span>02 PLAN</span><span>03 ACT</span><span>04 VERIFY</span></div><div class="hero-actions"><button class="btn primary" data-go="command">◉ &nbsp; Talk to BumbleBee ↗</button><button class="btn" data-go="settings">Connect intelligence</button></div></div></div>
+    <div class="hero bumble-hero"><div class="robot-scene"><div class="scene-grid"></div><iframe class="bee-model" id="bee-model-frame" title="BumbleBee movie-style 3D robot model by shamus" src="about:blank" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="model-credit">3D character by <a href="https://sketchfab.com/3d-models/bumblebee-transformers-dark-of-the-moon-0f4349c43b3447a0b957663c2a40fc68" target="_blank" rel="noopener noreferrer">shamus · CC BY</a></div><div class="bee-copy"><div class="eyebrow">AUTONOMOUS COMPANION SYSTEM</div><h1>Meet your<br><span>BumbleBee.</span></h1><p>Not just answers. A companion built to understand your intent, plan the work, use the right tools, and show you what actually got done.</p><div class="bee-tags"><span>01 THINK</span><span>02 PLAN</span><span>03 ACT</span><span>04 VERIFY</span></div><div class="hero-actions"><button class="btn primary" data-go="command">◉ &nbsp; Talk to BumbleBee ↗</button><button class="btn" data-go="settings">Connect intelligence</button></div></div></div>
     <div class="section-head"><div><h2>Capability deck</h2><p>Designed around useful work, not decorative screens.</p></div><span class="badge">FOUNDATION V1</span></div>
     <div class="grid">
      <article class="tile"><div class="tile-icon">◉</div><h3>Command</h3><p>Talk to BumbleBee, enter requests, and see honest action status.</p><button class="mini-link" data-go="command">Open command →</button></article>
@@ -157,5 +157,42 @@ $('#savePrivacyBtn').addEventListener('click',()=>{prefs.speech=$('#speechToggle
 renderChat();renderTasks();renderMemories();loadPrefs();
 })();
 </script>
+
+<script>
+/* Initialize the 3D viewer with a dark studio background instead of Sketchfab's white default. */
+(function(){
+  var frame=document.getElementById('bee-model-frame');
+  if(!frame)return;
+  var apiScript=document.createElement('script');
+  apiScript.src='https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js';
+  apiScript.onload=function(){
+    var client=new Sketchfab(frame);
+    client.init('0f4349c43b3447a0b957663c2a40fc68',{
+      autostart:1,
+      autospin:0.12,
+      camera:1,
+      transparent:0,
+      ui_theme:'dark',
+      ui_controls:0,
+      ui_infos:0,
+      ui_inspector:0,
+      ui_stop:0,
+      ui_watermark:1,
+      ui_watermark_link:1,
+      success:function(api){
+        api.start(function(){
+          api.addEventListener('viewerready',function(){
+            api.setBackground({color:[0.025,0.032,0.045]});
+            api.setEnvironment({lightIntensity:0.85,exposure:0.8});
+          });
+        });
+      },
+      error:function(){frame.src='https://sketchfab.com/models/0f4349c43b3447a0b957663c2a40fc68/embed?autostart=1&autospin=0.12&ui_theme=dark&ui_controls=0&ui_infos=0&ui_stop=0&ui_watermark=1&ui_watermark_link=1';}
+    });
+  };
+  document.head.appendChild(apiScript);
+})();
+</script>
+
 </body>
 </html>
