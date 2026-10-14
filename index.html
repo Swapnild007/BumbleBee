@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#030c1a">
+<meta name="theme-color" content="#07111d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -133,6 +133,134 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(var(--acc-rgb),.2) 0%,rgb
 #lock.on{display:flex}#lock input{text-align:center;font-size:28px;letter-spacing:.5em;max-width:240px}
 body.focus .dimmable{opacity:.2;filter:blur(2px);pointer-events:none}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+/* Apple-inspired polish: preserve the original JARVIS layout and interactions */
+:root{
+  --panel:rgba(var(--base-rgb),.66);
+  --line:rgba(180,220,245,.15);
+  --card:rgba(5,14,25,.58);
+  --text:#edf6ff;
+  --dim:#9aafc4;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,"Segoe UI",sans-serif;
+  letter-spacing:-.012em;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  background:
+    radial-gradient(ellipse at 50% -12%,rgba(var(--acc-rgb),.13),transparent 44%),
+    linear-gradient(180deg,#07111d 0%,rgb(var(--base-rgb)) 40%,rgb(var(--bg-rgb)) 100%) fixed;
+}
+button,input,textarea,select{font:inherit}
+button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
+  -webkit-tap-highlight-color:transparent;
+  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s ease,opacity .2s ease;
+}
+.panel{
+  background:linear-gradient(145deg,rgba(var(--base-rgb),.76),rgba(var(--bg-rgb),.72));
+  border-color:rgba(180,220,245,.15);
+  border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 28px rgba(0,0,0,.16);
+  backdrop-filter:blur(22px) saturate(125%);
+  -webkit-backdrop-filter:blur(22px) saturate(125%);
+}
+.panel h3{letter-spacing:.11em;color:#c8dceb}
+.logo b{letter-spacing:.24em}
+.logo small{letter-spacing:.16em}
+.clock .d{color:#a9bfd2}
+.clock .t{text-shadow:0 0 22px rgba(var(--acc-rgb),.25);font-weight:550;letter-spacing:-.035em}
+.status{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(180,220,245,.17);
+  letter-spacing:.075em;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.search{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(180,220,245,.18);
+  border-radius:15px;
+  padding:12px 14px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.search:focus-within{border-color:rgba(var(--acc-rgb),.62);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.075)}
+.search input::placeholder{color:#8298ad;opacity:1}
+.hero{
+  border-radius:20px;
+  background:radial-gradient(ellipse at 50% 40%,rgba(var(--acc-rgb),.09),transparent 58%),rgba(var(--base-rgb),.62);
+}
+.hero h1{text-shadow:0 0 20px rgba(var(--acc-rgb),.45),0 0 42px rgba(var(--acc-rgb),.18)}
+.chip,.row,.lm,.app,.hours div{
+  border-color:rgba(180,220,245,.13);
+  background:rgba(255,255,255,.028);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.chip,.lm,.app{border-radius:14px}
+.row{border-radius:13px}
+.row .ico,.lm .ico{border-radius:10px}
+.row.tap:active,.app:active,.ib:active,.nav a:active{transform:scale(.985);background:rgba(var(--acc-rgb),.09)}
+.ib{
+  border-color:rgba(180,220,245,.15);
+  border-radius:13px;
+  background:rgba(255,255,255,.035);
+}
+.btn{
+  border-radius:12px;
+  border-color:rgba(var(--acc-rgb),.28);
+  background:rgba(var(--acc-rgb),.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.btn:active{transform:scale(.98);background:rgba(var(--acc-rgb),.18)}
+.in, input, textarea, select{
+  accent-color:var(--cyan);
+}
+.in{
+  border-radius:12px;
+  border-color:rgba(180,220,245,.17);
+  background:rgba(0,0,0,.16);
+}
+.nav{
+  background:rgba(4,12,22,.84);
+  border-top-color:rgba(180,220,245,.13);
+  box-shadow:0 -8px 28px rgba(0,0,0,.12);
+  backdrop-filter:blur(26px) saturate(140%);
+  -webkit-backdrop-filter:blur(26px) saturate(140%);
+}
+.nav a{letter-spacing:0}
+.nav a.on span{text-shadow:0 0 12px rgba(var(--acc-rgb),.48)}
+.fab,.bigmic{
+  box-shadow:0 0 0 5px rgba(var(--acc-rgb),.055),0 4px 20px rgba(var(--acc-rgb),.16);
+  background:radial-gradient(circle at 35% 28%,rgba(var(--acc-rgb),.48),rgba(var(--acc-rgb),.16) 68%,rgba(var(--base-rgb),.95));
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 5px rgba(var(--acc-rgb),.055),0 4px 20px rgba(var(--acc-rgb),.16)}
+  50%{box-shadow:0 0 0 8px rgba(var(--acc-rgb),.075),0 4px 24px rgba(var(--acc-rgb),.22)}
+}
+.sheet{
+  border-color:rgba(180,220,245,.16);
+  background:rgba(7,17,30,.96);
+  box-shadow:0 -12px 42px rgba(0,0,0,.28);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+}
+.grab{background:rgba(190,215,235,.3)}
+#toast{
+  background:rgba(8,22,36,.94);
+  border-color:rgba(var(--acc-rgb),.38);
+  box-shadow:0 10px 32px rgba(0,0,0,.25);
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+}
+#lock{background:rgba(2,8,16,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+:focus-visible{outline:2px solid rgba(var(--acc-rgb),.8);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style>
 </head>
 <body>
