@@ -370,6 +370,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
+    <div class="panel" id="trainingLab"><h3>JARVIS TRAINING LAB <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Run offline intent and slot checks against the current training set. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">38 regression examples loaded from the training corpus</small></div></div></div></div>
   </section>
 </div>
 
@@ -429,6 +430,7 @@ tick();setInterval(tick,1000);
 function updateLiquidNav(){const nav=$(".nav"),pill=nav&&nav.querySelector(".liquid-pill"),active=nav&&nav.querySelector("a.on");if(!nav||!pill||!active)return;const nr=nav.getBoundingClientRect(),ar=active.getBoundingClientRect();nav.style.setProperty("--pill-x",(ar.left-nr.left)+"px");nav.style.setProperty("--pill-w",ar.width+"px")}
 function go(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0,behavior:"instant"});if(t==="sys")setTimeout(initMem,60);hap()}
 window.addEventListener("resize",updateLiquidNav,{passive:true});
+$("#runTraining")&&$("#runTraining").addEventListener("click",runTrainingLab);
 const mainNav=$(".nav");if(mainNav){mainNav.addEventListener("click",e=>{const item=e.target.closest("a[data-t]");if(item&&mainNav.contains(item)){e.preventDefault();go(item.dataset.t)}},true);mainNav.addEventListener("touchend",e=>{const item=e.target.closest("a[data-t]");if(item&&mainNav.contains(item)){e.preventDefault();go(item.dataset.t)}},{passive:false})}
 function openSheet(html,after){$("#sheetBody").innerHTML=html;$("#sheet").classList.add("on");$("#scrim").classList.add("on");after&&after()}
 function closeSheet(){$("#sheet").classList.remove("on");$("#scrim").classList.remove("on");if(sheetCleanup){sheetCleanup();sheetCleanup=null}}
@@ -686,6 +688,34 @@ function classifyIntent(raw){
  return{id:"general.query",confidence:0.35,slots:{query:text},source:"cloud-or-fallback"};
 }
 let currentIntent={id:"general.query",confidence:0.35,slots:{},source:"offline-rule"};
+async function runTrainingLab(){
+ const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
+ if(!button||!status||!out)return;
+ button.disabled=true;button.textContent="Testing…";status.textContent="Running";
+ out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running offline checks</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
+ try{
+  const response=await fetch("./training/intents.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("Training corpus unavailable (HTTP "+response.status+")");
+  const corpus=await response.json(),failures=[];
+  for(const c of corpus.cases){
+   const got=classifyIntent(c.utterance);
+   const expected=c.intent==="fallback.unknown"?"general.query":c.intent;
+   if(got.id!==expected)failures.push({id:c.id,expected,got:got.id,reason:"intent"});
+   const slots=c.expected||{};
+   for(const key of ["text","query","contact","target","kind","when"]){
+    if(slots[key]!==undefined&&got.slots[key]!==slots[key])failures.push({id:c.id,expected: key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
+   }
+  }
+  const pass=corpus.cases.length-new Set(failures.map(f=>f.id)).size;
+  status.textContent=failures.length?"Needs fixes":"All checks passed";
+  status.style.color=failures.length?"#ff9b9b":"#42e6b1";
+  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+corpus.cases.length+' examples passed</b><small class="d">'+failures.length+' failing checks · classifier only, not real device actions</small></div></div>'+
+    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent routing looks good</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
+  button.textContent="↻ Run self-test again";
+ }catch(e){status.textContent="Test unavailable";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run training tests</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
+ button.disabled=false;
+}
+
 /* ===== command brain: local intents first (instant, offline), then AI ===== */
 async function handle(raw){currentIntent=classifyIntent(raw);const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
   if(/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i.test(s)){try{hasN()?N.stopSpeak():("speechSynthesis" in window&&speechSynthesis.cancel())}catch{}return"Okay, I'll stop speaking."}
