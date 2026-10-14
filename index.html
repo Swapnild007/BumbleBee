@@ -609,7 +609,7 @@ let torchOn=false,torchStream=null;
 async function setTorch(on){if(hasN()){N.torch(on);torchOn=on;return true}
   try{if(on){torchStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});await torchStream.getVideoTracks()[0].applyConstraints({advanced:[{torch:true}]})}else{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null}torchOn=on;return true}
   catch{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null;torchOn=false;return false}}
-const qc=[["＋","New Task",()=>{go("tasks");setTimeout(()=>$("#tkIn").focus(),300)}],["⏱","Set Timer",()=>go("tasks")],["🔦","Flashlight",async()=>{const ok=await setTorch(!torchOn);toast(ok?(torchOn?"Flashlight on":"Flashlight off"):"Flashlight not supported here")}],["🎙","Voice Chat",()=>openVoice()]];
+const qc=[["＋","New Task",()=>{go("tasks");setTimeout(()=>$("#tkIn").focus(),300)}],["⏱","Set Timer",()=>{go("tasks");setTimeout(()=>{const input=$("#remIn");if(input){input.focus();input.scrollIntoView({behavior:"smooth",block:"center"});toast("Enter a duration, e.g. in 5 minutes, then tap Set.")}},180)}],["🔦","Flashlight",async()=>{const ok=await setTorch(!torchOn);toast(ok?(torchOn?"Flashlight on":"Flashlight off"):"Flashlight not supported here")}],["🎙","Voice Chat",()=>openVoice()]];
 $("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
 const NEWS_FEEDS=[
   ["World","https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-IN&gl=IN&ceid=IN:en"],
@@ -684,7 +684,7 @@ const INTENT_RULES=[
  {id:"speech.stop",re:/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i,slots:()=>({})},
  {id:"memory.save",re:/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/i,slots:m=>({text:m[1].trim()})},
  {id:"memory.search",re:/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/i,slots:m=>({query:(m[1]||"").trim()})},
- {id:"timer.create",re:/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\s+(.+)/i,slots:m=>({kind:m[1].toLowerCase(),when:m[2].trim()})},
+ {id:"timer.create",re:/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at| of)?\s+(.+)/i,slots:m=>({kind:m[1].toLowerCase(),when:m[2].trim()})},
  {id:"reminder.create",re:/^(?:remind me|reminder)\s+(.+)/i,slots:m=>{const request=m[1].trim(),when=(request.match(/\b(?:in\s+\d+\s+(?:seconds?|minutes?|hours?|days?)|tomorrow(?:\s+at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?)?|today\s+at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?|at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm))/i)||[])[0]||"";const text=request.replace(when,"").replace(/^\s*(?:to|for)\s+/i,"").trim();return{request,when,text}}},
  {id:"task.create",re:/^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)/i,slots:m=>({text:m[1].trim()})},
  {id:"message.whatsapp",re:/^(?:whatsapp|wa|message)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/i,slots:m=>({contact:m[1].trim(),text:m[2].trim()})},
