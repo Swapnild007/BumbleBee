@@ -42,6 +42,7 @@ if (renderer) {
   renderer.domElement.className = "jarvis-webgl";
   renderer.domElement.setAttribute("aria-hidden", "true");
   host.appendChild(renderer.domElement);
+  host.classList.add("webgl-ready");
 
   scene.add(new THREE.HemisphereLight(0xb9f5ff, 0x10151a, 2.0));
   const key = new THREE.DirectionalLight(0xffe4a1, 3.2);
