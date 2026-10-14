@@ -5,7 +5,7 @@
     {
       "id": "hello-01",
       "intent": "greeting",
-      "utterance": "Hey Jarvis",
+      "utterance": "Hey",
       "expected": {
         "replyClass": "greeting"
       },
