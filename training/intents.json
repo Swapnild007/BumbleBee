@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "purpose": "JARVIS intent evaluation set. These are regression examples for routing and slot extraction, not model fine-tuning data.",
+  "cases": [
+    {
+      "id": "hello-01",
+      "intent": "greeting",
+      "utterance": "Hey Jarvis",
+      "expected": {
+        "replyClass": "greeting"
+      },
+      "pattern": "^(hello|hi|hey|jarvis)$"
+    },
+    {
+      "id": "note-01",
+      "intent": "memory.save",
+      "utterance": "Remember that I prefer short answers",
+      "expected": {
+        "text": "I prefer short answers"
+      },
+      "pattern": "^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)"
+    },
+    {
+      "id": "note-02",
+      "intent": "memory.save",
+      "utterance": "Note: passport renewal is Friday",
+      "expected": {
+        "text": "passport renewal is Friday"
+      },
+      "pattern": "^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)"
+    },
+    {
+      "id": "memory-recall-01",
+      "intent": "memory.search",
+      "utterance": "What do you remember about my preferences?",
+      "expected": {
+        "query": "my preferences"
+      },
+      "pattern": "^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\\s*(.*)"
+    },
+    {
+      "id": "task-01",
+      "intent": "task.create",
+      "utterance": "Add task to buy milk",
+      "expected": {
+        "task": "buy milk"
+      },
+      "pattern": "^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)"
+    },
+    {
+      "id": "task-02",
+      "intent": "task.create",
+      "utterance": "Create a task to call the dentist",
+      "expected": {
+        "task": "call the dentist"
+      },
+      "pattern": "^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)"
+    },
+    {
+      "id": "task-list-01",
+      "intent": "task.list",
+      "utterance": "How many tasks do I have?",
+      "expected": {
+        "replyClass": "task-summary"
+      },
+      "pattern": "\\btasks?\\b|to-?do"
+    },
+    {
+      "id": "reminder-01",
+      "intent": "reminder.create",
+      "utterance": "Remind me in 20 minutes to stretch",
+      "expected": {
+        "when": "in 20 minutes",
+        "text": "stretch"
+      },
+      "pattern": "^(?:remind me|reminder)\\s+(.+)"
+    },
+    {
+      "id": "timer-01",
+      "intent": "timer.create",
+      "utterance": "Set a timer for 10 minutes",
+      "expected": {
+        "duration": "10 minutes"
+      },
+      "pattern": "^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\\s+(.+)"
+    },
+    {
+      "id": "call-01",
+      "intent": "phone.call",
+      "utterance": "Call Alex",
+      "expected": {
+        "contact": "Alex"
+      },
+      "pattern": "^(?:call|dial|phone|ring)\\s+(.+)"
+    },
+    {
+      "id": "sms-01",
+      "intent": "message.sms",
+      "utterance": "Text Alex saying I am running late",
+      "expected": {
+        "contact": "Alex",
+        "text": "I am running late"
+      },
+      "pattern": "^(?:text|sms)\\s+(.+?)\\s+(?:saying|say|that|:)\\s+(.+)$"
+    },
+    {
+      "id": "whatsapp-01",
+      "intent": "message.whatsapp",
+      "utterance": "WhatsApp Alex saying I am outside",
+      "expected": {
+        "contact": "Alex",
+        "text": "I am outside"
+      },
+      "pattern": "^(?:whatsapp|wa|message)\\s+(.+?)\\s+(?:saying|say|that|:)\\s+(.+)$"
+    },
+    {
+      "id": "app-open-01",
+      "intent": "app.open",
+      "utterance": "Open YouTube",
+      "expected": {
+        "app": "YouTube"
+      },
+      "pattern": "^(?:open|launch|start|go to)\\s+(.+)"
+    },
+    {
+      "id": "weather-01",
+      "intent": "weather.current",
+      "utterance": "Will I need an umbrella today?",
+      "expected": {
+        "replyClass": "weather"
+      },
+      "pattern": "weather|temperature|forecast|umbrella"
+    },
+    {
+      "id": "location-01",
+      "intent": "location.current",
+      "utterance": "Where am I?",
+      "expected": {
+        "replyClass": "location"
+      },
+      "pattern": "where am i|my location"
+    },
+    {
+      "id": "news-01",
+      "intent": "news.latest",
+      "utterance": "Tell me the latest news in India",
+      "expected": {
+        "topic": "India"
+      },
+      "pattern": "\\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\\b"
+    },
+    {
+      "id": "speech-stop-01",
+      "intent": "speech.stop",
+      "utterance": "Stop speaking",
+      "expected": {
+        "replyClass": "speech-stopped"
+      },
+      "pattern": "^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$"
+    },
+    {
+      "id": "focus-01",
+      "intent": "focus.toggle",
+      "utterance": "Turn on focus mode",
+      "expected": {
+        "replyClass": "focus"
+      },
+      "pattern": "^focus|focus mode"
+    },
+    {
+      "id": "clock-01",
+      "intent": "time.current",
+      "utterance": "What time is it?",
+      "expected": {
+        "replyClass": "time"
+      },
+      "pattern": "\\b(time)\\b"
+    },
+    {
+      "id": "unknown-01",
+      "intent": "fallback.unknown",
+      "utterance": "Teach me quantum physics",
+      "expected": {
+        "replyClass": "ai-or-unknown"
+      },
+      "pattern": null
+    }
+  ],
+  "safety": [
+    "Never claim a call, message, reminder, or setting change succeeded before the action reports success.",
+    "Confirm before irreversible or externally visible actions such as sending messages when auto-send is disabled.",
+    "Ask a follow-up when a required slot such as time, contact, or message body is missing.",
+    "Keep offline intents working without an AI key; do not invent unavailable native Android capabilities.",
+    "Use only explicitly saved facts for memory recall; do not fabricate personal memories."
+  ]
+}
