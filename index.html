@@ -520,7 +520,7 @@ function startManagedTimer(minutes,label){
   if(!Number.isFinite(m)||m<0.01||m>1440){toast("Enter a duration from 1 second to 24 hours.");return false}
   const durationMs=Math.round(m*60000),t={id:uid(),label:label||((m===Math.floor(m)?m:m.toFixed(1))+" minute timer"),durationMs,remainingMs:durationMs,startedAt:Date.now(),endsAt:Date.now()+durationMs,status:"running"};
   activeTimers.push(t);saveActiveTimers();askNotif();
-  if(hasN())try{N.alarm(t.endsAt,t.label)}catch{}
+  /* Browser-managed countdown: do not create a second native alarm that cannot be cancelled on pause. */
   renderActiveTimers();renderTL();buildFeed();toast("Timer started: "+t.label);return true;
 }
 function timerAction(id,action){
@@ -533,7 +533,7 @@ function timerAction(id,action){
 function renderActiveTimers(){
   const host=$("#activeTimers");if(!host)return;
   host.innerHTML=activeTimers.map(t=>{const remaining=timerRemaining(t),paused=t.status==="paused";
-    return '<div class="row" style="margin:0 0 9px;border:1px solid rgba(52,211,238,.35);border-radius:16px;padding:12px;display:block"><div style="display:flex;align-items:center;gap:10px"><div class="ico">⏱</div><div style="flex:1;min-width:0"><b>'+esc(t.label)+'</b><small class="d" style="display:block">'+(paused?"Paused": "Time remaining")+'</small></div><strong style="font-size:22px;letter-spacing:1px;color:var(--accent);font-variant-numeric:tabular-nums" data-countdown="'+t.id+'">'+timerClock(remaining)+'</strong></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-timer-action="'+(paused?"resume":"pause")+'" data-timer-id="'+t.id+'" style="flex:1">'+(paused?"▶ Resume":"Ⅱ Pause")+'</button><button class="btn sm" data-timer-action="cancel" data-timer-id="'+t.id+'" style="flex:1">× Cancel</button></div></div>'
+    return '<div class="row" style="margin:0 0 9px;border:1px solid rgba(52,211,238,.35);border-radius:16px;padding:12px;display:block"><div style="display:flex;align-items:center;gap:10px"><div class="ico">⏱</div><div style="flex:1;min-width:0"><b>'+esc(t.label)+'</b><small class="d" style="display:block">'+(paused?"Paused": "Time remaining")+'</small></div><strong style="font-size:22px;letter-spacing:1px;color:var(--cyan);font-variant-numeric:tabular-nums" data-countdown="'+t.id+'">'+timerClock(remaining)+'</strong></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-timer-action="'+(paused?"resume":"pause")+'" data-timer-id="'+t.id+'" style="flex:1">'+(paused?"▶ Resume":"Ⅱ Pause")+'</button><button class="btn sm" data-timer-action="cancel" data-timer-id="'+t.id+'" style="flex:1">× Cancel</button></div></div>'
   }).join("");
   $("[data-timer-action]").forEach(b=>b.onclick=()=>timerAction(b.dataset.timerId,b.dataset.timerAction));
 }
