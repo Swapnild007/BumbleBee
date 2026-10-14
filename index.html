@@ -391,7 +391,7 @@ function tick(){const n=new Date();$("#date").textContent=n.toLocaleDateString("
   $("#time").textContent=n.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).toLowerCase()}
 tick();setInterval(tick,1000);
 function updateLiquidNav(){const nav=$(".nav"),pill=nav&&nav.querySelector(".liquid-pill"),active=nav&&nav.querySelector("a.on");if(!nav||!pill||!active)return;const nr=nav.getBoundingClientRect(),ar=active.getBoundingClientRect();nav.style.setProperty("--pill-x",(ar.left-nr.left)+"px");nav.style.setProperty("--pill-w",ar.width+"px")}
-function go(t){$(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));$(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0,behavior:"instant"});if(t==="sys")setTimeout(initMem,60);hap()}
+function go(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0,behavior:"instant"});if(t==="sys")setTimeout(initMem,60);hap()}
 window.addEventListener("resize",updateLiquidNav,{passive:true});
 $$(".nav a").forEach(a=>a.onclick=()=>go(a.dataset.t));
 function openSheet(html,after){$("#sheetBody").innerHTML=html;$("#sheet").classList.add("on");$("#scrim").classList.add("on");after&&after()}
