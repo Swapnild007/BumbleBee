@@ -125,7 +125,7 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(var(--acc-rgb),.2) 0%,rgb
 .tg{width:44px;height:26px;border-radius:13px;background:rgba(var(--acc-rgb),.2);position:relative;cursor:pointer;transition:.2s;flex:none}
 .tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
 .tg.on{background:var(--cyan)}.tg.on::after{left:21px}
-.themes{display:flex;gap:10px;margin:8px 0}.th{width:44px;height:44px;border-radius:50%;border:2px solid transparent;cursor:pointer}.th.on{border-color:#fff}
+.themes{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 4px;max-width:100%}.th{width:42px;height:42px;flex:0 0 42px;border-radius:50%;border:2px solid transparent;cursor:pointer;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:transform .16s,border-color .16s}.th:active{transform:scale(.94)}.th.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.16),inset 0 0 0 1px rgba(0,0,0,.2)}.th:focus-visible{outline:2px solid rgb(var(--acc-rgb));outline-offset:3px}
 #toast{position:fixed;left:50%;top:calc(var(--st) + 12px);transform:translate(-50%,-20px);max-width:92%;background:rgb(var(--base-rgb));border:1px solid var(--cyan);border-radius:12px;padding:10px 16px;
   box-shadow:0 0 24px rgba(var(--acc-rgb),.4);opacity:0;transition:.3s;pointer-events:none;z-index:60;font-size:13px}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -366,7 +366,7 @@ const N={call:n=>JarvisNative.call(n),sms:(n,t)=>JarvisNative.sms(n,t),wa:(n,t)=
   openNotifAccess:()=>JarvisNative.openNotificationAccessSettings(),a11y:()=>JarvisNative.isAccessibilityOn(),openA11y:()=>JarvisNative.openAccessibilitySettings(),recent:()=>nj("getNotifications")};
 
 /* ===== themes ===== */
-const THEMES={blue:["34,211,238","8,28,52","2,8,19","Jarvis Blue"],red:["255,86,86","50,12,16","16,3,5","Stark Red"],gold:["245,197,24","46,34,6","14,10,2","Bumblebee"],green:["52,230,120","6,40,26","1,14,9","Matrix"]};
+const THEMES={blue:["34,211,238","8,28,52","2,8,19","Jarvis Blue"],red:["255,86,86","50,12,16","16,3,5","Stark Red"],gold:["245,197,24","46,34,6","14,10,2","Bumblebee Gold"],green:["52,230,120","6,40,26","1,14,9","Matrix Green"],violet:["180,120,255","32,18,55","9,5,18","Nebula Violet"],rose:["255,105,180","52,15,36","17,4,12","Rose Quartz"],orange:["255,145,65","55,25,10","18,7,2","Solar Flare"],ice:["125,211,252","15,38,58","3,11,22","Arctic Ice"],emerald:["16,185,129","5,39,34","1,13,12","Emerald"],silver:["203,213,225","31,41,55","8,12,20","Titanium Silver"],indigo:["129,140,248","24,28,70","7,8,25","Deep Indigo"],crimson:["244,63,94","58,12,25","20,3,10","Crimson Night"],mint:["110,231,183","10,42,39","3,16,15","Mint Glow"],amber:["251,191,36","52,36,8","18,11,2","Amber Glow"],ocean:["45,212,191","7,43,49","2,14,21","Ocean Teal"],lavender:["196,181,253","38,29,64","12,8,23","Lavender Dream"]};
 let ACC="34,211,238";
 function applyTheme(k){const t=THEMES[k]||THEMES.blue,r=document.documentElement.style;r.setProperty("--acc-rgb",t[0]);r.setProperty("--base-rgb",t[1]);r.setProperty("--bg-rgb",t[2]);ACC=t[0];$("meta[name=theme-color]").content="rgb("+t[2]+")"}
 applyTheme(S.theme);
@@ -734,7 +734,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   <h4>VOICE</h4>${sw("voice","Spoken replies")}${sw("wake","“Jarvis…” wake word","Hands-free while the app is open")}${sw("readmsg","Read incoming messages aloud","Needs the Android app")}${sw("autosend","Auto-send WhatsApp messages","Android app + accessibility; use with care")}
   <h4>PHONE</h4><input class="in" id="cc" inputmode="numeric" placeholder="Default country code, e.g. 91" value="${esc(S.cc||"")}" style="margin-top:0">
   <h4>GENERAL</h4>${sw("haptic","Haptic feedback")}${sw("autoloc","Auto-refresh location (10 min)")}<div class="sw">Focus mode<div class="tg ${document.body.classList.contains("focus")?"on":""}" id="fm"></div></div>
-  <h4>THEME</h4><div class="themes">${Object.entries(THEMES).map(([k,v])=>`<div class="th ${S.theme===k?"on":""}" data-th="${k}" style="background:rgb(${v[0]})" title="${v[3]}"></div>`).join("")}</div>
+  <h4>THEME</h4><div class="themes">${Object.entries(THEMES).map(([k,v])=>`<button type="button" class="th ${S.theme===k?"on":""}" data-th="${k}" style="background:rgb(${v[0]})" title="${v[3]}" aria-label="${v[3]}" aria-pressed="${S.theme===k}"></button>`).join("")}</div>
   <h4>SECURITY</h4><div class="btns"><button class="btn sm" id="pinSet">${S.pin?"Change PIN":"Set PIN lock"}</button>${S.pin?'<button class="btn sm red" id="pinOff">Remove PIN</button>':""}</div>
   <h4>ANDROID APP</h4><div class="btns"><button class="btn sm" id="nPerm">Grant permissions</button><button class="btn sm" id="nNa">Notification access</button><button class="btn sm" id="nA11">Accessibility</button></div>
   <h4>DATA</h4><div class="btns"><button class="btn sm" id="exp">Export backup</button><button class="btn sm" id="imp">Import backup</button><button class="btn sm red" id="reset">Reset all</button></div><input type="file" id="impF" accept=".json" hidden>`,()=>{
@@ -743,7 +743,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   $("#aiT").onclick=async()=>{sv();toast("Testing…");try{const r=await askAI.call(null);toast("✓ Connected")}catch(e){toast(e.message==="NOKEY"?"Enter an API key":"Failed — check key, model and connection")}};
   $$(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
   $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
-  $$(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$$(".th").forEach(x=>x.classList.toggle("on",x===t))});
+  $(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$(".th").forEach(x=>{const active=x===t;x.classList.toggle("on",active);x.setAttribute("aria-pressed",String(active))})});
   $("#pinSet").onclick=async()=>{const a=prompt("New PIN (4–8 digits):");if(a&&/^\d{4,8}$/.test(a)){S.pin=await sha(a);save();toast("PIN set");closeSheet()}else if(a)toast("PIN must be 4–8 digits")};
   $("#pinOff")&&($("#pinOff").onclick=async()=>{const a=prompt("Enter current PIN:");if(a&&await sha(a)===S.pin){S.pin="";save();toast("PIN removed");closeSheet()}else if(a)toast("Wrong PIN")});
   const nat=f=>()=>hasN()?f():toast("Only available in the Jarvis Android app");$("#nPerm").onclick=nat(()=>N.perms());$("#nNa").onclick=nat(()=>N.openNotifAccess());$("#nA11").onclick=nat(()=>N.openA11y());
