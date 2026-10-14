@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080d12">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <meta name="description" content="JARVIS, a voice-first personal AI assistant with offline commands and configurable cloud intelligence.">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>JARVIS · Personal Intelligence</title>
@@ -59,6 +61,16 @@ main{flex:1;min-height:0;display:flex;flex-direction:column}.screen{display:none
   .control-caption{margin-top:6px}
 }
 
+
+/* JARVIS WebGL core enhancement; keep the existing JARVIS UI unchanged */
+.core-stage{isolation:isolate}
+.core{overflow:visible;touch-action:pan-y;cursor:grab}
+.core:active{cursor:grabbing}
+.core.webgl-ready{background:transparent;border:0;box-shadow:none;filter:none!important;transform:none!important}
+.core.webgl-ready:before,.core.webgl-ready:after,.core.webgl-ready .core-ring,.core.webgl-ready .core-center{display:none}
+.core canvas.jarvis-webgl{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:50%;touch-action:pan-y}
+.core-stage:has(canvas.jarvis-webgl) .core-state{position:relative;z-index:2}
+@media(max-width:599px){.core canvas.jarvis-webgl{border-radius:50%}}
 </style>
 </head>
 <body>
@@ -114,5 +126,6 @@ $('#clearData').addEventListener('click',()=>{if(!confirm('Clear all locally sav
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$('#speechSetting').textContent=SR?'Supported by this browser':'Not supported';$('#cloudValue').textContent='Not configured';$('#cloudDot').classList.add('offline');renderTasks();renderNotes();clock();setInterval(clock,30000);
 })();
 </script>
+<script type="module" src="./orb-engine.js"></script>
 <script>if('serviceWorker'in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 </body></html>
