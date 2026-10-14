@@ -1,11 +1,11 @@
 {
-  "name": "Space Telecom UI Concept",
-  "short_name": "Space UI",
-  "description": "A cinematic space-inspired telecom app interface concept.",
+  "name": "JARVIS · Personal Intelligence",
+  "short_name": "JARVIS",
+  "description": "A voice-first personal assistant with local commands and configurable intelligence.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080b10",
-  "theme_color": "#080b10",
+  "background_color": "#070b10",
+  "theme_color": "#080d12",
   "orientation": "portrait-primary"
 }
