@@ -21,8 +21,10 @@ for (const c of cases.cases) {
     continue;
   }
   if (got.id !== c.intent) failures.push(c.id + ": expected " + c.intent + ", got " + got.id);
-  if (c.expected.text && got.slots.text && got.slots.text !== c.expected.text) {
-    failures.push(c.id + ": expected text slot " + JSON.stringify(c.expected.text) + ", got " + JSON.stringify(got.slots.text));
+  for (const key of ["text", "query", "contact", "target", "kind", "when"]) {
+    if (c.expected[key] !== undefined && got.slots[key] !== c.expected[key]) {
+      failures.push(c.id + ": expected " + key + "=" + JSON.stringify(c.expected[key]) + ", got " + JSON.stringify(got.slots[key]));
+    }
   }
 }
 assert.equal(failures.length, 0, failures.join("\n"));
