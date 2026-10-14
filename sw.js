@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jarvis-personal-intelligence-v13';
+const CACHE_NAME = 'jarvis-personal-intelligence-v14';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
