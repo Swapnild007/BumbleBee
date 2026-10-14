@@ -347,7 +347,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
     <div class="panel"><h3>REMINDERS & TIMERS</h3>
       <div class="btns" style="padding:0 12px 10px"><button class="btn sm" data-tm="5">5 min</button><button class="btn sm" data-tm="10">10 min</button><button class="btn sm" data-tm="30">30 min</button><button class="btn sm" data-tm="60">1 hour</button></div>
       <div class="add"><input id="remIn" placeholder="e.g. in 20 minutes call Sam" enterkeyhint="done"><button class="btn" id="remAdd">Set</button></div>
-      <div class="rows" id="rems"></div></div>
+      <div id="activeTimers" style="padding:0 12px 10px"></div><div class="rows" id="rems"></div></div>
     <div class="panel"><h3>TODAY'S TIMELINE</h3><div class="tl" id="tl"></div></div>
     <div class="panel"><h3>MEMORY NOTES <span class="d" id="noteN" style="font-weight:400"></span></h3>
       <div class="add"><input id="noteIn" placeholder="Remember that…" enterkeyhint="done"><button class="btn" id="noteAdd">Save</button></div>
@@ -439,7 +439,7 @@ let sheetCleanup=null;$("#scrim").onclick=closeSheet;
 /* ===== state ===== */
 let loc=store.get("jv_loc",null),wx=store.get("jv_wx",null),batt=null,heads=store.get("jv_heads",null);
 let tasks=store.get("jv_tasks",[]).map(t=>(t.over&&!t.due)?{...t,due:1}:t);
-let rems=store.get("jv_rem",[]),notes=store.get("jv_notes",[]),favs=store.get("jv_favs",[]),chat=store.get("jv_chat",[]);
+let rems=store.get("jv_rem",[]),activeTimers=store.get("jv_active_timers",[]),notes=store.get("jv_notes",[]),favs=store.get("jv_favs",[]),chat=store.get("jv_chat",[]);
 let msgs=[],turns=0,acts=0,load=12,heap=null;
 const saveAll=()=>{store.set("jv_tasks",tasks);store.set("jv_rem",rems);store.set("jv_notes",notes);store.set("jv_favs",favs);store.set("jv_chat",chat.slice(-40))};
 const overdue=t=>!t.done&&t.due&&t.due<Date.now();
@@ -510,15 +510,47 @@ function parseWhen(s){let m,at=null,rest=s;const now=Date.now(),U={second:1e3,se
     if(ap==="pm"&&h<12)h+=12;if(ap==="am"&&h===12)h=0;if(h<24&&mi<60){const d=new Date();d.setHours(h,mi,0,0);if(/tomorrow/i.test(s))d.setDate(d.getDate()+1);else if(d<=now)d.setDate(d.getDate()+1);at=d.getTime();rest=s.replace(m[0],"").replace(/tomorrow/i,"")}}
   else if(/tomorrow/i.test(s)){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);at=d.getTime();rest=s.replace(/tomorrow/i,"")}
   return{at,rest:rest.replace(/\s+/g," ").trim().replace(/^(to|that|about|me to)\s+/i,"").trim()}}
+
+/* ===== persistent in-app countdown timers ===== */
+const saveActiveTimers=()=>store.set("jv_active_timers",activeTimers);
+function timerRemaining(t){return Math.max(0,t.status==="paused"?t.remainingMs:(t.endsAt-Date.now()))}
+function timerClock(ms){const sec=Math.ceil(Math.max(0,ms)/1000),hh=Math.floor(sec/3600),mm=Math.floor((sec%3600)/60),ss=sec%60;return hh?String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0"):String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0")}
+function startManagedTimer(minutes,label){
+  const m=Number(minutes);
+  if(!Number.isFinite(m)||m<0.01||m>1440){toast("Enter a duration from 1 second to 24 hours.");return false}
+  const durationMs=Math.round(m*60000),t={id:uid(),label:label||((m===Math.floor(m)?m:m.toFixed(1))+" minute timer"),durationMs,remainingMs:durationMs,startedAt:Date.now(),endsAt:Date.now()+durationMs,status:"running"};
+  activeTimers.push(t);saveActiveTimers();askNotif();
+  if(hasN())try{N.alarm(t.endsAt,t.label)}catch{}
+  renderActiveTimers();renderTL();buildFeed();toast("Timer started: "+t.label);return true;
+}
+function timerAction(id,action){
+  const t=activeTimers.find(x=>x.id===id);if(!t)return;
+  if(action==="pause"&&t.status==="running"){t.remainingMs=timerRemaining(t);t.status="paused"}
+  else if(action==="resume"&&t.status==="paused"){t.endsAt=Date.now()+t.remainingMs;t.startedAt=Date.now();t.status="running"}
+  else if(action==="cancel"){activeTimers=activeTimers.filter(x=>x.id!==id);saveActiveTimers();renderActiveTimers();renderTL();buildFeed();toast("Timer cancelled");return}
+  saveActiveTimers();renderActiveTimers();renderTL();
+}
+function renderActiveTimers(){
+  const host=$("#activeTimers");if(!host)return;
+  host.innerHTML=activeTimers.map(t=>{const remaining=timerRemaining(t),paused=t.status==="paused";
+    return '<div class="row" style="margin:0 0 9px;border:1px solid rgba(52,211,238,.35);border-radius:16px;padding:12px;display:block"><div style="display:flex;align-items:center;gap:10px"><div class="ico">⏱</div><div style="flex:1;min-width:0"><b>'+esc(t.label)+'</b><small class="d" style="display:block">'+(paused?"Paused": "Time remaining")+'</small></div><strong style="font-size:22px;letter-spacing:1px;color:var(--accent);font-variant-numeric:tabular-nums" data-countdown="'+t.id+'">'+timerClock(remaining)+'</strong></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-timer-action="'+(paused?"resume":"pause")+'" data-timer-id="'+t.id+'" style="flex:1">'+(paused?"▶ Resume":"Ⅱ Pause")+'</button><button class="btn sm" data-timer-action="cancel" data-timer-id="'+t.id+'" style="flex:1">× Cancel</button></div></div>'
+  }).join("");
+  $("[data-timer-action]").forEach(b=>b.onclick=()=>timerAction(b.dataset.timerId,b.dataset.timerAction));
+}
+function updateActiveTimerClocks(){
+  $("[data-countdown]").forEach(el=>{const t=activeTimers.find(x=>x.id===el.dataset.countdown);if(t)el.textContent=timerClock(timerRemaining(t))});
+}
+/* ===== end countdown timers ===== */
+
 function addRem(at,text,kind){const r={id:uid(),at,text:text||kind||"Reminder",kind:kind||"Reminder"};rems.push(r);rems.sort((a,b)=>a.at-b.at);saveAll();askNotif();
   if(hasN())try{N.alarm(at,r.text)}catch{}renderRems();renderTL();buildFeed();return r}
 function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);beep();const t=`${r.kind}: ${r.text}`;toast("⏰ "+t);notify("Jarvis — "+r.kind,r.text);say(`${r.kind}. ${r.text}`)}
-setInterval(()=>{const n=Date.now();const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<6e4*30)fire(r)});renderRems();renderTL();buildFeed()}
+setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<6e4*30)fire(r)});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
   el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
   $$("#rems .x").forEach(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
-$$("[data-tm]").forEach(b=>b.onclick=()=>{hap();const m=+b.dataset.tm;addRem(Date.now()+m*6e4,m+" minute timer","Timer");toast("Timer set for "+m+" min")});
+$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
 $("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();toast("Reminder set for "+fmtD(p.at))};
 $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
 
@@ -611,16 +643,17 @@ async function setTorch(on){if(hasN()){N.torch(on);torchOn=on;return true}
   catch{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null;torchOn=false;return false}}
 
 function openTimerQuickSheet(){
-  openSheet('<div style="padding:6px 2px 12px"><h2 style="font-size:20px;margin:0 0 6px;color:var(--text)">Set a timer</h2><p class="d" style="font-size:12px;margin-bottom:14px">Choose a duration or enter your own. JARVIS will add it to Reminders & Timers.</p><div class="grid2" style="padding:0 0 12px"><button class="btn" data-quick-min="5">⏱ 5 minutes</button><button class="btn" data-quick-min="10">⏱ 10 minutes</button><button class="btn" data-quick-min="30">⏱ 30 minutes</button><button class="btn" data-quick-min="60">⏱ 1 hour</button></div><label for="quickTimerCustom" class="d" style="font-size:12px">Custom duration in minutes</label><div class="add" style="padding:8px 0 0"><input id="quickTimerCustom" type="number" min="1" max="1440" inputmode="numeric" placeholder="e.g. 15"><button class="btn" id="quickTimerStart">Start timer</button></div></div>',()=>{
+  openSheet('<div style="padding:6px 2px 12px"><h2 style="font-size:20px;margin:0 0 6px;color:var(--text)">Set a timer</h2><p class="d" style="font-size:12px;margin-bottom:14px">Choose a duration or enter your own. JARVIS will add it to Reminders & Timers.</p><div class="grid2" style="padding:0 0 12px"><button class="btn" data-quick-min="5">⏱ 5 minutes</button><button class="btn" data-quick-min="10">⏱ 10 minutes</button><button class="btn" data-quick-min="30">⏱ 30 minutes</button><button class="btn" data-quick-min="60">⏱ 1 hour</button></div><label for="quickTimerCustom" class="d" style="font-size:12px">Custom duration in minutes</label><div class="add" style="padding:8px 0 0"><input id="quickTimerCustom" type="number" min="1" max="1440" inputmode="numeric" placeholder="e.g. 15"><button class="btn" id="quickTimerStart">Start timer</button></div><button class="btn sm" id="quickTimerNative" style="width:100%;margin-top:10px">Use Android Clock</button></div>',()=>{
     const startTimer=minutes=>{
       const m=Number(minutes);
       if(!Number.isFinite(m)||m<1||m>1440){toast("Enter a duration from 1 to 1440 minutes.");return}
-      addRem(Date.now()+m*60000,(m===Math.floor(m)?m:m.toFixed(1))+" minute timer","Timer");
-      closeSheet();go("tasks");toast("Timer set for "+m+" minute"+(m===1?"":"s")+".");
+      if(!startManagedTimer(m,(m===Math.floor(m)?m:m.toFixed(1))+" minute timer"))return;
+      closeSheet();go("tasks");
     };
     $("[data-quick-min]").forEach(b=>b.onclick=()=>startTimer(b.dataset.quickMin));
     const input=$("#quickTimerCustom"),start=$("#quickTimerStart");
     start.onclick=()=>startTimer(input.value);
+    $("#quickTimerNative").onclick=()=>{const mins=Number(input.value||5),seconds=Math.max(1,Math.round(mins*60));if(!Number.isFinite(mins)||mins<1||mins>1440){toast("Enter a duration from 1 to 1440 minutes first.");return}if(hasN()&&typeof JarvisNative.setTimer==="function"){try{JarvisNative.setTimer(String(seconds),"JARVIS timer");toast("Requested native Android Clock timer")}catch{toast("Native timer request failed")}}else{toast("Native Clock timer needs the JARVIS Android bridge. In-app timer works here.")}};
     input.onkeydown=e=>{if(e.key==="Enter")start.click()};
     setTimeout(()=>input.focus(),80);
   });
@@ -957,7 +990,7 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
     n.forEach((p,i)=>{x.fillStyle=`rgb(${ACC})`;x.shadowColor=`rgb(${ACC})`;x.shadowBlur=8;x.beginPath();x.arc(p[0]*w,p[1]*h*.85,2.5+Math.sin(t/500+i)*1.2,0,7);x.fill();x.shadowBlur=0});requestAnimationFrame(f)})(0)}
 
 /* ===== boot ===== */
-renderLoc();renderWx();renderNet();renderTasks();renderRems();renderTL();renderNotes();renderFavs();renderInbox();buildFeed();loadHeads();
+renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();buildFeed();loadHeads();
 $("#m2").textContent=turns;$("#m3").textContent=acts;
 if(hasN()){msgs=N.recent();renderInbox();try{N.perms()}catch{}}
 if(loc&&Date.now()-loc.ts<3e5){}else locate();
