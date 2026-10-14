@@ -1,5 +1,5 @@
-const CACHE_NAME = 'jarvis-personal-intelligence-v2';
-const APP_SHELL = ['./', './index.html', './manifest.webmanifest'];
+const CACHE_NAME = 'jarvis-personal-intelligence-v3';
+const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './orb-engine.js'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
