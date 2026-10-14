@@ -2,11 +2,11 @@ import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
-const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)];
-assert.ok(scripts.length > 0, "index.html should contain JavaScript");
-for (const [, source] of scripts) {
-  assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse");
-}
+const start = html.indexOf("<script>");
+const end = html.lastIndexOf("</script>");
+assert.ok(start >= 0 && end > start, "index.html should contain an inline script");
+const source = html.slice(start + "<script>".length, end);
+assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse");
 
 for (const topic of ["World", "India", "Business", "Technology", "Science", "Sports"]) {
   assert.ok(html.includes(`["${topic}",`), `missing news topic: ${topic}`);
