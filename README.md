@@ -1,31 +1,29 @@
 # JARVIS · Personal Intelligence
 
-A mobile-first JARVIS assistant prototype using the supplied cinematic telecom UI reference as a visual design source only. The reference informs the dark space environment, illuminated Earth horizon, cyan accents, glass panels, typography, layered depth, and compact bottom navigation. The product itself remains a personal AI assistant.
+A mobile-first JARVIS assistant prototype. The app keeps its own visual design and uses the supplied ULTRON Orb UI repository as a technical reference for 3D-rendering techniques only.
 
-## Features
+## Current implementation
 
-- Single-file responsive interface in `index.html`, with embedded CSS and JavaScript.
-- Cinematic dark-space composition, cyan intelligence visualization, and glass-style status panels.
-- Assistant, Tasks, Memory, and Settings navigation.
-- Local commands for time, date, task listing, task creation, opening local sections, and saving notes.
-- Browser speech recognition where supported, plus speech cancellation.
-- Local task and note storage using browser localStorage.
-- Installable web app shell via `manifest.webmanifest` and `sw.js`.
+- `index.html`: the JARVIS mobile UI, local command handling, voice input where browser-supported, local tasks, and notes.
+- `orb-engine.js`: a Three.js WebGL core with layered wireframe spheres, orbiting rings, animated shader energy core, particles, signal nodes, touch rotation, and pinch zoom.
+- `manifest.webmanifest` and `sw.js`: installable app shell and caching of the 3D engine.
+
+## Technical reference and attribution
+
+The 3D scene takes inspiration from techniques described in [ULTRON Orb UI by Sagar Tamang](https://github.com/SAGAR-TAMANG/ultron-by-sagar-builds), which is published under the MIT license. This project does not use ULTRON's HUD, layout, branding, or interface copy. The JARVIS UI and scene implementation here are independently composed for this project.
+
+## Runtime
+
+The app is a static HTML/JavaScript project with no build step. It loads Three.js and OrbitControls as ES modules from jsDelivr, so the first load needs an internet connection. The app shell and orb engine are cached by the service worker after a successful load. Browser/WebGL support is required for the 3D core; the existing CSS core remains as a fallback if WebGL cannot initialize.
+
+## Mobile performance
+
+- Pixel ratio is capped at 1.5.
+- Particle count is reduced on Android.
+- Rendering pauses when the document is hidden or the core is offscreen.
+- Reduced-motion preferences disable automatic rotation.
+- OrbitControls handles touch rotation and pinch zoom.
 
 ## Intelligence and security
 
-The current prototype does not connect to a cloud model. General AI responses are not available until a provider is securely configured. Do not put provider API keys in client-side HTML or JavaScript. Use a protected backend or local proxy for cloud intelligence.
-
-Speech recognition support and behavior depend on the browser. Local commands and saved notes do not require cloud access. LocalStorage data remains in that browser on that device.
-
-## Run
-
-Serve this directory over HTTP or deploy it with GitHub Pages. No build step or third-party JavaScript dependency is required.
-
-## UI acceptance criteria
-
-- The reference is the source of truth for visual style, not telecom product content.
-- No telecom usage tracker, plan allowance metrics, or carrier account claims.
-- No previous assistant orb-only screen or purple/gold theme.
-- Preserve JARVIS as the product, with offline-first controls and an honest cloud-connection status.
-- On mobile, the composer and bottom navigation remain anchored while the main content can scroll.
+Local commands currently support time/date, task listing and creation, opening local sections, and saving notes. General AI reasoning is not connected yet. Do not store cloud provider API keys in client-side HTML or JavaScript. Connect cloud intelligence through a protected backend or local proxy.
