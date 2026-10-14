@@ -73,9 +73,9 @@ if (renderer) {
   }
 
   // Fine technical shell plus two offset shells create real 3D depth.
-  const outerShell = wireSphere(1.72, 32, cyan, 0.27, [1, 1, 0.9]);
-  const midShell = wireSphere(1.49, 24, 0x45bde2, 0.22, [0.96, 1.02, 1]);
-  const innerShell = wireSphere(1.12, 20, ice, 0.15, [1, 0.97, 1.03]);
+  const outerShell = wireSphere(1.72, 24, cyan, 0.13, [1, 1, 0.9]);
+  const midShell = wireSphere(1.49, 18, 0x45bde2, 0.10, [0.96, 1.02, 1]);
+  const innerShell = wireSphere(1.12, 16, ice, 0.08, [1, 0.97, 1.03]);
 
   // Bright latitude/longitude guide rings.
   const ringMaterials = [];
@@ -91,9 +91,9 @@ if (renderer) {
     ringMaterials.push(material);
     return ring;
   }
-  const ringA = makeRing(1.92, [0.9, 0.1, 0.22], 0.52, 0.008);
-  const ringB = makeRing(1.57, [1.25, 0.4, -0.35], 0.36, 0.006);
-  const ringC = makeRing(1.28, [0.25, 0.9, 0.75], 0.24, 0.005);
+  const ringA = makeRing(1.92, [0.9, 0.1, 0.22], 0.22, 0.006);
+  const ringB = makeRing(1.57, [1.25, 0.4, -0.35], 0.14, 0.005);
+  const ringC = makeRing(1.28, [0.25, 0.9, 0.75], 0.10, 0.004);
 
   // Energy core: animated shader, not a flat CSS gradient.
   const coreGeometry = new THREE.SphereGeometry(0.79, 48, 36);
@@ -145,7 +145,7 @@ if (renderer) {
     const points = curve.getPoints(100).map(p => new THREE.Vector3(p.x, p.y, (i - 2) * 0.055));
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({
-      color: i % 2 ? cyan : ice, transparent: true, opacity: 0.3,
+      color: i % 2 ? cyan : ice, transparent: true, opacity: 0.16,
       blending: THREE.AdditiveBlending, depthWrite: false
     });
     const line = new THREE.LineLoop(geometry, material);
@@ -155,7 +155,7 @@ if (renderer) {
   }
 
   // Reusable point geometry keeps mobile draw calls low.
-  const particleCount = /Android/i.test(navigator.userAgent) ? 520 : 850;
+  const particleCount = /Android/i.test(navigator.userAgent) ? 110 : 180;
   const positions = new Float32Array(particleCount * 3);
   const phases = new Float32Array(particleCount);
   for (let i = 0; i < particleCount; i++) {
@@ -170,7 +170,7 @@ if (renderer) {
   const particleGeometry = new THREE.BufferGeometry();
   particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   const particleMaterial = new THREE.PointsMaterial({
-    color: 0x7eeaff, size: 0.022, transparent: true, opacity: 0.7,
+    color: 0x7eeaff, size: 0.016, transparent: true, opacity: 0.28,
     blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
   });
   const particles = new THREE.Points(particleGeometry, particleMaterial);
@@ -179,14 +179,14 @@ if (renderer) {
   // Sparse orbiting signal nodes.
   const nodeGeometry = new THREE.IcosahedronGeometry(0.035, 1);
   const nodeMaterial = new THREE.MeshBasicMaterial({
-    color: ice, transparent: true, opacity: 0.92,
+    color: ice, transparent: true, opacity: 0.58,
     blending: THREE.AdditiveBlending
   });
   const nodes = [];
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 7; i++) {
     const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
     node.userData = {
-      angle: (i / 13) * Math.PI * 2,
+      angle: (i / 7) * Math.PI * 2,
       radius: 1.82 + (i % 3) * 0.16,
       speed: (i % 2 ? 1 : -1) * (0.12 + (i % 5) * 0.018),
       tilt: (i % 4) * 0.32
