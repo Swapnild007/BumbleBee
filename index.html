@@ -668,7 +668,7 @@ const INTENT_RULES=[
  {id:"memory.save",re:/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/i,slots:m=>({text:m[1].trim()})},
  {id:"memory.search",re:/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/i,slots:m=>({query:(m[1]||"").trim()})},
  {id:"timer.create",re:/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\s+(.+)/i,slots:m=>({kind:m[1].toLowerCase(),when:m[2].trim()})},
- {id:"reminder.create",re:/^(?:remind me|reminder)\s+(.+)/i,slots:m=>({request:m[1].trim()})},
+ {id:"reminder.create",re:/^(?:remind me|reminder)\s+(.+)/i,slots:m=>{const request=m[1].trim(),when=(request.match(/\b(?:in\s+\d+\s+(?:seconds?|minutes?|hours?|days?)|tomorrow(?:\s+at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?)?|today\s+at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?|at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm))/i)||[])[0]||"";const text=request.replace(when,"").replace(/^\s*(?:to|for)\s+/i,"").trim();return{request,when,text}}},
  {id:"task.create",re:/^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)/i,slots:m=>({text:m[1].trim()})},
  {id:"message.whatsapp",re:/^(?:whatsapp|wa|message)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/i,slots:m=>({contact:m[1].trim(),text:m[2].trim()})},
  {id:"message.sms",re:/^(?:text|sms)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/i,slots:m=>({contact:m[1].trim(),text:m[2].trim()})},
@@ -680,7 +680,7 @@ const INTENT_RULES=[
  {id:"task.list",re:/\b(?:tasks?|to-?do)\b/i,slots:()=>({})},
  {id:"time.current",re:/\btime\b/i,slots:()=>({})},
  {id:"focus.toggle",re:/\bfocus mode\b|^focus$/i,slots:()=>({})},
- {id:"greeting",re:/^(?:hello|hi|hey|jarvis)$/i,slots:()=>({})}
+ {id:"greeting",re:/^(?:(?:hello|hi|hey)(?: jarvis)?|jarvis)$/i,slots:()=>({})}
 ];
 function classifyIntent(raw){
  const text=String(raw||"").trim().replace(/[.!?]+$/,"");
