@@ -43,9 +43,9 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
 
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(width, height),
-    1.8, // strength
-    0.4, // radius
-    0.2, // threshold
+    0.55, // restrained bloom for a clean core
+    0.28, // radius
+    0.42, // threshold
   );
   composer.addPass(bloom);
 
@@ -54,7 +54,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
     uniforms: {
       tDiffuse: { value: null },
       uTime: { value: 0 },
-      uIntensity: { value: 0.003 },
+      uIntensity: { value: 0.00045 },
     },
     vertexShader: `
       varying vec2 vUv;
@@ -73,11 +73,11 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
         float d = length(dir);
         float offset = uIntensity * d;
         // Slight flicker
-        float flicker = 1.0 + 0.02 * sin(uTime * 30.0) * sin(uTime * 7.3);
+        float flicker = 1.0 + 0.004 * sin(uTime * 30.0) * sin(uTime * 7.3);
         vec4 cr = texture2D(tDiffuse, vUv + dir * offset);
         vec4 cg = texture2D(tDiffuse, vUv);
         vec4 cb = texture2D(tDiffuse, vUv - dir * offset * 0.5);
-        gl_FragColor = vec4(cr.r, cg.g * 1.05, cb.b * 0.6, 1.0) * flicker;
+        gl_FragColor = vec4(cr.r, cg.g * 1.05, cb.b * 0.88, 1.0) * flicker;
         // JARVIS cyan/ice-blue color grade
         gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * vec3(0.55, 1.05, 1.2), 0.24);
       }
@@ -154,35 +154,35 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
   const R1 = 2.0;
 
   // Dense latitude rings (30+)
-  for (let i = -15; i <= 15; i++) {
-    const lat = (i / 15) * (Math.PI / 2) * 0.95;
-    const opacity = i % 3 === 0 ? 0.5 : 0.12;
+  for (let i = -9; i <= 9; i++) {
+    const lat = (i / 9) * (Math.PI / 2) * 0.95;
+    const opacity = i % 3 === 0 ? 0.26 : 0.055;
     const color = i % 3 === 0 ? C_MID : C_FAINT;
     outerShell.add(new THREE.Line(latRing(R1, lat), lineMat(color, opacity)));
   }
 
   // Dense meridians (24)
-  for (let i = 0; i < 24; i++) {
-    const lon = (i / 24) * Math.PI * 2;
-    const isMajor = i % 6 === 0;
+  for (let i = 0; i < 14; i++) {
+    const lon = (i / 14) * Math.PI * 2;
+    const isMajor = i % 7 === 0;
     outerShell.add(
       new THREE.Line(
         meridian(R1, lon),
-        lineMat(isMajor ? C_MID : C_FAINT, isMajor ? 0.6 : 0.1),
+        lineMat(isMajor ? C_MID : C_FAINT, isMajor ? 0.32 : 0.045),
       ),
     );
   }
 
   // 4 bright cross meridians (the "plus" shape) — wide bands
-  const CROSS_LINES = 18;
-  const CROSS_SPREAD = 0.25; // radians total width
+  const CROSS_LINES = 5;
+  const CROSS_SPREAD = 0.12; // radians total width
   for (let i = 0; i < 4; i++) {
     const lon = (i / 4) * Math.PI * 2;
     for (let j = 0; j < CROSS_LINES; j++) {
       const t = (j / (CROSS_LINES - 1)) * 2 - 1; // -1 to 1
       const offset = (t * CROSS_SPREAD) / 2;
       const falloff = 1 - Math.abs(t) * 0.7; // brighter at center, dimmer at edges
-      const opacity = 0.85 * falloff;
+      const opacity = 0.32 * falloff;
       const color = Math.abs(t) < 0.3 ? C_BRIGHT : C_MID;
       outerShell.add(
         new THREE.Line(meridian(R1, lon + offset, 200), lineMat(color, opacity)),
@@ -191,13 +191,13 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
   }
 
   // Bright equator band — wide
-  const EQ_LINES = 20;
-  const EQ_SPREAD = 0.35;
+  const EQ_LINES = 7;
+  const EQ_SPREAD = 0.15;
   for (let j = 0; j < EQ_LINES; j++) {
     const t = (j / (EQ_LINES - 1)) * 2 - 1;
     const offset = (t * EQ_SPREAD) / 2;
     const falloff = 1 - Math.abs(t) * 0.65;
-    const opacity = 0.8 * falloff;
+    const opacity = 0.28 * falloff;
     const color = Math.abs(t) < 0.3 ? C_BRIGHT : C_MID;
     outerShell.add(
       new THREE.Line(latRing(R1, offset, 200), lineMat(color, opacity)),
@@ -220,7 +220,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
     divisions = 4,
   ) {
     const group = new THREE.Group();
-    const mat = lineMat(C_DIM, 0.25);
+    const mat = lineMat(C_DIM, 0.12);
 
     // horizontal lines
     for (let i = 0; i <= divisions; i++) {
@@ -260,7 +260,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
   }
 
   // Scatter panels across the sphere
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 8; i++) {
     const lat = (Math.random() - 0.5) * Math.PI * 0.8;
     const lon = Math.random() * Math.PI * 2;
     const size = 0.15 + Math.random() * 0.25;
@@ -483,7 +483,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
 
   // On outer sphere — dense text coverage
   const textOuter = scatterText(
-    1200,
+    0,
     () => 0.04 + Math.random() * 0.04,
     () => R1 + 0.03 + Math.random() * 0.08,
     [0.0002, 0.0008],
@@ -492,7 +492,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
 
   // On inner core — more text
   const textInner = scatterText(
-    100,
+    0,
     () => 0.03 + Math.random() * 0.03,
     () => R3 + 0.02,
     [0.0005, 0.001],
@@ -501,7 +501,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
 
   // Floating ambient text between shells
   const textAmbient = scatterText(
-    400,
+    0,
     () => 0.03,
     () => R3 + 0.2 + Math.random() * (R1 - R3 - 0.3),
     [0.0003, 0.0006],
@@ -511,7 +511,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
   // ═══════════════════════════════════════════════
   // ORBITING DEBRIS / ROCKS
   // ═══════════════════════════════════════════════
-  // Shared geometries for performance — reuse across 250 satellites
+  // Shared geometries for performance — restrained satellite count
   const debrisGeos = [
     new THREE.IcosahedronGeometry(0.012, 0),
     new THREE.IcosahedronGeometry(0.02, 0),
@@ -528,16 +528,16 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
     phase: number;
   }
   const debris: THREE.Mesh[] = [];
-  for (let i = 0; i < 250; i++) {
+  for (let i = 0; i < 55; i++) {
     const geo = debrisGeos[Math.floor(Math.random() * debrisGeos.length)];
     const mat = new THREE.MeshBasicMaterial({
       color: Math.random() > 0.7 ? C_BRIGHT : C_MID,
       transparent: true,
-      opacity: 0.3 + Math.random() * 0.6,
+      opacity: 0.12 + Math.random() * 0.25,
       blending: THREE.AdditiveBlending,
     });
     const mesh = new THREE.Mesh(geo, mat);
-    const orbitR = 1.2 + Math.random() * 4.0;
+    const orbitR = 1.2 + Math.random() * 2.2;
     const speed = (0.08 + Math.random() * 0.6) * (Math.random() > 0.5 ? 1 : -1);
     const tiltX = (Math.random() - 0.5) * Math.PI * 0.9;
     const tiltZ = (Math.random() - 0.5) * Math.PI * 0.5;
@@ -600,9 +600,9 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
 
   const dustMat = new THREE.PointsMaterial({
     map: new THREE.CanvasTexture(dotC),
-    size: 0.04,
+    size: 0.025,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.18,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     sizeAttenuation: true,
@@ -636,7 +636,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
   // ═══════════════════════════════════════════════
   // HEXAGONAL NODES — small tech details
   // ═══════════════════════════════════════════════
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 8; i++) {
     const phi = Math.acos(2 * Math.random() - 1);
     const theta = Math.random() * Math.PI * 2;
     const r = R1 + 0.02;
@@ -781,13 +781,13 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
     scanRing1.position.y = scanY1;
     const scanS1 = Math.sqrt(Math.max(0, R1 * R1 - scanY1 * scanY1)) / R1;
     scanRing1.scale.set(scanS1, scanS1, 1);
-    (scanRing1.material as THREE.MeshBasicMaterial).opacity = 0.2 * scanS1;
+    (scanRing1.material as THREE.MeshBasicMaterial).opacity = 0.08 * scanS1;
 
     const scanY2 = Math.sin(t * 0.6 + 2) * R3;
     scanRing2.position.y = scanY2;
     const scanS2 = Math.sqrt(Math.max(0, R3 * R3 - scanY2 * scanY2)) / R3;
     scanRing2.scale.set(scanS2, scanS2, 1);
-    (scanRing2.material as THREE.MeshBasicMaterial).opacity = 0.15 * scanS2;
+    (scanRing2.material as THREE.MeshBasicMaterial).opacity = 0.06 * scanS2;
 
     // Dust rotation
     dustPoints.rotation.y += 0.0002;
@@ -804,7 +804,7 @@ export function createOrbScene(container: HTMLElement): OrbSceneApi {
     }
 
     // Bloom pulse
-    bloom.strength = 1.6 + Math.sin(t * 0.8) * 0.3;
+    bloom.strength = 0.5 + Math.sin(t * 0.8) * 0.06;
 
     // Update chromatic aberration time
     chromaticPass.uniforms.uTime.value = t;
