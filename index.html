@@ -460,5 +460,12 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
 renderLoc();renderWx();renderNet();buildFeed();
 if(loc&&Date.now()-loc.ts<300000){/* fresh cache */}else locate();
 </script>
+<script>
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
 </body>
 </html>
