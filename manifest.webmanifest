@@ -1,7 +1,7 @@
 {
   "name": "JARVIS · Personal Intelligence",
   "short_name": "JARVIS",
-  "description": "A voice-first personal assistant with local commands and configurable intelligence.",
+  "description": "A cinematic, local-first personal AI assistant prototype.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
