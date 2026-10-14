@@ -1,11 +1,11 @@
 {
-  "name": "BEECORE · Personal Intelligence",
-  "short_name": "BEECORE",
-  "description": "A local-first personal assistant foundation.",
+  "name": "Space Telecom UI Concept",
+  "short_name": "Space UI",
+  "description": "A cinematic space-inspired telecom app interface concept.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0d0e",
-  "theme_color": "#0b0d0e",
+  "background_color": "#080b10",
+  "theme_color": "#080b10",
   "orientation": "portrait-primary"
 }
