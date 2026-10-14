@@ -100,10 +100,15 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(var(--acc-rgb),.2) 0%,rgb
 .apps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 12px 12px}
 .app{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px 4px;text-align:center;font-size:10.5px;cursor:pointer}
 .app span{display:block;font-size:22px;margin-bottom:3px}.app:active{background:rgba(var(--acc-rgb),.25)}
-.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);display:grid;grid-template-columns:1fr 1fr 78px 1fr 1fr;align-items:end;
-  background:linear-gradient(180deg,rgba(var(--base-rgb),.9),rgb(var(--bg-rgb)));border-top:1px solid var(--line);padding:6px 6px calc(8px + var(--sb));backdrop-filter:blur(10px);z-index:20}
-.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--dim);padding:6px 0;cursor:pointer}
-.nav a span{font-size:19px}.nav a.on{color:var(--cyan)}.nav a.on span{text-shadow:0 0 10px var(--cyan)}
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);display:grid;grid-template-columns:1fr 1fr 78px 1fr 1fr;align-items:end;isolation:isolate;overflow:visible;
+  background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(var(--base-rgb),.82) 42%,rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);border-bottom:0;border-radius:24px 24px 0 0;padding:8px 6px calc(8px + var(--sb));backdrop-filter:blur(24px) saturate(155%);-webkit-backdrop-filter:blur(24px) saturate(155%);box-shadow:0 -10px 34px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.12);z-index:20}
+.nav .liquid-pill{position:absolute;z-index:-1;left:0;top:7px;bottom:calc(7px + var(--sb));width:var(--pill-w,0px);transform:translateX(var(--pill-x,0px));border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(var(--acc-rgb),.18) 48%,rgba(var(--acc-rgb),.08));border:1px solid rgba(255,255,255,.24);box-shadow:inset 0 1px 1px rgba(255,255,255,.32),0 4px 18px rgba(var(--acc-rgb),.15);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .48s cubic-bezier(.2,.85,.2,1),width .3s ease;pointer-events:none}
+.nav .liquid-pill:before,.nav .liquid-pill:after{content:"";position:absolute;left:18%;top:-3px;width:18px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);filter:blur(3px);opacity:.7;animation:liquidShimmer 3.8s ease-in-out infinite}
+.nav .liquid-pill:after{left:auto;right:16%;top:auto;bottom:-3px;width:13px;height:6px;animation-delay:-1.7s}
+.nav a{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--dim);padding:7px 0;cursor:pointer;transition:color .25s,transform .35s cubic-bezier(.2,.8,.2,1)}
+.nav a span{font-size:19px;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .25s}.nav a.on{color:#fff}.nav a.on span{text-shadow:0 0 12px rgba(var(--acc-rgb),.8);transform:translateY(-2px) scale(1.08);filter:drop-shadow(0 2px 5px rgba(var(--acc-rgb),.42))}
+@keyframes liquidShimmer{0%,100%{transform:translateX(0) scaleX(1);opacity:.35}50%{transform:translateX(8px) scaleX(1.25);opacity:.8}}
+@media(prefers-reduced-motion:reduce){.nav .liquid-pill,.nav .liquid-pill:before,.nav .liquid-pill:after,.nav a,.nav a span{animation:none!important;transition:none!important}}
 .fab,.bigmic{border-radius:50%;display:grid;place-items:center;cursor:pointer;border:2px solid var(--cyan);background:radial-gradient(circle,rgba(var(--acc-rgb),.55),rgba(var(--acc-rgb),.2) 60%,rgb(var(--base-rgb)));animation:pulse 2.4s infinite}
 .fab{width:64px;height:64px;margin:-30px auto 0}.bigmic{width:92px;height:92px;margin:8px auto}
 .fab svg,.bigmic svg{width:26px;height:26px;fill:#fff}.bigmic svg{width:34px;height:34px}.bigmic.live{animation:pulse .7s infinite}
@@ -332,7 +337,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
   </section>
 </div>
 
-<nav class="nav">
+<nav class="nav" aria-label="Main navigation"><div class="liquid-pill" aria-hidden="true"></div>
   <a data-t="home" class="on"><span>◉</span>Home</a>
   <a data-t="phone"><span>📞</span>Phone</a>
   <div><div class="fab" id="fab"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div></div>
@@ -370,6 +375,7 @@ const THEMES={blue:["34,211,238","8,28,52","2,8,19","Jarvis Blue"],red:["255,86,
 let ACC="34,211,238";
 function applyTheme(k){const t=THEMES[k]||THEMES.blue,r=document.documentElement.style;r.setProperty("--acc-rgb",t[0]);r.setProperty("--base-rgb",t[1]);r.setProperty("--bg-rgb",t[2]);ACC=t[0];$("meta[name=theme-color]").content="rgb("+t[2]+")"}
 applyTheme(S.theme);
+requestAnimationFrame(updateLiquidNav);
 
 /* ===== manifest + service worker ===== */
 const ICON="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#030c1a"/><circle cx="50" cy="50" r="30" fill="none" stroke="#22d3ee" stroke-width="5"/><circle cx="50" cy="50" r="9" fill="#22d3ee"/></svg>');
@@ -384,7 +390,9 @@ function beep(n=3){try{const a=new (window.AudioContext||window.webkitAudioConte
 function tick(){const n=new Date();$("#date").textContent=n.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
   $("#time").textContent=n.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).toLowerCase()}
 tick();setInterval(tick,1000);
-function go(t){$$(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));$$(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));scrollTo({top:0});if(t==="sys")setTimeout(initMem,60);hap()}
+function updateLiquidNav(){const nav=$(".nav"),pill=nav&&nav.querySelector(".liquid-pill"),active=nav&&nav.querySelector("a.on");if(!nav||!pill||!active)return;const nr=nav.getBoundingClientRect(),ar=active.getBoundingClientRect();nav.style.setProperty("--pill-x",(ar.left-nr.left)+"px");nav.style.setProperty("--pill-w",ar.width+"px")}
+function go(t){$(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));$(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0});if(t==="sys")setTimeout(initMem,60);hap()}
+window.addEventListener("resize",updateLiquidNav,{passive:true});
 $$(".nav a").forEach(a=>a.onclick=()=>go(a.dataset.t));
 function openSheet(html,after){$("#sheetBody").innerHTML=html;$("#sheet").classList.add("on");$("#scrim").classList.add("on");after&&after()}
 function closeSheet(){$("#sheet").classList.remove("on");$("#scrim").classList.remove("on");if(sheetCleanup){sheetCleanup();sheetCleanup=null}}
