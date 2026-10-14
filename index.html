@@ -621,20 +621,37 @@ const NEWS_FEEDS=[
 ];
 let liveNewsContext="",newsRefreshFailed=false;
 function newsTopic(raw=""){const s=raw.toLowerCase();if(/sport|cricket|football|tennis/.test(s))return"Sports";if(/tech|\bai\b|artificial intelligence|gadget|cyber/.test(s))return"Technology";if(/business|market|stock|econom/.test(s))return"Business";if(/science|space|research/.test(s))return"Science";if(/india|indian|maharashtra|pune|mumbai/.test(s))return"India";return"World"}
-async function loadHeads(force=false,topic="World"){newsRefreshFailed=false;if(!force&&heads&&heads.topic===topic&&Date.now()-heads.ts<6e5){renderHeads();return heads}
+let newsLoading=false,newsRequestId=0;
+async function loadHeads(force=false,topic="World"){
+  if(newsLoading&&!force)return heads;
+  if(!force&&heads&&heads.topic===topic&&Date.now()-heads.ts<6e5){renderHeads();return heads}
+  const requestId=++newsRequestId;
+  newsLoading=true;newsRefreshFailed=false;
+  const refreshButton=$("#hlR");
+  if(refreshButton){refreshButton.disabled=true;refreshButton.textContent="…";refreshButton.setAttribute("aria-label","Refreshing news");}
+  const rows=$("#heads");
+  if(rows&&!heads)rows.innerHTML='<small class="d" style="display:block;padding:8px 4px">Fetching latest headlines…</small>';
+  renderHeads();
   const feed=NEWS_FEEDS.find(x=>x[0]===topic)||NEWS_FEEDS[0];
   try{
-    const api="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feed[1]);
-    const j=await jget(api,10000);
+    const api="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feed[1])+"&_="+Date.now();
+    const j=await jget(api,15000,{cache:"no-store"});
     if(!j||j.status!=="ok"||!Array.isArray(j.items))throw new Error("News feed unavailable");
     const l=j.items.slice(0,8).map(x=>({t:String(x.title||"").trim(),u:String(x.link||""),pub:String(x.pubDate||""),src:String(x.author||j.feed?.title||"News source"),desc:String(x.description||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,300)})).filter(x=>x.t&&/^https?:\/\//.test(x.u));
     if(!l.length)throw new Error("No headlines");
-    heads={ts:Date.now(),topic,l};store.set("jv_heads",heads);
-  }catch(e){newsRefreshFailed=true}
-  renderHeads();return heads
+    if(requestId===newsRequestId){heads={ts:Date.now(),topic,l};store.set("jv_heads",heads);}
+  }catch(e){if(requestId===newsRequestId)newsRefreshFailed=true}
+  finally{
+    if(requestId===newsRequestId){
+      newsLoading=false;
+      if(refreshButton){refreshButton.disabled=false;refreshButton.textContent="↻";refreshButton.setAttribute("aria-label","Refresh news");}
+      renderHeads();
+    }
+  }
+  return heads
 }
-function renderHeads(){const valid=heads&&heads.l&&heads.l.length;const age=valid?Date.now()-heads.ts:Infinity;const stale=age>36e5;$("#heads").innerHTML=(valid?((newsRefreshFailed?'<small class="d" style="display:block;padding:2px 4px 8px">Refresh failed. Showing saved headlines from '+esc(new Date(heads.ts).toLocaleString())+'.</small>':stale?'<small class="d" style="display:block;padding:2px 4px 8px">Saved headlines may be out of date.</small>':'')+heads.l.slice(0,6).map(h=>`<a class="row tap" href="${esc(h.u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ico">📰</div><div><b style="font-weight:500;font-size:12.5px">${esc(h.t)}</b><small class="d">${esc(h.src||heads.topic||"News")} ${h.pub?"· "+esc(h.pub.slice(0,16)):""}</small></div></a>`).join("")):'<small class="d" style="display:block;padding:2px 4px 10px">Could not refresh news. Check your internet connection and try again.</small>')}
-$("#hlR").onclick=()=>loadHeads(true,newsTopic("latest world news"));
+function renderHeads(){const valid=heads&&heads.l&&heads.l.length;const age=valid?Date.now()-heads.ts:Infinity;const stale=age>36e5;const status=newsLoading?'<small class="d" style="display:block;padding:2px 4px 8px">Refreshing headlines…</small>':newsRefreshFailed?'<small class="d" style="display:block;padding:2px 4px 8px">Refresh failed. Showing saved headlines from '+esc(new Date(heads&&heads.ts||0).toLocaleString())+'. Tap ↻ to retry.</small>':stale?'<small class="d" style="display:block;padding:2px 4px 8px">Saved headlines may be out of date.</small>':'';$("#heads").innerHTML=(valid?(status+heads.l.slice(0,6).map(h=>`<a class="row tap" href="${esc(h.u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ico">📰</div><div><b style="font-weight:500;font-size:12.5px">${esc(h.t)}</b><small class="d">${esc(h.src||heads.topic||"News")} ${h.pub?"· "+esc(h.pub.slice(0,16)):""}</small></div></a>`).join("")):'<small class="d" style="display:block;padding:2px 4px 10px">Could not load news. Check your internet connection and tap ↻ to retry.</small>')}
+$("#hlR").onclick=()=>loadHeads(true,heads&&heads.topic||"World");
 
 /* ===== AI brain ===== */
 const DEF={anthropic:"claude-haiku-5-5",openai:"gpt-4o-mini",gemini:"gemini-2.0-flash",groq:"llama-3.3-70b-versatile",openrouter:"openai/gpt-4o-mini"};
