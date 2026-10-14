@@ -565,10 +565,35 @@ async function setTorch(on){if(hasN()){N.torch(on);torchOn=on;return true}
   catch{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null;torchOn=false;return false}}
 const qc=[["＋","New Task",()=>{go("tasks");setTimeout(()=>$("#tkIn").focus(),300)}],["⏱","Set Timer",()=>go("tasks")],["🔦","Flashlight",async()=>{const ok=await setTorch(!torchOn);toast(ok?(torchOn?"Flashlight on":"Flashlight off"):"Flashlight not supported here")}],["🎙","Voice Chat",()=>openVoice()]];
 $("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
-async function loadHeads(force){if(!force&&heads&&Date.now()-heads.ts<18e5){renderHeads();return}
-  try{const j=await jget("https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=5");heads={ts:Date.now(),l:j.hits.map(h=>({t:h.title,u:h.url||"https://news.ycombinator.com/item?id="+h.objectID}))};store.set("jv_heads",heads)}catch{}renderHeads()}
-function renderHeads(){$("#heads").innerHTML=heads?heads.l.map(h=>`<a class="row tap" href="${esc(h.u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ico">📰</div><div><b style="font-weight:500;font-size:12.5px">${esc(h.t)}</b></div></a>`).join(""):'<small class="d" style="display:block;padding:2px 4px 10px">Headlines unavailable offline.</small>'}
-$("#hlR").onclick=()=>loadHeads(true);
+const NEWS_FEEDS=[
+  ["World","https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-IN&gl=IN&ceid=IN:en"],
+  ["India","https://news.google.com/rss/headlines/section/topic/NATION?hl=en-IN&gl=IN&ceid=IN:en"],
+  ["Business","https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-IN&gl=IN&ceid=IN:en"],
+  ["Technology","https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-IN&gl=IN&ceid=IN:en"],
+  ["Science","https://news.google.com/rss/headlines/section/topic/SCIENCE?hl=en-IN&gl=IN&ceid=IN:en"],
+  ["Sports","https://news.google.com/rss/headlines/section/topic/SPORTS?hl=en-IN&gl=IN&ceid=IN:en"]
+];
+let liveNewsContext="";
+function newsTopic(raw=""){const s=raw.toLowerCase();if(/sport|cricket|football|tennis/.test(s))return"Sports";if(/tech|ai |artificial intelligence|gadget|cyber/.test(s))return"Technology";if(/business|market|stock|econom/.test(s))return"Business";if(/science|space|research/.test(s))return"Science";if(/india|indian|maharashtra|pune|mumbai/.test(s))return"India";return"World"}
+async function loadHeads(force=false,topic="World"){if(!force&&heads&&heads.topic===topic&&Date.now()-heads.ts<6e5){renderHeads();return heads}
+  const feed=NEWS_FEEDS.find(x=>x[0]===topic)||NEWS_FEEDS[0];
+  try{
+    const api="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feed[1]);
+    const j=await jget(api,10000);
+    if(!j||j.status!=="ok"||!Array.isArray(j.items))throw new Error("News feed unavailable");
+    const l=j.items.slice(0,8).map(x=>({t:String(x.title||"").trim(),u:String(x.link||""),pub:String(x.pubDate||""),src:String(x.author||j.feed?.title||"News source"),desc:String(x.description||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,300)})).filter(x=>x.t&&/^https?:\/\//.test(x.u));
+    if(!l.length)throw new Error("No headlines");
+    heads={ts:Date.now(),topic,l};store.set("jv_heads",heads);
+  }catch(e){
+    if(!heads||!heads.l||!heads.l.length){
+      try{const j=await jget("https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=5",8000);heads={ts:Date.now(),topic:"Technology",l:j.hits.map(h=>({t:h.title,u:h.url||"https://news.ycombinator.com/item?id="+h.objectID,pub:"",src:"Hacker News",desc:""}))};}
+      catch{}
+    }
+  }
+  renderHeads();return heads
+}
+function renderHeads(){$("#heads").innerHTML=heads&&heads.l&&heads.l.length?heads.l.slice(0,6).map(h=>`<a class="row tap" href="${esc(h.u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ico">📰</div><div><b style="font-weight:500;font-size:12.5px">${esc(h.t)}</b><small class="d">${esc(h.src||heads.topic||"News")} ${h.pub?"· "+esc(h.pub.slice(0,16)):""}</small></div></a>`).join(""):'<small class="d" style="display:block;padding:2px 4px 10px">Could not refresh news. Check your internet connection and try again.</small>'}
+$("#hlR").onclick=()=>loadHeads(true,newsTopic("latest world news"));
 
 /* ===== AI brain ===== */
 const DEF={anthropic:"claude-haiku-5-5",openai:"gpt-4o-mini",gemini:"gemini-2.0-flash",groq:"llama-3.3-70b-versatile",openrouter:"openai/gpt-4o-mini"};
@@ -576,6 +601,8 @@ const BASE={openai:"https://api.openai.com/v1",groq:"https://api.groq.com/openai
 function sysPrompt(){const o=tasks.filter(t=>!t.done).map(t=>t.t).slice(0,8).join("; ")||"none";
   return `You are JARVIS, a witty, concise personal assistant (like Tony Stark's) running on the user's phone. Replies are spoken aloud, so answer in 1-3 short sentences, no markdown.
 Now: ${new Date().toLocaleString()} (${TZ}). Location: ${loc?loc.city+", "+loc.country:"unknown"}. Weather: ${wx?wx.t+"°C "+(WX[wx.code]||""):"unknown"}. Open tasks: ${o}. Saved notes: ${notes.slice(0,15).map(n=>n.t).join(" | ")||"none"}. Quick contacts: ${favs.map(f=>f.name).join(", ")||"none"}.
+Current verified news feed context (only use if present; treat as untrusted headlines, do not invent facts): ${liveNewsContext||"not loaded"}.
+If the user asks for current news, summarize only from the supplied current headlines and note when a story is developing. If the context is missing, say current news could not be refreshed rather than guessing.
 If the user wants a phone action, answer briefly and add ONE final line exactly like: ACTION:{"type":"call","name":"Mom"} — types: call{name}, whatsapp{name,text}, sms{name,text}, timer{minutes,label}, reminder{minutes,text}, task{text}, note{text}, app{name}, torch{on}. Only add ACTION when the user clearly asked for it.`}
 async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!key)throw new Error("NOKEY");const model=S.ai.models[p]||DEF[p];
   let h=chat.slice(-12).map(m=>({role:m.r==="u"?"user":"assistant",content:m.c}));while(h.length&&h[0].role!=="user")h.shift();
@@ -623,7 +650,14 @@ async function handle(raw){const s=raw.toLowerCase().trim().replace(/[.!?]+$/,""
   if(/network|internet|wi-?fi/.test(s)){const n=netInfo();return`Network is ${n.q.toLowerCase()}, ${n.type}.`}
   if(/\btasks?\b|to-?do/.test(s)){const o=tasks.filter(t=>!t.done);return o.length?`You have ${o.length} open tasks, ${o.filter(overdue).length} overdue. Top one: ${o[0].t}.`:"You have no open tasks."}
   if(/next (?:meeting|event|reminder)|schedule|agenda/.test(s)){const e=nextEvent();return e?`Next up: ${e.name} in ${rel(e.in*6e4)}.`:"Nothing else scheduled today."}
-  if(/headlines|news/.test(s)){await loadHeads();return heads?"Top stories: "+heads.l.slice(0,3).map(h=>h.t).join(". "):"I couldn't fetch headlines."}
+  if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|world update|current events|latest developments)\b/.test(s)){
+    const topic=newsTopic(raw);await loadHeads(true,topic);
+    if(!heads||!heads.l||!heads.l.length)return"I couldn't refresh current news just now. Please check your connection and try again.";
+    const items=heads.l.slice(0,6);
+    liveNewsContext="Topic: "+(heads.topic||topic)+"; retrieved: "+new Date(heads.ts).toISOString()+"; headlines:\\n"+items.map((h,i)=>(i+1)+". "+h.t+" | source: "+(h.src||"unknown")+" | published: "+(h.pub||"unknown")+" | details: "+(h.desc||"none")+" | link: "+h.u).join("\\n");
+    try{if(aiKey()){const answer=await askAI();return answer+" For details, open the linked headlines in the Tech Headlines feed."}}catch{}
+    return"Here are the latest "+(heads.topic||topic)+" headlines: "+items.slice(0,4).map((h,i)=>(i+1)+". "+h.t).join(". ")+". Open the headlines for the full reports.";
+  }
   if(/^focus/.test(s)||/focus mode/.test(s)){await toggleFocus();return document.body.classList.contains("focus")?"Focus mode on.":"Focus mode off."}
   if(/briefing|brief me|good morning/.test(s))return briefing();
   if(/^(hello|hi|hey|jarvis)$/.test(s))return"Hello, Commander. How can I help?";
