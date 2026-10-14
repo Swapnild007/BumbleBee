@@ -16,7 +16,7 @@
   --text:#d6ecff;--dim:#7f9bb5;--green:#34e6a0;--amber:#f5b73b;--red:#ff5d6c;--purple:#a77bff;
   --sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:rgb(var(--bg-rgb));color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;overscroll-behavior:none}
+html,body{background:rgb(var(--bg-rgb));color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;overscroll-behavior-x:none;overscroll-behavior-y:auto}
 body{background:radial-gradient(ellipse at 50% 0%,rgba(var(--acc-rgb),.2) 0%,rgb(var(--base-rgb)) 38%,rgb(var(--bg-rgb)) 85%) fixed}
 .shell{max-width:520px;margin:0 auto;min-height:100dvh;padding:calc(var(--st) + 10px) 12px calc(96px + var(--sb))}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;position:relative;box-shadow:inset 0 0 22px rgba(var(--acc-rgb),.1),0 0 14px rgba(var(--acc-rgb),.1);overflow:hidden}
@@ -309,6 +309,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 <div class="shell">
   <div class="hd">
     <div class="logo"><div class="ring"><i></i></div><div><b>JARVIS</b><small>COMMAND CENTER</small></div></div>
+    <div class="ib" id="refresh" aria-label="Refresh screen" title="Refresh screen">↻</div>
     <div class="ib" id="bell">🔔<span class="bd" id="bellN">0</span></div>
     <div class="ib" id="gear">⚙</div>
   </div>
@@ -964,6 +965,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   $("#imp").onclick=()=>$("#impF").click();$("#impF").onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());Object.entries(o).forEach(([k,v])=>k.startsWith("jv_")&&k!=="jv_set"&&localStorage.setItem(k,v));toast("Imported — reloading");setTimeout(()=>location.reload(),800)}catch{toast("Invalid backup file")}};
   $("#reset").onclick=()=>{if(confirm("Erase ALL Jarvis data on this device?")){Object.keys(localStorage).filter(k=>k.startsWith("jv_")).forEach(k=>localStorage.removeItem(k));location.reload()}}})}
 $("#gear").onclick=openSettings;
+$("#refresh").onclick=()=>{hap();toast("Refreshing JARVIS…");setTimeout(()=>location.reload(),180)};
 setInterval(()=>{if(S.autoloc&&!document.hidden)locate()},6e5);
 
 /* ===== canvases: globe + memory map ===== */
