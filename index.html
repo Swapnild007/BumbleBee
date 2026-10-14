@@ -286,7 +286,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
     <div class="panel dimmable"><h3>LIVE INTELLIGENCE FEED <span class="live">● LIVE</span></h3><div class="rows" id="feed"></div></div>
     <div class="panel dimmable"><h3>QUICK COMMANDS</h3><div class="grid2" id="qcs"></div></div>
     <div class="panel dimmable"><h3>ACTIVE AGENTS <span class="d" id="agN" style="font-weight:400"></span></h3><div class="agents" id="agents"></div></div>
-    <div class="panel dimmable"><h3>TECH HEADLINES <button class="link" id="hlR">↻</button></h3><div class="rows" id="heads"></div></div>
+    <div class="panel dimmable"><h3>LIVE NEWS <button class="link" id="hlR">↻</button></h3><div class="rows" id="heads"></div></div>
   </section>
 
   <section class="tab" id="t-phone">
@@ -666,7 +666,18 @@ async function handle(raw){const s=raw.toLowerCase().trim().replace(/[.!?]+$/,""
 function briefing(){const h=new Date().getHours(),e=nextEvent(),o=tasks.filter(t=>!t.done),nm=msgs.length;
   return`Good ${h<12?"morning":h<17?"afternoon":"evening"}, Commander. All systems optimal. ${wx&&loc?`It's ${wx.t} degrees and ${(WX[wx.code]||"").toLowerCase()} in ${loc.city}, high ${wx.hi}. `:""}You have ${o.length} open task${o.length==1?"":"s"}${o.filter(overdue).length?", "+o.filter(overdue).length+" overdue":""}.${e?` Next is ${e.name} in ${rel(e.in*6e4)}.`:""}${nm?` ${nm} new message${nm>1?"s":""}.`:""}${heads&&heads.l[0]?` Top headline: ${heads.l[0].t}.`:""}`}
 $("#brief").onclick=async()=>{hap();await loadHeads();const t=briefing();toast(t);say(t)};
-function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("speechSynthesis" in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}}
+function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("speechSynthesis" in window){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(String(t));u.rate=.96;u.pitch=1.02;u.volume=1;
+    const vs=speechSynthesis.getVoices()||[],lang=(navigator.language||"en-IN").toLowerCase(),base=lang.split("-")[0];
+    const exact=vs.filter(v=>(v.lang||"").toLowerCase()===lang),same=vs.filter(v=>(v.lang||"").toLowerCase().startsWith(base+"-"));
+    const pool=exact.length?exact:same;
+    const preferred=pool.find(v=>/natural|enhanced|premium/i.test(v.name))||pool.find(v=>/google/i.test(v.name))||pool.find(v=>v.default)||pool[0];
+    if(preferred)u.voice=preferred;
+    speechSynthesis.speak(u);
+  }catch{}
+}}
 let wl=null;async function toggleFocus(){const on=document.body.classList.toggle("focus");try{if(on&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen");else if(wl){wl.release();wl=null}}catch{}}
 $("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");const r=await safeHandle(t);toast(r);if(pend){openVoice()}}});
 async function safeHandle(t){try{return await handle(t)}catch(e){return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
