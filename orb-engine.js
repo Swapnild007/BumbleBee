@@ -1,15 +1,18 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 /*
- * JARVIS 3D core engine.
- * Implementation techniques adapted from the MIT-licensed ULTRON Orb UI
- * project: layered spherical shells, orbital particles, scan rings, and
- * interactive orbit controls. JARVIS layout, colors, and product UI remain
- * independently designed in index.html.
+ * JARVIS character stage.
+ * The scene loads a CC0 mecha asset and recolors it into an original
+ * yellow/graphite/cyan JARVIS visual treatment. A procedural character is
+ * displayed first, so the stage remains useful if the remote model is offline.
+ * Model source and license: RamonLinares/atlas-09, public/models/atlas-09.glb,
+ * CC0 1.0 Universal. This is an original JARVIS interface, not an official
+ * Transformers/Bumblebee asset.
  */
 const host = document.querySelector("#core");
-if (!host) throw new Error("JARVIS core mount not found");
+if (!host) throw new Error("JARVIS character mount not found");
 
 let renderer;
 try {
@@ -21,203 +24,243 @@ try {
     depth: true
   });
 } catch (error) {
-  console.warn("JARVIS 3D renderer unavailable; keeping CSS fallback.", error);
+  console.warn("JARVIS 3D stage unavailable; CSS stage remains visible.", error);
 }
 
 if (renderer) {
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80);
-  camera.position.set(0, 0.15, 7.4);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+  camera.position.set(0, 2.35, 8.7);
+  camera.lookAt(0, 1.85, 0);
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.35));
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.18;
   renderer.domElement.className = "jarvis-webgl";
   renderer.domElement.setAttribute("aria-hidden", "true");
   host.appendChild(renderer.domElement);
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.055;
-  controls.enablePan = false;
-  controls.enableZoom = true;
-  controls.zoomSpeed = 0.65;
-  controls.minDistance = 5.4;
-  controls.maxDistance = 10;
-  controls.rotateSpeed = 0.55;
-  controls.autoRotate = !reducedMotion;
-  controls.autoRotateSpeed = 0.45;
-  controls.target.set(0, 0, 0);
-  controls.update();
+  scene.add(new THREE.HemisphereLight(0xb9f5ff, 0x10151a, 2.0));
+  const key = new THREE.DirectionalLight(0xffe4a1, 3.2);
+  key.position.set(-3, 6, 5);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x39d9ff, 4.0);
+  rim.position.set(4, 3, -4);
+  scene.add(rim);
+  const fill = new THREE.DirectionalLight(0xffb829, 1.4);
+  fill.position.set(1, 1, 5);
+  scene.add(fill);
 
-  const coreGroup = new THREE.Group();
-  scene.add(coreGroup);
+  const stage = new THREE.Group();
+  scene.add(stage);
 
-  const cyan = 0x67e8ff;
-  const ice = 0xb9f8ff;
-  const blue = 0x237fa5;
+  const floorRingMaterial = new THREE.MeshBasicMaterial({
+    color: 0x36c8dc, transparent: true, opacity: 0.22, side: THREE.DoubleSide
+  });
+  const floorRing = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.012, 5, 96), floorRingMaterial);
+  floorRing.rotation.x = Math.PI / 2;
+  floorRing.position.y = 0.08;
+  stage.add(floorRing);
+  const innerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.12, 0.006, 4, 96),
+    new THREE.MeshBasicMaterial({ color: 0xf2c64b, transparent: true, opacity: 0.18 })
+  );
+  innerRing.rotation.x = Math.PI / 2;
+  innerRing.position.y = 0.09;
+  stage.add(innerRing);
 
-  function wireSphere(radius, segments, color, opacity, scale = [1, 1, 1]) {
-    const geometry = new THREE.SphereGeometry(radius, segments, Math.max(8, Math.floor(segments * 0.68)));
-    const material = new THREE.MeshBasicMaterial({
-      color, wireframe: true, transparent: true, opacity,
-      blending: THREE.AdditiveBlending, depthWrite: false
-    });
+  const dustCount = /Android/i.test(navigator.userAgent) ? 55 : 100;
+  const dustGeometry = new THREE.BufferGeometry();
+  const dustPositions = new Float32Array(dustCount * 3);
+  for (let i = 0; i < dustCount; i++) {
+    dustPositions[i * 3] = (Math.random() - 0.5) * 6.5;
+    dustPositions[i * 3 + 1] = Math.random() * 4.5;
+    dustPositions[i * 3 + 2] = (Math.random() - 0.5) * 3.0 - 0.8;
+  }
+  dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3));
+  const dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({
+    color: 0x8aefff, size: 0.018, transparent: true, opacity: 0.35,
+    sizeAttenuation: true, depthWrite: false
+  }));
+  stage.add(dust);
+
+  const armor = new THREE.MeshStandardMaterial({
+    color: 0xe5b52f, metalness: 0.72, roughness: 0.29
+  });
+  const armorLight = new THREE.MeshStandardMaterial({
+    color: 0xffd75d, metalness: 0.64, roughness: 0.25
+  });
+  const dark = new THREE.MeshStandardMaterial({
+    color: 0x11191e, metalness: 0.84, roughness: 0.35
+  });
+  const joint = new THREE.MeshStandardMaterial({
+    color: 0x303a40, metalness: 0.72, roughness: 0.42
+  });
+  const optic = new THREE.MeshStandardMaterial({
+    color: 0x72f4ff, emissive: 0x18cce8, emissiveIntensity: 3.0,
+    metalness: 0.1, roughness: 0.18
+  });
+  const trim = new THREE.MeshStandardMaterial({
+    color: 0x8fa3ab, metalness: 0.85, roughness: 0.24
+  });
+
+  function box(group, material, size, pos, bevel = false) {
+    const geometry = new THREE.BoxGeometry(size[0], size[1], size[2]);
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.set(...scale);
-    coreGroup.add(mesh);
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    if (bevel) mesh.rotation.z = 0.02;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    group.add(mesh);
     return mesh;
   }
-
-  // Fine technical shell plus two offset shells create real 3D depth.
-  const outerShell = wireSphere(1.72, 24, cyan, 0.13, [1, 1, 0.9]);
-  const midShell = wireSphere(1.49, 18, 0x45bde2, 0.10, [0.96, 1.02, 1]);
-  const innerShell = wireSphere(1.12, 16, ice, 0.08, [1, 0.97, 1.03]);
-
-  // Bright latitude/longitude guide rings.
-  const ringMaterials = [];
-  function makeRing(radius, tilt, opacity, tube = 0.009) {
-    const geometry = new THREE.TorusGeometry(radius, tube, 5, 128);
-    const material = new THREE.MeshBasicMaterial({
-      color: cyan, transparent: true, opacity,
-      blending: THREE.AdditiveBlending, depthWrite: false
-    });
-    const ring = new THREE.Mesh(geometry, material);
-    ring.rotation.set(...tilt);
-    coreGroup.add(ring);
-    ringMaterials.push(material);
-    return ring;
+  function cylinder(group, material, radiusTop, radiusBottom, height, pos, segments = 10) {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments), material);
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    mesh.castShadow = true;
+    group.add(mesh);
+    return mesh;
   }
-  const ringA = makeRing(1.92, [0.9, 0.1, 0.22], 0.22, 0.006);
-  const ringB = makeRing(1.57, [1.25, 0.4, -0.35], 0.14, 0.005);
-  const ringC = makeRing(1.28, [0.25, 0.9, 0.75], 0.10, 0.004);
-
-  // Energy core: animated shader, not a flat CSS gradient.
-  const coreGeometry = new THREE.SphereGeometry(0.79, 48, 36);
-  const coreMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 },
-      uState: { value: 0 },
-      uTint: { value: new THREE.Color(cyan) }
-    },
-    vertexShader: `
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vPosition = position;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float uTime;
-      uniform float uState;
-      uniform vec3 uTint;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      void main() {
-        vec3 n = normalize(vNormal);
-        float fresnel = pow(1.0 - abs(dot(n, vec3(0.0, 0.0, 1.0))), 2.0);
-        float bands = 0.5 + 0.5 * sin(vPosition.y * 19.0 + uTime * (1.2 + uState * 2.0) + sin(vPosition.x * 9.0));
-        float pulse = 0.84 + 0.16 * sin(uTime * (1.8 + uState * 3.0));
-        vec3 deep = vec3(0.008, 0.035, 0.06);
-        vec3 color = mix(deep, uTint, 0.18 + bands * 0.2);
-        color += uTint * fresnel * (0.7 + bands * 0.7);
-        color += vec3(0.3, 0.88, 1.0) * pow(max(0.0, 1.0 - length(vPosition.xy) / 0.8), 4.0) * 0.6;
-        gl_FragColor = vec4(color * pulse, 0.94);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }
-    `,
-    transparent: true,
-    depthWrite: true
-  });
-  const energyCore = new THREE.Mesh(coreGeometry, coreMaterial);
-  coreGroup.add(energyCore);
-
-  // Fine inner filament loops around the luminous center.
-  const filaments = [];
-  for (let i = 0; i < 5; i++) {
-    const curve = new THREE.EllipseCurve(0, 0, 0.48 + i * 0.045, 0.17 + i * 0.025, 0, Math.PI * 2, false, i * 0.2);
-    const points = curve.getPoints(100).map(p => new THREE.Vector3(p.x, p.y, (i - 2) * 0.055));
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({
-      color: i % 2 ? cyan : ice, transparent: true, opacity: 0.16,
-      blending: THREE.AdditiveBlending, depthWrite: false
-    });
-    const line = new THREE.LineLoop(geometry, material);
-    line.rotation.set(i * 0.45, i * 0.27, i * 0.62);
-    coreGroup.add(line);
-    filaments.push(line);
+  function buildFallbackMech() {
+    const bot = new THREE.Group();
+    const torso = new THREE.Group();
+    bot.add(torso);
+    // Compact original mecha silhouette, used only until the CC0 model arrives.
+    box(torso, dark, [0.82, 0.68, 0.4], [0, 2.15, 0]);
+    box(torso, armor, [0.96, 0.56, 0.44], [0, 2.48, 0.025], true);
+    box(torso, armorLight, [0.57, 0.16, 0.12], [0, 2.57, 0.255]);
+    box(torso, dark, [0.43, 0.28, 0.08], [0, 2.29, 0.255]);
+    box(torso, optic, [0.24, 0.055, 0.03], [0, 2.31, 0.31]);
+    box(torso, armorLight, [0.18, 0.13, 0.13], [-0.29, 2.38, 0.26]);
+    box(torso, armorLight, [0.18, 0.13, 0.13], [0.29, 2.38, 0.26]);
+    box(torso, dark, [0.42, 0.35, 0.34], [0, 1.68, 0]);
+    box(torso, armor, [0.62, 0.18, 0.36], [0, 1.8, 0.02]);
+    // Head and brow.
+    cylinder(torso, joint, 0.12, 0.15, 0.22, [0, 2.91, 0], 8);
+    box(torso, dark, [0.42, 0.37, 0.33], [0, 3.12, 0]);
+    box(torso, armor, [0.48, 0.16, 0.36], [0, 3.29, 0.015]);
+    box(torso, dark, [0.31, 0.11, 0.05], [0, 3.12, 0.18]);
+    box(torso, optic, [0.105, 0.035, 0.025], [-0.09, 3.12, 0.213]);
+    box(torso, optic, [0.105, 0.035, 0.025], [0.09, 3.12, 0.213]);
+    box(torso, armorLight, [0.11, 0.16, 0.16], [0, 3.42, 0]);
+    // Shoulder blocks and arms.
+    for (const side of [-1, 1]) {
+      const x = side * 0.66;
+      box(torso, dark, [0.3, 0.3, 0.34], [x, 2.47, 0]);
+      box(torso, armor, [0.42, 0.31, 0.4], [x, 2.57, 0.015], true);
+      box(torso, armorLight, [0.24, 0.09, 0.07], [x, 2.59, 0.23]);
+      cylinder(torso, joint, 0.13, 0.13, 0.2, [side * 0.68, 2.23, 0], 9);
+      box(torso, armor, [0.24, 0.45, 0.26], [side * 0.7, 1.98, 0]);
+      box(torso, dark, [0.27, 0.17, 0.28], [side * 0.72, 1.69, 0]);
+      box(torso, armorLight, [0.25, 0.25, 0.28], [side * 0.73, 1.49, 0.01]);
+      box(torso, dark, [0.24, 0.18, 0.25], [side * 0.73, 1.34, 0.02]);
+      // Thighs, knees, shins, and wide planted feet.
+      box(torso, armor, [0.31, 0.47, 0.32], [side * 0.28, 1.34, 0]);
+      box(torso, dark, [0.32, 0.17, 0.34], [side * 0.28, 1.06, 0.02]);
+      box(torso, armor, [0.32, 0.49, 0.35], [side * 0.29, 0.79, 0]);
+      box(torso, armorLight, [0.16, 0.19, 0.06], [side * 0.29, 0.79, 0.19]);
+      box(torso, dark, [0.4, 0.19, 0.56], [side * 0.29, 0.43, 0.08]);
+      box(torso, armor, [0.42, 0.11, 0.42], [side * 0.29, 0.49, 0.1]);
+      // Side vents and small metallic bolts.
+      for (let i = 0; i < 3; i++) box(torso, dark, [0.045, 0.22, 0.025], [side * 0.68, 2.0 + i * 0.055, 0.143]);
+      cylinder(torso, trim, 0.035, 0.035, 0.025, [side * 0.44, 2.56, 0.25], 8).rotation.x = Math.PI / 2;
+    }
+    bot.position.y = 0;
+    return bot;
   }
 
-  // Reusable point geometry keeps mobile draw calls low.
-  const particleCount = /Android/i.test(navigator.userAgent) ? 110 : 180;
-  const positions = new Float32Array(particleCount * 3);
-  const phases = new Float32Array(particleCount);
-  for (let i = 0; i < particleCount; i++) {
-    const r = 1.95 + Math.random() * 1.45;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-    positions[i * 3 + 1] = r * Math.cos(phi);
-    positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-    phases[i] = Math.random() * Math.PI * 2;
-  }
-  const particleGeometry = new THREE.BufferGeometry();
-  particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  const particleMaterial = new THREE.PointsMaterial({
-    color: 0x7eeaff, size: 0.016, transparent: true, opacity: 0.28,
-    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
-  });
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  scene.add(particles);
-
-  // Sparse orbiting signal nodes.
-  const nodeGeometry = new THREE.IcosahedronGeometry(0.035, 1);
-  const nodeMaterial = new THREE.MeshBasicMaterial({
-    color: ice, transparent: true, opacity: 0.58,
-    blending: THREE.AdditiveBlending
-  });
-  const nodes = [];
-  for (let i = 0; i < 7; i++) {
-    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-    node.userData = {
-      angle: (i / 7) * Math.PI * 2,
-      radius: 1.82 + (i % 3) * 0.16,
-      speed: (i % 2 ? 1 : -1) * (0.12 + (i % 5) * 0.018),
-      tilt: (i % 4) * 0.32
-    };
-    nodes.push(node);
-    scene.add(node);
-  }
-
-  // A subtle backlight halo, all geometry is generated locally.
-  const haloGeometry = new THREE.SphereGeometry(2.0, 32, 24);
-  const haloMaterial = new THREE.MeshBasicMaterial({
-    color: blue, side: THREE.BackSide, transparent: true, opacity: 0.055,
-    blending: THREE.AdditiveBlending, depthWrite: false
-  });
-  const halo = new THREE.Mesh(haloGeometry, haloMaterial);
-  coreGroup.add(halo);
-
+  const fallback = buildFallbackMech();
+  stage.add(fallback);
+  let character = fallback;
+  let mixer = null;
   let stateLevel = 0;
-  let visible = true;
+  let time = 0;
+
+  function recolorModel(root) {
+    const blueWords = /eye|optic|visor|glass|emissive|blue light/i;
+    const darkWords = /black|rubber|tire|joint|inner|dark|carbon|shadow|underside|wheel/i;
+    root.traverse(object => {
+      if (!object.isMesh) return;
+      object.castShadow = true;
+      object.receiveShadow = true;
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const mat of materials) {
+        if (!mat || !mat.color) continue;
+        const name = String(mat.name || object.name || "");
+        const original = mat.color.clone();
+        const luminance = original.r * 0.2126 + original.g * 0.7152 + original.b * 0.0722;
+        if (blueWords.test(name)) {
+          mat.color.set("#b6faff");
+          if ("emissive" in mat) {
+            mat.emissive.set("#16cde8");
+            mat.emissiveIntensity = 2.2;
+          }
+        } else if (darkWords.test(name) || luminance < 0.16) {
+          mat.color.set("#182126");
+        } else {
+          mat.color.set("#e6b42e");
+          if ("metalness" in mat) mat.metalness = Math.max(mat.metalness || 0, 0.55);
+          if ("roughness" in mat) mat.roughness = Math.min(mat.roughness ?? 0.5, 0.38);
+        }
+      }
+    });
+  }
+
+  function fitModel(root) {
+    const bounds = new THREE.Box3().setFromObject(root);
+    const size = bounds.getSize(new THREE.Vector3());
+    const center = bounds.getCenter(new THREE.Vector3());
+    const scale = 3.55 / Math.max(size.y, size.x * 0.62, 0.1);
+    root.scale.setScalar(scale);
+    root.position.set(-center.x * scale, -bounds.min.y * scale, -center.z * scale);
+    root.position.y += 0.06;
+  }
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.065;
+  controls.enablePan = false;
+  controls.enableZoom = false;
+  controls.enableRotate = true;
+  controls.rotateSpeed = 0.38;
+  controls.minPolarAngle = Math.PI * 0.34;
+  controls.maxPolarAngle = Math.PI * 0.57;
+  controls.target.set(0, 1.85, 0);
+  controls.update();
+
+  const loader = new GLTFLoader();
+  loader.load(
+    "https://raw.githubusercontent.com/RamonLinares/atlas-09/main/public/models/atlas-09.glb",
+    gltf => {
+      if (!host.isConnected) return;
+      const model = gltf.scene;
+      recolorModel(model);
+      fitModel(model);
+      model.position.x = 0;
+      model.rotation.y = 0;
+      stage.remove(fallback);
+      stage.add(model);
+      character = model;
+      if (gltf.animations?.length) {
+        mixer = new THREE.AnimationMixer(model);
+        const idle = gltf.animations.find(clip => /idle|stand|rest/i.test(clip.name)) || gltf.animations[0];
+        mixer.clipAction(idle).play();
+      }
+      console.info("JARVIS character model loaded.");
+    },
+    undefined,
+    error => console.warn("Remote mecha unavailable; using local procedural character.", error)
+  );
+
   let frame = 0;
   let previous = 0;
-  const clock = new THREE.Clock();
-  const reducedQuality = /Android/i.test(navigator.userAgent);
-  let width = 1, height = 1;
-
   function resize() {
-    const rect = host.getBoundingClientRect();
-    width = Math.max(1, rect.width);
-    height = Math.max(1, rect.height);
+    const width = Math.max(1, host.clientWidth);
+    const height = Math.max(1, host.clientHeight);
     camera.aspect = width / height;
-    camera.fov = width < 190 ? 43 : 38;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
   }
@@ -225,81 +268,48 @@ if (renderer) {
   resizeObserver.observe(host);
   resize();
 
-  const visibilityObserver = new IntersectionObserver(entries => {
-    visible = Boolean(entries[0]?.isIntersecting);
-  }, { threshold: 0.01 });
-  visibilityObserver.observe(host);
-
-  function animate(now) {
+  function animate(now = 0) {
     frame = requestAnimationFrame(animate);
-    if (!visible || document.hidden) return;
-    // Cap animation work on mobile while retaining smooth motion.
-    const frameInterval = reducedQuality ? 1000 / 40 : 1000 / 60;
-    if (now - previous < frameInterval) return;
+    const delta = Math.min(previous ? (now - previous) / 1000 : 0.016, 0.05);
     previous = now;
-    const t = clock.getElapsedTime();
-
-    outerShell.rotation.y = t * 0.055;
-    outerShell.rotation.x = Math.sin(t * 0.13) * 0.08;
-    midShell.rotation.y = -t * 0.075;
-    midShell.rotation.z = Math.sin(t * 0.17) * 0.09;
-    innerShell.rotation.y = t * 0.11;
-    ringA.rotation.z += 0.0018;
-    ringB.rotation.x += 0.0012;
-    ringC.rotation.y -= 0.0015;
-    energyCore.rotation.y = t * 0.045;
-    coreMaterial.uniforms.uTime.value = t;
-    coreMaterial.uniforms.uState.value = stateLevel;
-
-    filaments.forEach((line, i) => {
-      line.rotation.x += 0.0007 * (i + 1);
-      line.rotation.y -= 0.00045 * (i + 1);
-    });
-    particles.rotation.y = t * 0.012;
-    particles.rotation.x = Math.sin(t * 0.08) * 0.05;
-    particleMaterial.opacity = 0.5 + 0.14 * Math.sin(t * 0.7);
-    nodes.forEach(node => {
-      const d = node.userData;
-      const a = d.angle + t * d.speed;
-      node.position.set(
-        Math.cos(a) * d.radius,
-        Math.sin(a * 1.4) * 0.55 + Math.sin(d.tilt) * 0.3,
-        Math.sin(a) * d.radius * 0.65
-      );
-    });
+    time += delta;
+    if (mixer) mixer.update(delta);
+    if (!reducedMotion && character === fallback) {
+      fallback.position.y = Math.sin(time * 1.1) * 0.035;
+      fallback.rotation.y = Math.sin(time * 0.35) * 0.08;
+    } else if (!reducedMotion && character !== fallback) {
+      character.rotation.y += delta * (stateLevel ? 0.025 : 0.055);
+    }
+    floorRing.rotation.z = Math.sin(time * 0.25) * 0.025;
+    innerRing.rotation.z = -time * 0.08;
+    dust.rotation.y = time * 0.012;
+    optic.emissiveIntensity = 2.4 + Math.sin(time * 2.4) * 0.35 + stateLevel * 1.2;
     controls.update();
     renderer.render(scene, camera);
   }
 
   const onState = event => {
     const text = String(event.detail?.state || "").toLowerCase();
-    stateLevel = text.includes("listening") ? 1 : text.includes("thinking") ? 0.7 : text.includes("speaking") ? 0.9 : 0;
-    controls.autoRotate = !reducedMotion && stateLevel === 0;
+    stateLevel = text.includes("listening") ? 1 : text.includes("thinking") ? 0.75 : text.includes("speaking") ? 0.9 : 0;
     renderer.domElement.classList.toggle("is-listening", stateLevel > 0.8);
   };
   window.addEventListener("jarvis-core-state", onState);
-
-  host.classList.add("webgl-ready");
   requestAnimationFrame(animate);
 
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      previous = 0;
-      clock.getDelta();
-    }
+    if (!document.hidden) previous = 0;
   });
 
-  window.jarvisOrb = {
+  window.jarvisCharacter = {
     reset() {
       controls.reset();
-      controls.target.set(0, 0, 0);
-      camera.position.set(0, 0.15, 7.4);
+      camera.position.set(0, 2.35, 8.7);
+      controls.target.set(0, 1.85, 0);
       controls.update();
     },
     dispose() {
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
-      visibilityObserver.disconnect();
       window.removeEventListener("jarvis-core-state", onState);
       controls.dispose();
       scene.traverse(object => {
