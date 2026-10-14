@@ -26,4 +26,8 @@ assert.ok(html.includes('function go(t){document.querySelectorAll(".tab").forEac
 assert.ok(html.includes('document.querySelectorAll(".nav a").forEach'), "bottom navigation must update active nav items");
 assert.ok(html.includes("jarvis-personal-intelligence-v14") || true, "cache refresh is versioned");
 
+assert.ok(html.includes('mainNav.addEventListener("click"'), "mobile nav should use delegated click handling");
+assert.ok(html.includes('mainNav.addEventListener("touchend"'), "mobile nav should handle touch interaction");
+assert.ok(html.includes("pointer-events:none;left:0;top:7px"), "liquid pill must not block nav taps");
+
 console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
