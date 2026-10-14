@@ -21,10 +21,13 @@ assert.ok(html.includes("stop speaking|stop talking|be quiet|quiet|cancel speech
 assert.ok(!html.includes("hn.algolia.com/api/v1/search"), "technology-only fallback must not be presented as general news");
 assert.equal((html.match(/:\["\d+,\d+,\d+","[^"]+","[^"]+","[^"]+"\]/g)||[]).length,16,"JARVIS should offer 16 color themes");
 assert.ok(html.includes("aria-pressed"), "theme swatches should expose accessible selected state");
+assert.ok(html.includes('id="trainingLab"'), "System tab should expose the training self-test panel");
+assert.ok(html.includes("async function runTrainingLab()"), "in-app self-test runner should exist");
+assert.ok(html.includes('fetch("./training/intents.json"'), "self-test should load the shared training corpus");
 
 assert.ok(html.includes('function go(t){document.querySelectorAll(".tab").forEach'), "bottom navigation must iterate over tab sections");
 assert.ok(html.includes('document.querySelectorAll(".nav a").forEach'), "bottom navigation must update active nav items");
-assert.ok(html.includes("jarvis-personal-intelligence-v14") || true, "cache refresh is versioned");
+
 
 assert.ok(html.includes('mainNav.addEventListener("click"'), "mobile nav should use delegated click handling");
 assert.ok(html.includes('mainNav.addEventListener("touchend"'), "mobile nav should handle touch interaction");
