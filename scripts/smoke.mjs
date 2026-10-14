@@ -30,4 +30,8 @@ assert.ok(html.includes('mainNav.addEventListener("click"'), "mobile nav should 
 assert.ok(html.includes('mainNav.addEventListener("touchend"'), "mobile nav should handle touch interaction");
 assert.ok(html.includes("pointer-events:none;left:0;top:7px"), "liquid pill must not block nav taps");
 
+import { spawnSync } from "node:child_process";
+const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { encoding: "utf8" });
+assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
+
 console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
