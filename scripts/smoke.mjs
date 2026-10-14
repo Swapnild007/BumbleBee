@@ -16,6 +16,8 @@ assert.ok(html.includes("Date.now()-heads.ts<36e5"), "news briefing must reject 
 assert.ok(html.includes("liveNewsContext"), "fetched headlines must be passed to AI context");
 assert.ok(html.includes("Do not invent facts"), "news system prompt must prohibit invented details");
 assert.ok(html.includes("speechSynthesis.speak(u)"), "browser speech output must be configured");
+assert.ok(html.includes("Checking the latest headlines now."), "news requests should receive an immediate spoken acknowledgement");
+assert.ok(html.includes("stop speaking|stop talking|be quiet|quiet|cancel speech|silence"), "speech interruption command must be available");
 assert.ok(!html.includes("hn.algolia.com/api/v1/search"), "technology-only fallback must not be presented as general news");
 
 console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
