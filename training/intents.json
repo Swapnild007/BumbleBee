@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "purpose": "JARVIS intent evaluation set. These are regression examples for routing and slot extraction, not model fine-tuning data.",
+  "version": 2,
+  "purpose": "JARVIS intent evaluation set. Regression examples for offline routing and slot extraction; not model fine-tuning data.",
   "cases": [
     {
       "id": "hello-01",
@@ -183,6 +183,153 @@
       "expected": {
         "replyClass": "ai-or-unknown"
       },
+      "pattern": null
+    },
+    {
+      "id": "greeting-02",
+      "intent": "greeting",
+      "utterance": "Hello JARVIS",
+      "expected": {},
+      "pattern": "^(hello|hi|hey|jarvis)$"
+    },
+    {
+      "id": "note-03",
+      "intent": "memory.save",
+      "utterance": "Save this: buy printer paper",
+      "expected": {
+        "text": "buy printer paper"
+      },
+      "pattern": "^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)"
+    },
+    {
+      "id": "memory-recall-02",
+      "intent": "memory.search",
+      "utterance": "Recall my notes about work",
+      "expected": {
+        "query": "my notes about work"
+      },
+      "pattern": "^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\\\\s*(.*)"
+    },
+    {
+      "id": "task-03",
+      "intent": "task.create",
+      "utterance": "New task: submit report",
+      "expected": {
+        "text": "submit report"
+      },
+      "pattern": "^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)"
+    },
+    {
+      "id": "reminder-02",
+      "intent": "reminder.create",
+      "utterance": "Remind me tomorrow to pay rent",
+      "expected": {
+        "request": "tomorrow to pay rent"
+      },
+      "pattern": "^(?:remind me|reminder)\\\\s+(.+)"
+    },
+    {
+      "id": "timer-02",
+      "intent": "timer.create",
+      "utterance": "Alarm at 7 pm",
+      "expected": {
+        "kind": "alarm",
+        "when": "7 pm"
+      },
+      "pattern": "^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\\\\s+(.+)"
+    },
+    {
+      "id": "call-02",
+      "intent": "phone.call",
+      "utterance": "Dial Priya",
+      "expected": {
+        "contact": "Priya"
+      },
+      "pattern": "^(?:call|dial|phone|ring)\\\\s+(.+)"
+    },
+    {
+      "id": "sms-02",
+      "intent": "message.sms",
+      "utterance": "SMS Dad saying I will be home late",
+      "expected": {
+        "contact": "Dad",
+        "text": "I will be home late"
+      },
+      "pattern": "^(?:text|sms)\\\\s+(.+?)\\\\s+(?:saying|say|that|:)\\\\s+(.+)$"
+    },
+    {
+      "id": "whatsapp-02",
+      "intent": "message.whatsapp",
+      "utterance": "Message Neha saying reached safely",
+      "expected": {
+        "contact": "Neha",
+        "text": "reached safely"
+      },
+      "pattern": "^(?:whatsapp|wa|message)\\\\s+(.+?)\\\\s+(?:saying|say|that|:)\\\\s+(.+)$"
+    },
+    {
+      "id": "app-open-02",
+      "intent": "app.open",
+      "utterance": "Launch Maps",
+      "expected": {
+        "target": "Maps"
+      },
+      "pattern": "^(?:open|launch|start|go to)\\\\s+(.+)"
+    },
+    {
+      "id": "weather-02",
+      "intent": "weather.current",
+      "utterance": "What's the forecast?",
+      "expected": {},
+      "pattern": "weather|temperature|forecast|umbrella"
+    },
+    {
+      "id": "location-02",
+      "intent": "location.current",
+      "utterance": "Show my location",
+      "expected": {},
+      "pattern": "where am i|my location"
+    },
+    {
+      "id": "news-02",
+      "intent": "news.latest",
+      "utterance": "Show latest technology headlines",
+      "expected": {},
+      "pattern": "\\\\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\\\\b"
+    },
+    {
+      "id": "speech-stop-02",
+      "intent": "speech.stop",
+      "utterance": "Cancel speech",
+      "expected": {},
+      "pattern": "^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$"
+    },
+    {
+      "id": "focus-02",
+      "intent": "focus.toggle",
+      "utterance": "Focus mode",
+      "expected": {},
+      "pattern": "^focus|focus mode"
+    },
+    {
+      "id": "time-02",
+      "intent": "time.current",
+      "utterance": "Tell me the time",
+      "expected": {},
+      "pattern": "\\\\b(time)\\\\b"
+    },
+    {
+      "id": "task-list-02",
+      "intent": "task.list",
+      "utterance": "List my to-do items",
+      "expected": {},
+      "pattern": "\\\\btasks?\\\\b|to-?do"
+    },
+    {
+      "id": "unknown-02",
+      "intent": "fallback.unknown",
+      "utterance": "Explain quantum physics",
+      "expected": {},
       "pattern": null
     }
   ],
