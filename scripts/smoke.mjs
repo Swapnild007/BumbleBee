@@ -7,7 +7,12 @@ const end = html.lastIndexOf("</script>");
 assert.ok(start >= 0 && end > start, "index.html should contain an inline script");
 const source = html.slice(start + "<script>".length, end);
 assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse");
-assert.equal((source.match(/\$\(\s*[A-Za-z_$][\w$]*\s*=>/g)||[]).length, 0, "DOM collection handlers must use $()/querySelectorAll, not the single-element $() helper");
+assert.equal((source.match(/(?<!\$)\$\([^)]*\)\.(?:forEach|map|filter)\(/g)||[]).length, 0, "DOM collection operations must use $()/querySelectorAll, not the single-element $() helper");
+assert.ok(source.includes('const $=s=>document.querySelector(s),$=s=>[...document.querySelectorAll(s)]'), "single-element and collection DOM helpers must be distinct");
+for (const id of ["cCall", "cWa", "cSms", "ctPick", "ctAdd", "smsLoad", "apps", "fab", "refresh"]) {
+  assert.ok(html.includes('id="'+id+'"'), "missing core interaction: "+id);
+}
+assert.ok(source.includes('mainNav.addEventListener("click"'), "mobile nav must have a delegated click handler");
 
 for (const topic of ["World", "India", "Business", "Technology", "Science", "Sports"]) {
   assert.ok(html.includes(`["${topic}",`), `missing news topic: ${topic}`);
