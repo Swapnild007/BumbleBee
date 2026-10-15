@@ -419,7 +419,10 @@ requestAnimationFrame(updateLiquidNav);
 const ICON="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#030c1a"/><circle cx="50" cy="50" r="30" fill="none" stroke="#22d3ee" stroke-width="5"/><circle cx="50" cy="50" r="9" fill="#22d3ee"/></svg>');
 try{$("#mf").href=URL.createObjectURL(new Blob([JSON.stringify({name:"JARVIS Command Center",short_name:"JARVIS",display:"standalone",background_color:"#030c1a",theme_color:"#030c1a",start_url:location.href,icons:[{src:ICON,sizes:"512x512",type:"image/svg+xml"}]})],{type:"application/json"}))}catch{}
 let swReg=null;
-if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!hasN())navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r;r.update().catch(()=>{})}).catch(()=>{});
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!hasN()){
+  navigator.serviceWorker.addEventListener("controllerchange",()=>location.reload());
+  navigator.serviceWorker.register("sw.js?v=29",{updateViaCache:"none"}).then(r=>{swReg=r;r.update().catch(()=>{})}).catch(()=>{});
+}
 function notify(title,body){try{if(window.Notification&&Notification.permission==="granted"){if(swReg&&swReg.showNotification)swReg.showNotification(title,{body,icon:ICON,vibrate:[200,100,200],tag:"jv"});else new Notification(title,{body})}}catch{}}
 function askNotif(){try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission()}catch{}}
 function beep(n=3){try{const a=new (window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.2,a.currentTime+i*.3);g.gain.setValueAtTime(0,a.currentTime+i*.3+.18);o.start(a.currentTime+i*.3);o.stop(a.currentTime+i*.3+.2)}}catch{}}
