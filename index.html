@@ -539,10 +539,10 @@ function renderActiveTimers(){
   host.innerHTML=activeTimers.map(t=>{const remaining=timerRemaining(t),paused=t.status==="paused";
     return '<div class="row" style="margin:0 0 9px;border:1px solid rgba(52,211,238,.35);border-radius:16px;padding:12px;display:block"><div style="display:flex;align-items:center;gap:10px"><div class="ico">⏱</div><div style="flex:1;min-width:0"><b>'+esc(t.label)+'</b><small class="d" style="display:block">'+(paused?"Paused": "Time remaining")+'</small></div><strong style="font-size:22px;letter-spacing:1px;color:var(--cyan);font-variant-numeric:tabular-nums" data-countdown="'+t.id+'">'+timerClock(remaining)+'</strong></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-timer-action="'+(paused?"resume":"pause")+'" data-timer-id="'+t.id+'" style="flex:1">'+(paused?"▶ Resume":"Ⅱ Pause")+'</button><button class="btn sm" data-timer-action="cancel" data-timer-id="'+t.id+'" style="flex:1">× Cancel</button></div></div>'
   }).join("");
-  $$$("[data-timer-action]").forEach(b=>b.onclick=()=>timerAction(b.dataset.timerId,b.dataset.timerAction));
+  $("[data-timer-action]").forEach(b=>b.onclick=()=>timerAction(b.dataset.timerId,b.dataset.timerAction));
 }
 function updateActiveTimerClocks(){
-  $$$("[data-countdown]").forEach(el=>{const t=activeTimers.find(x=>x.id===el.dataset.countdown);if(t)el.textContent=timerClock(timerRemaining(t))});
+  $("[data-countdown]").forEach(el=>{const t=activeTimers.find(x=>x.id===el.dataset.countdown);if(t)el.textContent=timerClock(timerRemaining(t))});
 }
 /* ===== end countdown timers ===== */
 
@@ -554,7 +554,7 @@ setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=acti
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
   el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
   $$("#rems .x").forEach(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
-$$$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
+$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
 $("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();toast("Reminder set for "+fmtD(p.at))};
 $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
 
@@ -654,7 +654,7 @@ function openTimerQuickSheet(){
       if(!startManagedTimer(m,(m===Math.floor(m)?m:m.toFixed(1))+" minute timer"))return;
       closeSheet();go("tasks");
     };
-    $$$("[data-quick-min]").forEach(b=>b.onclick=()=>startTimer(b.dataset.quickMin));
+    $("[data-quick-min]").forEach(b=>b.onclick=()=>startTimer(b.dataset.quickMin));
     const input=$("#quickTimerCustom"),start=$("#quickTimerStart");
     start.onclick=()=>startTimer(input.value);
     $("#quickTimerNative").onclick=()=>{const mins=Number(input.value||5),seconds=Math.max(1,Math.round(mins*60));if(!Number.isFinite(mins)||mins<1||mins>1440){toast("Enter a duration from 1 to 1440 minutes first.");return}if(hasN()&&typeof JarvisNative.setTimer==="function"){try{JarvisNative.setTimer(String(seconds),"JARVIS timer");toast("Requested native Android Clock timer")}catch{toast("Native timer request failed")}}else{toast("Native Clock timer needs the JARVIS Android bridge. In-app timer works here.")}};
@@ -664,10 +664,10 @@ function openTimerQuickSheet(){
 }
 
 const qc=[["＋","New Task",()=>{go("tasks");setTimeout(()=>$("#tkIn").focus(),300)}],["⏱","Set Timer",()=>openTimerQuickSheet()],["🔦","Flashlight",async()=>{const ok=await setTorch(!torchOn);toast(ok?(torchOn?"Flashlight on":"Flashlight off"):"Flashlight not supported here")}],["🎙","Voice Chat",()=>openVoice()]];
-$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$$$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
+$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
 function repairHomePanels(){
   try{if(!$("#core").children.length)renderCore()}catch(e){$("#core").innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>AI Core unavailable</b><small class="d">Open Settings and check app state.</small></div></div>'}
-  try{if(!$("#qcs").children.length){$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$$$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[Number(r.dataset.i)]?.[2]?.()})}}catch(e){}
+  try{if(!$("#qcs").children.length){$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[Number(r.dataset.i)]?.[2]?.()})}}catch(e){}
   try{if(!$("#agents").children.length)renderCore()}catch(e){$("#agents").innerHTML='<div class="ag"><b>Agents unavailable</b><small class="d">JARVIS is recovering this panel.</small></div>'}
   try{if(!$("#heads").children.length&&!newsLoading)renderHeads()}catch(e){}
 }
@@ -966,7 +966,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   $("#aiT").onclick=async()=>{sv();toast("Testing…");try{const r=await askAI.call(null);toast("✓ Connected")}catch(e){toast(e.message==="NOKEY"?"Enter an API key":"Failed — check key, model and connection")}};
   $$(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
   $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
-  $$$(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$$$(".th").forEach(x=>{const active=x===t;x.classList.toggle("on",active);x.setAttribute("aria-pressed",String(active))})});
+  $(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$(".th").forEach(x=>{const active=x===t;x.classList.toggle("on",active);x.setAttribute("aria-pressed",String(active))})});
   $("#pinSet").onclick=async()=>{const a=prompt("New PIN (4–8 digits):");if(a&&/^\d{4,8}$/.test(a)){S.pin=await sha(a);save();toast("PIN set");closeSheet()}else if(a)toast("PIN must be 4–8 digits")};
   $("#pinOff")&&($("#pinOff").onclick=async()=>{const a=prompt("Enter current PIN:");if(a&&await sha(a)===S.pin){S.pin="";save();toast("PIN removed");closeSheet()}else if(a)toast("Wrong PIN")});
   const nat=f=>()=>hasN()?f():toast("Only available in the Jarvis Android app");$("#nPerm").onclick=nat(()=>N.perms());$("#nNa").onclick=nat(()=>N.openNotifAccess());$("#nA11").onclick=nat(()=>N.openA11y());
