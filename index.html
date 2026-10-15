@@ -661,7 +661,14 @@ function openTimerQuickSheet(){
 }
 
 const qc=[["＋","New Task",()=>{go("tasks");setTimeout(()=>$("#tkIn").focus(),300)}],["⏱","Set Timer",()=>openTimerQuickSheet()],["🔦","Flashlight",async()=>{const ok=await setTorch(!torchOn);toast(ok?(torchOn?"Flashlight on":"Flashlight off"):"Flashlight not supported here")}],["🎙","Voice Chat",()=>openVoice()]];
-$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
+$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[r.dataset.i][2]()});
+function repairHomePanels(){
+  try{if(!$("#core").children.length)renderCore()}catch(e){$("#core").innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>AI Core unavailable</b><small class="d">Open Settings and check app state.</small></div></div>'}
+  try{if(!$("#qcs").children.length){$("#qcs").innerHTML=qc.map((q,i)=>`<div class="row tap" data-i="${i}"><div class="ico c">${q[0]}</div><b>${q[1]}</b></div>`).join("");$("#qcs .row").forEach(r=>r.onclick=()=>{hap();qc[Number(r.dataset.i)]?.[2]?.()})}}catch(e){}
+  try{if(!$("#agents").children.length)renderCore()}catch(e){$("#agents").innerHTML='<div class="ag"><b>Agents unavailable</b><small class="d">JARVIS is recovering this panel.</small></div>'}
+  try{if(!$("#heads").children.length&&!newsLoading)renderHeads()}catch(e){}
+}
+
 const NEWS_FEEDS=[
   ["World","https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-IN&gl=IN&ceid=IN:en"],
   ["India","https://news.google.com/rss/headlines/section/topic/NATION?hl=en-IN&gl=IN&ceid=IN:en"],
@@ -992,7 +999,9 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
     n.forEach((p,i)=>{x.fillStyle=`rgb(${ACC})`;x.shadowColor=`rgb(${ACC})`;x.shadowBlur=8;x.beginPath();x.arc(p[0]*w,p[1]*h*.85,2.5+Math.sin(t/500+i)*1.2,0,7);x.fill();x.shadowBlur=0});requestAnimationFrame(f)})(0)}
 
 /* ===== boot ===== */
-renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();buildFeed();loadHeads();
+renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();buildFeed();repairHomePanels();loadHeads();
+setTimeout(repairHomePanels,700);
+window.addEventListener("pageshow",()=>setTimeout(repairHomePanels,120));
 $("#m2").textContent=turns;$("#m3").textContent=acts;
 if(hasN()){msgs=N.recent();renderInbox();try{N.perms()}catch{}}
 if(loc&&Date.now()-loc.ts<3e5){}else locate();
