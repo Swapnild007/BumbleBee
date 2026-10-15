@@ -419,7 +419,7 @@ requestAnimationFrame(updateLiquidNav);
 const ICON="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#030c1a"/><circle cx="50" cy="50" r="30" fill="none" stroke="#22d3ee" stroke-width="5"/><circle cx="50" cy="50" r="9" fill="#22d3ee"/></svg>');
 try{$("#mf").href=URL.createObjectURL(new Blob([JSON.stringify({name:"JARVIS Command Center",short_name:"JARVIS",display:"standalone",background_color:"#030c1a",theme_color:"#030c1a",start_url:location.href,icons:[{src:ICON,sizes:"512x512",type:"image/svg+xml"}]})],{type:"application/json"}))}catch{}
 let swReg=null;
-if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!hasN())navigator.serviceWorker.register("sw.js").then(r=>swReg=r).catch(()=>{});
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!hasN())navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r;r.update().catch(()=>{})}).catch(()=>{});
 function notify(title,body){try{if(window.Notification&&Notification.permission==="granted"){if(swReg&&swReg.showNotification)swReg.showNotification(title,{body,icon:ICON,vibrate:[200,100,200],tag:"jv"});else new Notification(title,{body})}}catch{}}
 function askNotif(){try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission()}catch{}}
 function beep(n=3){try{const a=new (window.AudioContext||window.webkitAudioContext)();for(let i=0;i<n;i++){const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.2,a.currentTime+i*.3);g.gain.setValueAtTime(0,a.currentTime+i*.3+.18);o.start(a.currentTime+i*.3);o.stop(a.currentTime+i*.3+.2)}}catch{}}
@@ -627,11 +627,11 @@ function buildFeed(){const open=tasks.filter(t=>!t.done),over=open.filter(overdu
   const n=netInfo();it.push(["📶",`Network: ${n.q}`,n.type,navigator.onLine?"LIVE":"WARN",navigator.onLine?"g":"r"]);
   window._feed=it;$("#bellN").textContent=it.length;
   $("#feed").innerHTML=it.map(f=>`<div class="row"><div class="ico">${f[0]}</div><div><b style="font-size:12.5px;font-weight:500">${esc(f[1])}</b><small class="d">${esc(f[2])}</small></div><span class="tag ${f[4]}">${f[3]}</span></div>`).join("");
-  renderCore()}
+  try{renderCore()}catch(e){console.error("JARVIS core render failed",e)} }
 $("#bell").onclick=()=>{hap();openSheet(`<h2>NOTIFICATIONS</h2>`+window._feed.map(f=>`<div class="row"><div class="ico">${f[0]}</div><div><b style="font-size:12.5px;font-weight:500">${esc(f[1])}</b><small class="d">${esc(f[2])}</small></div></div>`).join(""))};
-const aiKey=()=>S.ai.keys[S.ai.prov];
+const aiKey=()=>{if(!S.ai||!S.ai.keys||typeof S.ai.keys!=="object"||Array.isArray(S.ai.keys))S.ai.keys={};return S.ai.keys[S.ai.prov]};
 const agentsState=()=>[["🎙","Voice Agent",listening||wakeOn],["📍","Location Agent",!!loc],["☑","Task Agent",tasks.some(t=>!t.done)||rems.length>0],["🧠","Memory Agent",notes.length>0],["📲","Comms Agent",hasN()||favs.length>0],["🛡","System Agent",true]];
-function renderCore(){const ag=agentsState(),n=ag.filter(a=>a[2]).length,prov=Object.keys(S.ai.keys).filter(k=>S.ai.keys[k]).length;
+function renderCore(){if(!S.ai||typeof S.ai!=="object")S.ai={prov:"anthropic",keys:{},models:{}};if(!S.ai.keys||typeof S.ai.keys!=="object"||Array.isArray(S.ai.keys))S.ai.keys={};const ag=agentsState(),n=ag.filter(a=>a[2]).length,prov=Object.keys(S.ai.keys).filter(k=>S.ai.keys[k]).length;
   const c=[["🧠","AI Core",aiKey()?"Online · "+(S.ai.prov):"Add API key",aiKey()?"g":"a"],["🗃","Memory",notes.length+" notes",notes.length?"c":"d"],["🎙","Voice",wakeOn?"Wake word on":"Ready",wakeOn?"g":"c"],["👥","Agents",n+" Running","p"],["⚙","LLMs",prov+" Connected","a"],["🛡","System",hasN()?"Native app ✓":"Web mode","g"]];
   $("#core").innerHTML=c.map(x=>`<div class="row"><div class="ico">${x[0]}</div><div><b>${x[1]}</b><small class="${x[3]}">${esc(x[2])}</small></div></div>`).join("");
   $("#agN").textContent=n+" active";$("#agents").innerHTML=ag.map(a=>`<div class="ag ${a[2]?"act":""}"><div class="n"><div class="ico">${a[0]}</div><div><b>${a[1]}</b><small class="${a[2]?"g":"d"}">● ${a[2]?"Active":"Standby"}</small></div></div><div style="color:${a[2]?"var(--green)":"var(--amber)"}"><div class="bars">${[...Array(16)].map((_,i)=>`<i style="animation-delay:${(i*.09).toFixed(2)}s"></i>`).join("")}</div></div></div>`).join("");
@@ -999,7 +999,7 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
     n.forEach((p,i)=>{x.fillStyle=`rgb(${ACC})`;x.shadowColor=`rgb(${ACC})`;x.shadowBlur=8;x.beginPath();x.arc(p[0]*w,p[1]*h*.85,2.5+Math.sin(t/500+i)*1.2,0,7);x.fill();x.shadowBlur=0});requestAnimationFrame(f)})(0)}
 
 /* ===== boot ===== */
-renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();buildFeed();repairHomePanels();loadHeads();
+renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();try{buildFeed()}catch(e){console.error("JARVIS feed startup failed",e)}try{repairHomePanels()}catch(e){console.error("JARVIS home recovery failed",e)}try{loadHeads()}catch(e){console.error("JARVIS news startup failed",e)}
 setTimeout(repairHomePanels,700);
 window.addEventListener("pageshow",()=>setTimeout(repairHomePanels,120));
 $("#m2").textContent=turns;$("#m3").textContent=acts;
