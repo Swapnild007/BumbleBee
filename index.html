@@ -489,7 +489,7 @@ $("#chgLoc").onclick=()=>openSheet(`<h2>CHANGE LOCATION</h2><button class="btn" 
   $("#cityQ").oninput=e=>{clearTimeout(h);const q=e.target.value.trim();if(q.length<2){$("#cityR").innerHTML="";return}
     h=setTimeout(async()=>{try{const j=await jget("https://geocoding-api.open-meteo.com/v1/search?count=6&name="+encodeURIComponent(q));
       $("#cityR").innerHTML=(j.results||[]).map((r,i)=>`<div class="row tap" data-i="${i}"><div class="ico">📍</div><div><b>${esc(r.name)}</b><small class="d">${esc([r.admin1,r.country].filter(Boolean).join(", "))}</small></div></div>`).join("")||'<small class="d">No results</small>';
-      $(el=>el.onclick=()=>{const r=j.results[el.dataset.i];closeSheet();setLoc(r.latitude,r.longitude,"Manual",null,{city:r.name,region:r.admin1||"",country:r.country||""});toast("Location set to "+r.name)})}catch{$("#cityR").innerHTML='<small class="d">Search failed — check connection</small>'}},350)}});
+      $("#cityR .row").forEach(el=>el.onclick=()=>{const r=j.results[el.dataset.i];closeSheet();setLoc(r.latitude,r.longitude,"Manual",null,{city:r.name,region:r.admin1||"",country:r.country||""});toast("Location set to "+r.name)})}catch{$("#cityR").innerHTML='<small class="d">Search failed — check connection</small>'}},350)}});
 
 /* ===== device info ===== */
 function netInfo(){const c=navigator.connection;if(!navigator.onLine)return{q:"Offline",type:"Offline",dl:"—"};if(!c)return{q:"Online",type:"Online",dl:"—"};
@@ -551,9 +551,9 @@ function addRem(at,text,kind){const r={id:uid(),at,text:text||kind||"Reminder",k
 function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);beep();const t=`${r.kind}: ${r.text}`;toast("⏰ "+t);notify("Jarvis — "+r.kind,r.text);say(`${r.kind}. ${r.text}`)}
 setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<6e4*30)fire(r)});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
-function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
+function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
   el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
-  $(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
+  $("#rems .x").forEach(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
 $$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
 $("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();toast("Reminder set for "+fmtD(p.at))};
 $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
@@ -561,7 +561,7 @@ $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
 /* ===== tasks ===== */
 function renderTasks(){const open=tasks.filter(t=>!t.done).length;$("#tkN").textContent=open+" open";
   $("#tasks").innerHTML=tasks.map((t,i)=>`<div class="row tk tap ${t.done?"done":""}" data-i="${i}"><div class="cb">${t.done?"✓":""}</div><div><b>${esc(t.t)}</b>${t.due&&t.due>1?`<small class="${overdue(t)?"r":"d"}">${overdue(t)?"Overdue · ":"Due "}${fmtD(t.due)}</small>`:overdue(t)?'<small class="r">Overdue</small>':""}</div><span class="x" data-x="1">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No tasks yet — add one above.</small>';
-  $(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x)tasks.splice(i,1);else tasks[i].done=!tasks[i].done;hap();saveAll();renderTasks();renderTL();buildFeed()})}
+  $("#tasks .row").forEach(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x)tasks.splice(i,1);else tasks[i].done=!tasks[i].done;hap();saveAll();renderTasks();renderTL();buildFeed()})}
 function addTask(raw){raw=raw.trim();if(!raw)return null;const p=parseWhen(raw),t={t:(p.at?p.rest:raw)||raw,done:false,due:p.at||null};tasks.unshift(t);if(p.at)addRem(p.at,t.t,"Task due");saveAll();renderTasks();renderTL();buildFeed();return t}
 $("#tkAdd").onclick=()=>{if(addTask($("#tkIn").value)){$("#tkIn").value="";hap()}};$("#tkIn").onkeydown=e=>{if(e.key==="Enter")$("#tkAdd").click()};
 function agenda(){const t0=new Date();t0.setHours(23,59,59,999);const a=[];rems.filter(r=>r.at<=t0).forEach(r=>a.push({at:r.at,n:r.text,k:"r"}));tasks.filter(t=>!t.done&&t.due&&t.due>1&&t.due<=t0).forEach(t=>a.push({at:t.due,n:t.t,k:"t"}));return a.sort((x,y)=>x.at-y.at)}
@@ -571,7 +571,7 @@ function nextEvent(){const n=Date.now(),e=agenda().find(x=>x.at>n);return e?{nam
 /* ===== notes (memory) ===== */
 function renderNotes(){const q=$("#noteQ").value.toLowerCase();const l=notes.filter(n=>!q||n.t.toLowerCase().includes(q));$("#noteN").textContent=notes.length+" saved";$("#m1").textContent=notes.length;
   $("#notes").innerHTML=l.map(n=>`<div class="row"><div class="ico">🧠</div><div><b style="font-weight:500">${esc(n.t)}</b><small class="d">${new Date(n.ts).toLocaleDateString()}</small></div><span class="x" data-n="${n.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No notes. Say “remember that my locker code is…”.</small>';
-  $(x=>x.onclick=()=>{notes=notes.filter(n=>n.id!==x.dataset.n);saveAll();renderNotes();renderCore()})}
+  $("#notes .x").forEach(x=>x.onclick=()=>{notes=notes.filter(n=>n.id!==x.dataset.n);saveAll();renderNotes();renderCore()})}
 function addNote(t){notes.unshift({id:uid(),t:t.trim(),ts:Date.now()});saveAll();renderNotes();renderCore()}
 $("#noteAdd").onclick=()=>{if($("#noteIn").value.trim()){addNote($("#noteIn").value);$("#noteIn").value="";hap()}};$("#noteIn").onkeydown=e=>{if(e.key==="Enter")$("#noteAdd").click()};$("#noteQ").oninput=renderNotes;
 
@@ -589,8 +589,8 @@ async function findContact(q){q=q.toLowerCase().trim().replace(/^(my|to|the)\s+/
   if(hasN()){const r=N.contacts(q);if(r&&r[0])return{name:r[0].name,num:r[0].number}}return null}
 function renderFavs(){$("#favlist").innerHTML=favs.map(c=>`<option value="${esc(c.name)}">`).join("");
   $("#favs").innerHTML=favs.map((c,i)=>`<div class="row"><div class="ico">👤</div><div><b>${esc(c.name)}</b><small class="d">${esc(c.num)}</small><div class="btns"><button class="btn sm" data-a="call" data-i="${i}">📞</button><button class="btn sm" data-a="wa" data-i="${i}">💬</button><button class="btn sm" data-a="sms" data-i="${i}">✉</button></div></div><span class="x" data-d="${i}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No contacts yet. Import from your phone or add one.</small>';
-  $(b=>b.onclick=()=>{const c=favs[b.dataset.i],m=$("#cMsg").value.trim();hap();b.dataset.a==="call"?dial(c.num):b.dataset.a==="wa"?sendWa(c.num,m):sendSms(c.num,m)});
-  $(x=>x.onclick=()=>{favs.splice(+x.dataset.d,1);saveAll();renderFavs()})}
+  $("#favs .btn").forEach(b=>b.onclick=()=>{const c=favs[b.dataset.i],m=$("#cMsg").value.trim();hap();b.dataset.a==="call"?dial(c.num):b.dataset.a==="wa"?sendWa(c.num,m):sendSms(c.num,m)});
+  $("#favs .x").forEach(x=>x.onclick=()=>{favs.splice(+x.dataset.d,1);saveAll();renderFavs()})}
 $("#ctAdd").onclick=()=>openSheet(`<h2>ADD CONTACT</h2><input class="in" id="nName" placeholder="Name" style="margin-top:0"><input class="in" id="nNum" type="tel" placeholder="Phone number (with country code)"><button class="btn" id="nSave" style="width:100%;margin-top:12px;padding:12px">Save</button>`,()=>{
   $("#nSave").onclick=()=>{const n=$("#nName").value.trim(),p=$("#nNum").value.trim();if(!n||!p){toast("Enter name and number");return}favs.push({name:n,num:p});saveAll();renderFavs();closeSheet()}});
 $("#ctPick").onclick=async()=>{if(!(navigator.contacts&&navigator.contacts.select)){toast("Contact picker needs Chrome on Android over HTTPS (or the Jarvis app). Use + Add.");return}
@@ -602,7 +602,7 @@ $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["🎵","Spotify","com.spotify.music"],["📷","Instagram","com.instagram.android"],["✈","Telegram","org.telegram.messenger"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
   if(p==="tel:")location.href="tel:";else if(p.startsWith("android."))location.href=`intent:#Intent;action=${p};end`;else location.href=`intent:#Intent;package=${p};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`}
-$("#apps").innerHTML=APPS.map((a,i)=>`<div class="app" data-i="${i}"><span>${a[0]}</span>${a[1]}</div>`).join("");$(e=>e.onclick=()=>openApp(APPS[e.dataset.i]));
+$("#apps").innerHTML=APPS.map((a,i)=>`<div class="app" data-i="${i}"><span>${a[0]}</span>${a[1]}</div>`).join("");$(".app").forEach(e=>e.onclick=()=>openApp(APPS[e.dataset.i]));
 
 /* messages & notifications (native only) */
 function renderInbox(){const el=$("#inbox"),b=(ic,t,s,btn)=>`<div class="row"><div class="ico">${ic}</div><div><b>${t}</b><small class="d">${s}</small>${btn||""}</div></div>`;
@@ -612,8 +612,8 @@ function renderInbox(){const el=$("#inbox"),b=(ic,t,s,btn)=>`<div class="row"><d
   if(!N.a11y())head+=b("🦾","Accessibility is off","Needed for auto-send in WhatsApp and phone-wide actions",`<div class="btns"><button class="btn sm" id="gA11">Enable</button></div>`);
   el.innerHTML=head+msgs.map((m,i)=>`<div class="row"><div class="ico">${m.app==="WhatsApp"?"💬":m.app==="SMS"?"✉":"🔔"}</div><div><b>${esc(m.title||"")}</b><small class="d">${esc(m.app)} · ${fmtD(m.ts||Date.now())}</small><small style="color:var(--text)">${esc(m.text||"")}</small><div class="btns"><button class="btn sm" data-r="${i}">🔊 Read</button>${m.key?`<button class="btn sm" data-p="${i}">↩ Reply</button>`:""}</div></div></div>`).join("")||b("✅","No messages yet","New notifications will appear here as they arrive");
   $("#gNA")&&($("#gNA").onclick=()=>N.openNotifAccess());$("#gA11")&&($("#gA11").onclick=()=>N.openA11y());
-  $(x=>x.onclick=()=>{const m=msgs[x.dataset.r];say(`${m.title} on ${m.app}: ${m.text}`)});
-  $(x=>x.onclick=()=>{const m=msgs[x.dataset.p],t=prompt("Reply to "+m.title+":");if(t){const ok=N.reply(m.key,t);toast(ok?"Reply sent":"Couldn't reply to this message")}})}
+  $("#inbox [data-r]").forEach(x=>x.onclick=()=>{const m=msgs[x.dataset.r];say(`${m.title} on ${m.app}: ${m.text}`)});
+  $("#inbox [data-p]").forEach(x=>x.onclick=()=>{const m=msgs[x.dataset.p],t=prompt("Reply to "+m.title+":");if(t){const ok=N.reply(m.key,t);toast(ok?"Reply sent":"Couldn't reply to this message")}})}
 $("#smsLoad").onclick=()=>{const r=N.smsIn(15);r.forEach(m=>{if(!msgs.some(x=>x.text===m.text&&x.title===m.title))msgs.push({...m,app:"SMS"})});msgs.sort((a,b)=>b.ts-a.ts);renderInbox();toast(r.length+" SMS loaded")};
 window.jarvisOnNotification=window.jarvisOnSms=j=>{try{const m=typeof j==="string"?JSON.parse(j):j;if(msgs.some(x=>x.key&&x.key===m.key&&x.text===m.text))return;msgs.unshift(m);msgs=msgs.slice(0,60);renderInbox();buildFeed();
   if(S.readmsg&&!document.hidden)say(`${m.title} on ${m.app}: ${m.text}`)}catch{}};
@@ -640,7 +640,7 @@ function renderCore(){if(!S.ai||typeof S.ai!=="object")S.ai={prov:"anthropic",ke
   $("#agN").textContent=n+" active";$("#agents").innerHTML=ag.map(a=>`<div class="ag ${a[2]?"act":""}"><div class="n"><div class="ico">${a[0]}</div><div><b>${a[1]}</b><small class="${a[2]?"g":"d"}">● ${a[2]?"Active":"Standby"}</small></div></div><div style="color:${a[2]?"var(--green)":"var(--amber)"}"><div class="bars">${[...Array(16)].map((_,i)=>`<i style="animation-delay:${(i*.09).toFixed(2)}s"></i>`).join("")}</div></div></div>`).join("");
   const P=[["anthropic","Claude"],["openai","OpenAI"],["gemini","Gemini"],["groq","Groq"],["openrouter","OpenRouter"]];
   $("#llms").innerHTML=P.map(p=>{const has=!!S.ai.keys[p[0]],on=S.ai.prov===p[0]&&has;return`<div class="lm ${on?"on":""}" data-p="${p[0]}"><div class="ico">${p[1][0]}</div><div><b>${p[1]}</b><small class="${has?"g":"d"}">${on?"Active":has?"Connected":"Not Linked"}</small></div></div>`}).join("")+`<div class="lm"><div class="ico">📱</div><div><b>Native App</b><small class="${hasN()?"g":"d"}">${hasN()?"Connected":"Not installed"}</small></div></div>`;
-  $("#llmN").textContent=prov+" Connected";$(e=>e.onclick=()=>{hap();S.ai.prov=e.dataset.p;save();openSettings()})}
+  $("#llmN").textContent=prov+" Connected";$(".lm[data-p]").forEach(e=>e.onclick=()=>{hap();S.ai.prov=e.dataset.p;save();openSettings()})}
 let torchOn=false,torchStream=null;
 async function setTorch(on){if(hasN()){N.torch(on);torchOn=on;return true}
   try{if(on){torchStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});await torchStream.getVideoTracks()[0].applyConstraints({advanced:[{torch:true}]})}else{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null}torchOn=on;return true}
@@ -905,7 +905,7 @@ async function safeHandle(t){try{return await handle(t)}catch(e){return e&&e.mes
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
 function renderLog(){const l=$("#vlog");if(!l)return;l.innerHTML=chat.slice(-14).map(m=>`<div class="msg ${m.r}">${esc(m.c)}${m.btn&&pendMap[m.btn]?`<div class="btns"><button class="btn sm" data-b="${m.btn}">${esc(pendMap[m.btn].label)}</button></div>`:""}</div>`).join("");
-  $(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
+  $("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
 async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
   const r=await safeHandle(t);$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
@@ -964,7 +964,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   $("#aiP").value=p;const fill=()=>{const q=$("#aiP").value;$("#aiK").value=S.ai.keys[q]||"";$("#aiM").value=S.ai.models[q]||"";$("#aiM").placeholder="Model (default: "+DEF[q]+")"};fill();$("#aiP").onchange=()=>{S.ai.prov=$("#aiP").value;save();fill();renderCore()};
   const sv=()=>{const q=$("#aiP").value;S.ai.keys[q]=$("#aiK").value.trim();S.ai.models[q]=$("#aiM").value.trim();S.cc=$("#cc").value.replace(/\D/g,"");save();renderCore()};$("#aiK").oninput=$("#aiM").oninput=$("#cc").oninput=sv;
   $("#aiT").onclick=async()=>{sv();toast("Testing…");try{const r=await askAI.call(null);toast("✓ Connected")}catch(e){toast(e.message==="NOKEY"?"Enter an API key":"Failed — check key, model and connection")}};
-  $(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
+  $(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
   $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
   $$(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$$(".th").forEach(x=>{const active=x===t;x.classList.toggle("on",active);x.setAttribute("aria-pressed",String(active))})});
   $("#pinSet").onclick=async()=>{const a=prompt("New PIN (4–8 digits):");if(a&&/^\d{4,8}$/.test(a)){S.pin=await sha(a);save();toast("PIN set");closeSheet()}else if(a)toast("PIN must be 4–8 digits")};
