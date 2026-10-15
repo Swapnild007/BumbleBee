@@ -302,6 +302,98 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+
+/* ===== Safe visual refresh: Phone tab only. No markup or behavior changes. ===== */
+#t-phone{--phone-glow:rgba(var(--acc-rgb),.16);padding-bottom:8px}
+#t-phone>.panel{
+  border-radius:22px;
+  border-color:rgba(202,229,255,.11);
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(var(--base-rgb),.46) 56%,rgba(0,0,0,.12));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.065),0 14px 34px rgba(0,0,0,.13);
+  overflow:hidden;
+}
+#t-phone>.panel:first-child{
+  background:radial-gradient(ellipse at 100% 0%,var(--phone-glow),transparent 48%),linear-gradient(145deg,rgba(255,255,255,.055),rgba(var(--base-rgb),.55));
+  border-color:rgba(var(--acc-rgb),.22);
+}
+#t-phone .panel h3{
+  padding:17px 17px 11px;
+  font-size:10px;
+  letter-spacing:.17em;
+  color:rgba(226,241,255,.82);
+}
+#t-phone .panel h3 .d{letter-spacing:.015em;font-size:11px;color:rgba(183,204,226,.68)}
+#t-phone #cTo,#t-phone #cMsg{
+  border-radius:15px;
+  border-color:rgba(190,218,245,.13);
+  background:rgba(2,8,20,.34);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+  padding:14px 15px;
+  font-size:14px;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+#t-phone #cTo{min-height:52px}
+#t-phone #cMsg{min-height:92px;line-height:1.5;margin-top:9px}
+#t-phone #cTo:focus,#t-phone #cMsg:focus{
+  border-color:rgba(var(--acc-rgb),.5);
+  background:rgba(2,8,20,.48);
+  box-shadow:0 0 0 3px rgba(var(--acc-rgb),.07);
+}
+#t-phone #cTo::placeholder,#t-phone #cMsg::placeholder{color:rgba(181,201,224,.55)}
+#t-phone .btns{gap:8px}
+#t-phone #cCall,#t-phone #cWa,#t-phone #cSms{
+  min-height:43px;
+  padding:10px 15px;
+  border-radius:14px;
+  border-color:rgba(186,218,255,.16);
+  background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(var(--acc-rgb),.055));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+  font-size:12px;
+  letter-spacing:.01em;
+}
+#t-phone #cCall:active,#t-phone #cWa:active,#t-phone #cSms:active{transform:scale(.98)}
+#t-phone #favs,#t-phone #inbox{padding-left:15px;padding-right:15px}
+#t-phone #favs:empty,#t-phone #inbox:empty{min-height:16px}
+#t-phone #apps{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+  padding:2px 15px 16px;
+}
+#t-phone #apps .app{
+  position:relative;
+  min-height:84px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:12px 3px;
+  border-radius:18px;
+  border-color:rgba(196,220,248,.105);
+  background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.012) 70%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055);
+  color:rgba(225,239,253,.9);
+  font-size:11px;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+#t-phone #apps .app span{font-size:23px;margin:0;line-height:1.15;filter:saturate(.82)}
+#t-phone #apps .app:active{
+  transform:scale(.965);
+  border-color:rgba(var(--acc-rgb),.4);
+  background:rgba(var(--acc-rgb),.09);
+}
+#t-phone #apps .app:focus-visible{outline:2px solid rgba(var(--acc-rgb),.65);outline-offset:2px}
+#t-phone .rows .row{background:rgba(255,255,255,.018);border-color:rgba(190,218,245,.09)}
+@media(max-width:380px){
+  #t-phone #apps{gap:7px;padding-left:12px;padding-right:12px}
+  #t-phone #apps .app{min-height:76px;border-radius:15px}
+  #t-phone #cCall,#t-phone #cWa,#t-phone #cSms{padding:9px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+  #t-phone #cTo,#t-phone #cMsg,#t-phone #apps .app{transition:none}
+}
+/* ===== End Phone tab visual refresh ===== */
+
 </style>
 </head>
 <body>

@@ -50,6 +50,14 @@ assert.ok(source.includes('addActivity("Command","Command received"'), "voice/te
 
 
 
+
+assert.ok(html.includes("Safe visual refresh: Phone tab only"), "Phone refresh must remain explicitly scoped");
+assert.ok(html.includes("#t-phone #cTo") && html.includes("#t-phone #cMsg"), "Phone compose controls should receive scoped styling");
+assert.ok(html.includes("#t-phone #apps .app"), "Phone app shortcuts should receive scoped styling");
+for (const id of ["cTo", "cMsg", "cCall", "cWa", "cSms", "ctPick", "ctAdd", "smsLoad", "apps"]) {
+  assert.ok(html.includes('id="'+id+'"'), "Phone interaction element must be preserved: "+id);
+}
+
 assert.ok(source.includes("function commandPlan(raw)"), "Phase 03 structured command planner should exist");
 assert.ok(source.includes("const COMMAND_CONFIRMATION_INTENTS=new Set(["), "external-action intents should be explicitly listed for confirmation");
 assert.ok(source.includes('currentPlan=commandPlan(raw);currentIntent=currentPlan.intent'), "commands should pass through the planner before dispatch");
