@@ -20,5 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run MCP calculator unit tests
+        run: python -m unittest discover -s mcp_server -p 'test_*.py'
       - name: Run JARVIS smoke checks
         run: node scripts/smoke.mjs
