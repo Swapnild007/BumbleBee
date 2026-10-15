@@ -76,7 +76,6 @@ async def _invoke_mcp(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     params = StdioServerParameters(
         command=sys.executable,
         args=[str(server_path)],
-        cwd=str(server_path.parent.parent),
     )
     async with stdio_client(params) as (read_stream, write_stream):
         async with ClientSession(read_stream, write_stream) as session:
