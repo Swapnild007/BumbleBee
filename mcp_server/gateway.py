@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import hmac
 import json
+import math
 import secrets
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -45,7 +46,7 @@ def validate_call_payload(payload: Any) -> tuple[str, dict[str, Any]]:
         raise ValueError("Request body must be a JSON object.")
     name = payload.get("name")
     arguments = payload.get("arguments", {})
-    if name not in ALLOWED_TOOLS:
+    if not isinstance(name, str) or name not in ALLOWED_TOOLS:
         raise ValueError("That MCP tool is not enabled in this learning bridge.")
     if not isinstance(arguments, dict):
         raise ValueError("Tool arguments must be a JSON object.")
@@ -58,8 +59,8 @@ def validate_call_payload(payload: Any) -> tuple[str, dict[str, Any]]:
             raise ValueError("Price must be a number.")
         if isinstance(quantity, bool) or not isinstance(quantity, int):
             raise ValueError("Quantity must be a whole number.")
-        if price < 0 or price > 1_000_000_000:
-            raise ValueError("Price is outside the allowed range.")
+        if not math.isfinite(price) or price < 0 or price > 1_000_000_000:
+            raise ValueError("Price must be finite and inside the allowed range.")
         if quantity < 0 or quantity > 1_000_000:
             raise ValueError("Quantity is outside the allowed range.")
     elif arguments:
