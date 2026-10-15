@@ -99,7 +99,11 @@ async def _invoke_mcp(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
                     content.append({"type": "text", "text": item.text})
                 else:
                     content.append({"type": getattr(item, "type", "unknown")})
-            return {"isError": bool(result.isError), "content": content}
+            payload = {"isError": bool(result.isError), "content": content}
+            structured = getattr(result, "structuredContent", None)
+            if structured is not None:
+                payload["structuredContent"] = structured
+            return payload
 
 
 def invoke_mcp(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
