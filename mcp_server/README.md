@@ -51,36 +51,19 @@ node scripts/smoke.mjs
 
 The calculator and gateway validation tests use Python's standard library. The MCP protocol integration test uses the SDK and verifies that a real client discovers and calls both tools. The GitHub Actions workflow runs these checks.
 
-## Install the MCP SDK
+## Optional: run the raw MCP server manually
 
-Use a virtual environment where possible:
-
-```bash
-python -m venv .venv
-```
-
-Activate it, then install:
-
-```bash
-python -m pip install -r mcp_server/requirements.txt
-```
-
-On Android/Termux, the virtual-environment commands may differ depending on the installed Python package. Do not paste API keys into the terminal or commit credentials.
-
-## Launch
-
-From the repository root, launch with:
+For MCP-client debugging, the server can also be launched directly:
 
 ```bash
 python mcp_server/server.py
 ```
 
-This process waits for an MCP-compatible host over standard input/output; launching it directly in a normal terminal may appear idle. That is expected. Do not point a public web endpoint at stdio. The next integration milestone is to configure a trusted MCP client to launch this server and invoke its tools.
+It waits for a compatible MCP host over standard input/output, so it may appear idle in a normal terminal. For the JARVIS web UI, use `gateway.py` as described above instead.
 
 ## Learning path
 
-1. Try the calculator in JARVIS > System > MCP Learning Lab.
-2. Run the unit tests and inspect the validation cases.
-3. Launch the server through a compatible MCP client.
-4. Verify that the client discovers both tools and that invalid arguments are rejected.
-5. Only after that, consider adding a model or further tools.
+1. Run the browser-only calculator and compare it with the real MCP calculator.
+2. Connect the local bridge and discover the two tools.
+3. Run the Python unit and MCP protocol integration tests.
+4. Keep the allowlist small. Add no personal-data access or side-effecting tools until each permission and confirmation flow has a dedicated test.
