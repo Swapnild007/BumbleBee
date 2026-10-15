@@ -725,7 +725,10 @@ $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.n
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["🎵","Spotify","com.spotify.music"],["📷","Instagram","com.instagram.android"],["✈","Telegram","org.telegram.messenger"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
-  if(p==="tel:")location.href="tel:";else if(p.startsWith("android."))location.href=`intent:#Intent;action=${p};end`;else location.href=`intent:#Intent;package=${p};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`}
+  if(p==="tel:"){location.href="tel:";return}
+  /* Chrome on Android requires a well-formed intent:// URI. The previous intent:#Intent form can be misrouted to Google Play even when the app is installed. */
+  if(p.startsWith("android.")){location.href=`intent://launch/#Intent;action=${p};end`;return}
+  location.href=`intent://launch/#Intent;package=${p};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`}
 $("#apps").innerHTML=APPS.map((a,i)=>`<div class="app" data-i="${i}"><span>${a[0]}</span>${a[1]}</div>`).join("");$$(".app").forEach(e=>e.onclick=()=>openApp(APPS[e.dataset.i]));
 
 /* messages & notifications (native only) */
