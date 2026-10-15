@@ -25,7 +25,7 @@ assert.ok(html.includes("aria-pressed"), "theme swatches should expose accessibl
 assert.ok(html.includes('id="trainingLab"'), "System tab should expose the training self-test panel");
 assert.ok(html.includes("async function runTrainingLab()"), "in-app self-test runner should exist");
 assert.ok(html.includes('id="mcpLearningLab"'), "System tab should expose the MCP learning lab");
-assert.ok(html.includes("local demo, deliberately not a remote MCP connection"), "MCP browser demo must not claim a live server connection");
+assert.ok(html.includes("local demo plus an opt-in loopback MCP connection"), "MCP UI must distinguish the browser demo from the real local connection");
 assert.ok(html.includes('id="mcpCalculate"'), "MCP calculator exercise should be interactive");
 const mcpServer = readFileSync(new URL("../mcp_server/server.py", import.meta.url), "utf8");
 const mcpCalculator = readFileSync(new URL("../mcp_server/calculator.py", import.meta.url), "utf8");
