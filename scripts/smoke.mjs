@@ -39,6 +39,15 @@ assert.ok(html.includes('document.querySelectorAll(".nav a").forEach'), "bottom 
 assert.ok(html.includes('mainNav.addEventListener("click"'), "mobile nav should use delegated click handling");
 assert.ok(html.includes('mainNav.addEventListener("touchend"'), "mobile nav should handle touch interaction");
 assert.ok(html.includes("pointer-events:none;left:0;top:7px"), "liquid pill must not block nav taps");
+assert.ok(html.includes('id="activityLog"') && html.includes('id="activityQ"'), "Activity Log UI and search should exist");
+assert.ok(s.includes('store.get("jv_activity",[])'), "activity log should load from local storage");
+assert.ok(s.includes('store.set("jv_activity",activity)'), "activity log should persist locally");
+assert.ok(s.includes("activity=activity.slice(0,100)"), "activity log should be bounded to the latest 100 events");
+assert.ok(s.includes("data-edit-note"), "saved memories should be editable");
+assert.ok(s.includes("data-delete-note"), "saved memories should be deletable");
+assert.ok(s.includes("function renderActivity()"), "activity log renderer should exist");
+assert.ok(s.includes('addActivity("Command","Command received"'), "voice/text commands should be recorded in activity history");
+
 
 import { spawnSync } from "node:child_process";
 const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { encoding: "utf8" });
