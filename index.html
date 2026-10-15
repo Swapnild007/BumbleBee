@@ -725,10 +725,21 @@ $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.n
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["🎵","Spotify","com.spotify.music"],["📷","Instagram","com.instagram.android"],["✈","Telegram","org.telegram.messenger"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
-  if(p==="tel:"){location.href="tel:";return}
-  /* Chrome on Android requires a well-formed intent:// URI. The previous intent:#Intent form can be misrouted to Google Play even when the app is installed. */
-  if(p.startsWith("android.")){location.href=`intent://launch/#Intent;action=${p};end`;return}
-  location.href=`intent://launch/#Intent;package=${p};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`}
+  /* Web-only fallback: use verified HTTPS app links instead of package intent URLs. Android can hand these to an installed app; if not, the service opens in the browser. */
+  const web={
+    "com.whatsapp":"https://www.whatsapp.com/",
+    "com.google.android.youtube":"https://www.youtube.com/",
+    "com.google.android.apps.maps":"https://maps.google.com/",
+    "com.google.android.gm":"https://mail.google.com/",
+    "com.android.chrome":"https://www.google.com/chrome/",
+    "com.spotify.music":"https://open.spotify.com/",
+    "com.instagram.android":"https://www.instagram.com/",
+    "org.telegram.messenger":"https://t.me/"
+  };
+  if(web[p]){location.href=web[p];return}
+  if(p==="tel:"){toast("Opening the dialer requires the JARVIS Android app.");return}
+  if(p.startsWith("android.")){toast("This system action requires the JARVIS Android app.");return}
+  toast("This app shortcut is not supported in the web version yet.")}
 $("#apps").innerHTML=APPS.map((a,i)=>`<div class="app" data-i="${i}"><span>${a[0]}</span>${a[1]}</div>`).join("");$$(".app").forEach(e=>e.onclick=()=>openApp(APPS[e.dataset.i]));
 
 /* messages & notifications (native only) */
