@@ -352,8 +352,12 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
     <div class="panel"><h3>TODAY'S TIMELINE</h3><div class="tl" id="tl"></div></div>
     <div class="panel"><h3>MEMORY NOTES <span class="d" id="noteN" style="font-weight:400"></span></h3>
       <div class="add"><input id="noteIn" placeholder="Remember that…" enterkeyhint="done"><button class="btn" id="noteAdd">Save</button></div>
-      <div style="padding:0 12px"><input class="in" id="noteQ" placeholder="🔍 Search notes" style="margin:0 0 8px"></div>
+      <div style="padding:0 12px"><input class="in" id="noteQ" placeholder="🔍 Search memories" style="margin:0 0 8px"></div>
       <div class="rows" id="notes"></div></div>
+    <div class="panel"><h3>ACTIVITY LOG <span class="d" id="activityN" style="font-weight:400"></span></h3>
+      <div style="padding:0 12px"><input class="in" id="activityQ" placeholder="🔍 Search activity" style="margin:0 0 8px"></div>
+      <div class="rows" id="activityLog"></div>
+      <div class="btns" style="padding:0 12px 12px"><button class="btn sm red" id="activityClear">Clear activity</button></div></div>
   </section>
 
   <section class="tab" id="t-sys">
@@ -568,12 +572,40 @@ function agenda(){const t0=new Date();t0.setHours(23,59,59,999);const a=[];rems.
 function renderTL(){const a=agenda(),n=Date.now();$("#tl").innerHTML=a.map(e=>`<div class="it"><span class="t">${fmtT(e.at)}</span><i></i><div>${esc(e.n)}</div><span class="s">${e.at<n?"Overdue":"In "+rel(e.at-n)}</span></div>`).join("")||'<small class="d">Nothing scheduled today. Say “remind me at 5 pm to…”.</small>'}
 function nextEvent(){const n=Date.now(),e=agenda().find(x=>x.at>n);return e?{name:e.n,in:Math.round((e.at-n)/6e4)}:null}
 
-/* ===== notes (memory) ===== */
-function renderNotes(){const q=$("#noteQ").value.toLowerCase();const l=notes.filter(n=>!q||n.t.toLowerCase().includes(q));$("#noteN").textContent=notes.length+" saved";$("#m1").textContent=notes.length;
-  $("#notes").innerHTML=l.map(n=>`<div class="row"><div class="ico">🧠</div><div><b style="font-weight:500">${esc(n.t)}</b><small class="d">${new Date(n.ts).toLocaleDateString()}</small></div><span class="x" data-n="${n.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No notes. Say “remember that my locker code is…”.</small>';
-  $$("#notes .x").forEach(x=>x.onclick=()=>{notes=notes.filter(n=>n.id!==x.dataset.n);saveAll();renderNotes();renderCore()})}
-function addNote(t){notes.unshift({id:uid(),t:t.trim(),ts:Date.now()});saveAll();renderNotes();renderCore()}
-$("#noteAdd").onclick=()=>{if($("#noteIn").value.trim()){addNote($("#noteIn").value);$("#noteIn").value="";hap()}};$("#noteIn").onkeydown=e=>{if(e.key==="Enter")$("#noteAdd").click()};$("#noteQ").oninput=renderNotes;
+/* ===== memory archive ===== */
+function renderNotes(){
+  const q=($("#noteQ")?.value||"").trim().toLowerCase();
+  const list=notes.filter(n=>!q||String(n.t||"").toLowerCase().includes(q));
+  $("#noteN").textContent=notes.length+" saved";$("#m1").textContent=notes.length;
+  $("#notes").innerHTML=list.map(n=>`<div class="row"><div class="ico">🧠</div><div><b style="font-weight:500">${esc(n.t)}</b><small class="d">Saved ${new Date(n.ts).toLocaleDateString()}</small><div class="btns"><button class="btn sm" data-edit-note="${n.id}">Edit</button><button class="btn sm red" data-delete-note="${n.id}">Delete</button></div></div></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No memories match this search. Save one above or say “remember that…”.</small>';
+  $("#notes [data-edit-note]").forEach(b=>b.onclick=()=>{const n=notes.find(x=>x.id===b.dataset.editNote);if(!n)return;const value=prompt("Edit saved memory:",n.t);if(value===null)return;const t=value.trim();if(!t){toast("Memory cannot be empty");return}n.t=t;n.ts=Date.now();saveAll();addActivity("Memory","Updated a saved memory","Memory text edited","saved");renderNotes();renderActivity();renderCore()});
+  $("#notes [data-delete-note]").forEach(b=>b.onclick=()=>{const n=notes.find(x=>x.id===b.dataset.deleteNote);if(!n)return;if(!confirm("Delete this saved memory?"))return;notes=notes.filter(x=>x.id!==n.id);saveAll();addActivity("Memory","Deleted a saved memory","Memory removed","saved");renderNotes();renderActivity();renderCore()})
+}
+function addNote(t){
+  const value=String(t||"").trim();if(!value)return false;
+  notes.unshift({id:uid(),t:value,ts:Date.now()});notes=notes.slice(0,500);
+  saveAll();addActivity("Memory","Saved a memory",value,"saved");renderNotes();renderActivity();renderCore();return true
+}
+$("#noteAdd").onclick=()=>{if(addNote($("#noteIn").value)){$("#noteIn").value="";hap()}};
+$("#noteIn").onkeydown=e=>{if(e.key==="Enter")$("#noteAdd").click()};
+$("#noteQ").oninput=renderNotes;
+
+/* ===== bounded local activity log ===== */
+let activity=store.get("jv_activity",[]);
+function addActivity(type,title,detail,status="recorded"){
+  const entry={id:uid(),at:Date.now(),type:String(type||"event").slice(0,32),title:String(title||"Event").slice(0,140),detail:String(detail||"").slice(0,500),status:String(status||"recorded").slice(0,24)};
+  activity.unshift(entry);activity=activity.slice(0,100);
+  store.set("jv_activity",activity)
+}
+function renderActivity(){
+  const host=$("#activityLog");if(!host)return;
+  const q=($("#activityQ")?.value||"").trim().toLowerCase();
+  const list=activity.filter(a=>!q||[a.type,a.title,a.detail,a.status].some(v=>String(v||"").toLowerCase().includes(q)));
+  $("#activityN").textContent=activity.length+" events";
+  host.innerHTML=list.map(a=>`<div class="row"><div class="ico">${a.status==="failed"?"⚠️":a.type==="Memory"?"🧠":"◷"}</div><div><b>${esc(a.title)}</b><small class="d">${new Date(a.at).toLocaleString()} · ${esc(a.type)} · ${esc(a.status)}</small>${a.detail?`<small>${esc(a.detail)}</small>`:""}</div></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No activity matches this search.</small>'
+}
+$("#activityQ").oninput=renderActivity;
+$("#activityClear").onclick=()=>{if(!activity.length)return;if(!confirm("Clear the activity log? Saved memories will not be deleted."))return;activity=[];store.set("jv_activity",activity);renderActivity();toast("Activity log cleared")};
 
 /* ===== phone: contacts, call, whatsapp, sms, apps ===== */
 function waNum(n){let d=n.replace(/[^\d+]/g,"");if(d.startsWith("+"))return d.slice(1);if(d.startsWith("00"))return d.slice(2);if(d.startsWith("0"))d=d.slice(1);else if(S.cc&&d.startsWith(S.cc)&&d.length>=11)return d;return(S.cc||"")+d}
@@ -900,7 +932,8 @@ function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("s
 }}
 let wl=null;async function toggleFocus(){const on=document.body.classList.toggle("focus");try{if(on&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen");else if(wl){wl.release();wl=null}}catch{}}
 $("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");const r=await safeHandle(t);toast(r);if(pend){openVoice()}}});
-async function safeHandle(t){try{return await handle(t)}catch(e){return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
+let lastCommandFailed=false;
+async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}catch(e){lastCommandFailed=true;return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
 
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
@@ -908,7 +941,7 @@ function renderLog(){const l=$("#vlog");if(!l)return;l.innerHTML=chat.slice(-14)
   $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
 async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
-  const r=await safeHandle(t);$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+  const r=await safeHandle(t);addActivity("Command","Command received",String(t).slice(0,240),"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
 function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave"></canvas><div class="bigmic" id="bigmic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div>
   <p class="d" id="vstate" style="text-align:center;font-size:12px">${SR||hasN()?"Tap the mic and speak":"Voice input isn't supported here — type below"}</p>
@@ -1002,7 +1035,7 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
     n.forEach((p,i)=>{x.fillStyle=`rgb(${ACC})`;x.shadowColor=`rgb(${ACC})`;x.shadowBlur=8;x.beginPath();x.arc(p[0]*w,p[1]*h*.85,2.5+Math.sin(t/500+i)*1.2,0,7);x.fill();x.shadowBlur=0});requestAnimationFrame(f)})(0)}
 
 /* ===== boot ===== */
-renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderFavs();renderInbox();try{buildFeed()}catch(e){console.error("JARVIS feed startup failed",e)}try{repairHomePanels()}catch(e){console.error("JARVIS home recovery failed",e)}try{loadHeads()}catch(e){console.error("JARVIS news startup failed",e)}
+renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderActivity();renderFavs();renderInbox();try{buildFeed()}catch(e){console.error("JARVIS feed startup failed",e)}try{repairHomePanels()}catch(e){console.error("JARVIS home recovery failed",e)}try{loadHeads()}catch(e){console.error("JARVIS news startup failed",e)}
 setTimeout(repairHomePanels,700);
 window.addEventListener("pageshow",()=>setTimeout(repairHomePanels,120));
 $("#m2").textContent=turns;$("#m3").textContent=acts;
