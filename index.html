@@ -1103,7 +1103,7 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
       show("Input rejected","Use price ₹0–₹1,000,000,000 and a whole-number quantity from 0–1,000,000.","⚠️","a");
       return;
     }
-    realBtn.disabled=true;setLive("Calling the real MCP tool…");
+    setLive("Calling the real MCP tool…",true);realBtn.disabled=true;
     try{
       const response=await bridgeRequest("/mcp/call",{method:"POST",body:JSON.stringify({name:"jarvis_calculate_total",arguments:{price:p,quantity:q}})});
       let payload=response.structuredContent;
@@ -1120,7 +1120,7 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
       setLive("Connected · real MCP call succeeded",true);
     }catch(e){
       show("MCP call failed",e.message||"Check the local bridge and server.","⚠️","a");
-      setLive("Connection needs attention · "+(e.message||"call failed"));
+      setLive("Connected · last call failed: "+(e.message||"check tool output"),true);
     }finally{realBtn.disabled=!connected}
   });
 })();
