@@ -197,8 +197,7 @@ button,input,textarea,select{font:inherit}
 button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
   -webkit-tap-highlight-color:transparent;
   transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s ease,opacity .2s ease;
-}
-.panel{
+}.panel{
   background:linear-gradient(145deg,rgba(var(--base-rgb),.76),rgba(var(--bg-rgb),.72));
   border-color:rgba(180,220,245,.15);
   border-radius:18px;
@@ -397,8 +396,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const uid=()=>Math.random().toString(36).slice(2,9);
 const TZ=(Intl.DateTimeFormat().resolvedOptions().timeZone)||"";
 const tzCC={"Asia/Kolkata":"91","Asia/Calcutta":"91","Asia/Karachi":"92","Asia/Dhaka":"880","Europe/London":"44","Asia/Dubai":"971","Australia/Sydney":"61","Asia/Singapore":"65"};
-const S=Object.assign({voice:true,haptic:true,autoloc:true,wake:false,readmsg:true,autosend:false,theme:"blue",cc:tzCC[TZ]||(TZ.startsWith("America/")?"1":""),pin:""},store.get("jv_set",{}));
-S.ai=Object.assign({prov:"anthropic",keys:{},models:{}},S.ai||{});
+const S=Object.assign({voice:true,haptic:true,autoloc:true,wake:false,readmsg:true,autosend:false,theme:"blue",cc:tzCC[TZ]||(TZ.startsWith("America/")?"1":""),pin:""},store.get("jv_set",{}));S.ai=Object.assign({prov:"anthropic",keys:{},models:{}},S.ai||{});
 const save=()=>store.set("jv_set",S);
 const hap=()=>{if(S.haptic&&navigator.vibrate)navigator.vibrate(12)};
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),3200)}
@@ -597,8 +595,7 @@ function addActivity(type,title,detail,status="recorded"){
   activity.unshift(entry);activity=activity.slice(0,100);
   store.set("jv_activity",activity)
 }
-function renderActivity(){
-  const host=$("#activityLog");if(!host)return;
+function renderActivity(){  const host=$("#activityLog");if(!host)return;
   const q=($("#activityQ")?.value||"").trim().toLowerCase();
   const list=activity.filter(a=>!q||[a.type,a.title,a.detail,a.status].some(v=>String(v||"").toLowerCase().includes(q)));
   $("#activityN").textContent=activity.length+" events";
@@ -797,8 +794,26 @@ function classifyIntent(raw){
  for(const rule of INTENT_RULES){const match=text.match(rule.re);if(match)return{id:rule.id,confidence:0.96,slots:rule.slots(match),source:"offline-rule"}}
  return{id:"general.query",confidence:0.35,slots:{query:text},source:"cloud-or-fallback"};
 }
-let currentIntent={id:"general.query",confidence:0.35,slots:{},source:"offline-rule"};
-async function runTrainingLab(){
+/* ===== Phase 03: structured command planning ===== */
+const COMMAND_CONFIRMATION_INTENTS=new Set([
+  "phone.call","message.whatsapp","message.sms","app.open"
+]);
+function commandPlan(raw){
+  const normalized=cleanLocalText(raw);
+  const intent=classifyIntent(normalized);
+  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id);
+  return Object.freeze({
+    normalized,
+    intent,
+    status:"parsed",
+    dispatch:"local-handler",
+    requiresConfirmation:needsConfirmation,
+    confirmationReason:needsConfirmation?"This command may contact someone or leave the current app.":"No external-action confirmation required by the planner."
+  });
+}
+let currentPlan={normalized:"",intent:{id:"general.query",confidence:0.35,slots:{},source:"offline-rule"},status:"idle",dispatch:"none",requiresConfirmation:false,confirmationReason:""};
+/* ===== end Phase 03 command planning ===== */
+let currentIntent={id:"general.query",confidence:0.35,slots:{},source:"offline-rule"};async function runTrainingLab(){
  const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
  if(!button||!status||!out)return;
  button.disabled=true;button.textContent="Testing…";status.textContent="Running";
@@ -871,7 +886,7 @@ async function routeLocalSkill(raw){
 /* ===== end reusable skill engine v1 ===== */
 
 /* ===== command brain: local intents first (instant, offline), then AI ===== */
-async function handle(raw){currentIntent=classifyIntent(raw);const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
+async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPlan.intent;const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
   const skillResult=await routeLocalSkill(raw);if(skillResult!==null)return skillResult;
   if(/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i.test(s)){try{hasN()?N.stopSpeak():("speechSynthesis" in window&&speechSynthesis.cancel())}catch{}return"Okay, I'll stop speaking."}
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
@@ -997,8 +1012,7 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   $("#aiP").value=p;const fill=()=>{const q=$("#aiP").value;$("#aiK").value=S.ai.keys[q]||"";$("#aiM").value=S.ai.models[q]||"";$("#aiM").placeholder="Model (default: "+DEF[q]+")"};fill();$("#aiP").onchange=()=>{S.ai.prov=$("#aiP").value;save();fill();renderCore()};
   const sv=()=>{const q=$("#aiP").value;S.ai.keys[q]=$("#aiK").value.trim();S.ai.models[q]=$("#aiM").value.trim();S.cc=$("#cc").value.replace(/\D/g,"");save();renderCore()};$("#aiK").oninput=$("#aiM").oninput=$("#cc").oninput=sv;
   $("#aiT").onclick=async()=>{sv();toast("Testing…");try{const r=await askAI.call(null);toast("✓ Connected")}catch(e){toast(e.message==="NOKEY"?"Enter an API key":"Failed — check key, model and connection")}};
-  $$(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
-  $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
+  $$(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});  $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
   $$(".th").forEach(t=>t.onclick=()=>{S.theme=t.dataset.th;save();applyTheme(S.theme);$$(".th").forEach(x=>{const active=x===t;x.classList.toggle("on",active);x.setAttribute("aria-pressed",String(active))})});
   $("#pinSet").onclick=async()=>{const a=prompt("New PIN (4–8 digits):");if(a&&/^\d{4,8}$/.test(a)){S.pin=await sha(a);save();toast("PIN set");closeSheet()}else if(a)toast("PIN must be 4–8 digits")};
   $("#pinOff")&&($("#pinOff").onclick=async()=>{const a=prompt("Enter current PIN:");if(a&&await sha(a)===S.pin){S.pin="";save();toast("PIN removed");closeSheet()}else if(a)toast("Wrong PIN")});
