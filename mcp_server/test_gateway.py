@@ -27,6 +27,15 @@ class GatewayValidationTests(unittest.TestCase):
     def test_unknown_tool_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "not enabled"):
             validate_call_payload({"name": "delete_everything", "arguments": {}})
+        with self.assertRaisesRegex(ValueError, "not enabled"):
+            validate_call_payload({"name": ["unexpected"], "arguments": {}})
+
+    def test_calculator_rejects_non_finite_price(self):
+        with self.assertRaisesRegex(ValueError, "finite"):
+            validate_call_payload({
+                "name": "jarvis_calculate_total",
+                "arguments": {"price": float("nan"), "quantity": 1},
+            })
 
     def test_calculator_rejects_extra_arguments(self):
         with self.assertRaisesRegex(ValueError, "exactly price and quantity"):
