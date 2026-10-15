@@ -7,6 +7,7 @@ const end = html.lastIndexOf("</script>");
 assert.ok(start >= 0 && end > start, "index.html should contain an inline script");
 const source = html.slice(start + "<script>".length, end);
 assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse");
+assert.equal((source.match(/\$\(\s*[A-Za-z_$][\w$]*\s*=>/g)||[]).length, 0, "DOM collection handlers must use $()/querySelectorAll, not the single-element $() helper");
 
 for (const topic of ["World", "India", "Business", "Technology", "Science", "Sports"]) {
   assert.ok(html.includes(`["${topic}",`), `missing news topic: ${topic}`);
