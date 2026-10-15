@@ -797,6 +797,25 @@ function classifyIntent(raw){
  for(const rule of INTENT_RULES){const match=text.match(rule.re);if(match)return{id:rule.id,confidence:0.96,slots:rule.slots(match),source:"offline-rule"}}
  return{id:"general.query",confidence:0.35,slots:{query:text},source:"cloud-or-fallback"};
 }
+/* ===== Phase 03: structured command planning ===== */
+const COMMAND_CONFIRMATION_INTENTS=new Set([
+  "phone.call","message.whatsapp","message.sms","app.open"
+]);
+function commandPlan(raw){
+  const normalized=cleanLocalText(raw);
+  const intent=classifyIntent(normalized);
+  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id);
+  return Object.freeze({
+    normalized,
+    intent,
+    status:"parsed",
+    dispatch:"local-handler",
+    requiresConfirmation:needsConfirmation,
+    confirmationReason:needsConfirmation?"This command may contact someone or leave the current app.":"No external-action confirmation required by the planner."
+  });
+}
+let currentPlan={normalized:"",intent:{id:"general.query",confidence:0.35,slots:{},source:"offline-rule"},status:"idle",dispatch:"none",requiresConfirmation:false,confirmationReason:""};
+/* ===== end Phase 03 command planning ===== */
 let currentIntent={id:"general.query",confidence:0.35,slots:{},source:"offline-rule"};
 async function runTrainingLab(){
  const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
@@ -871,7 +890,7 @@ async function routeLocalSkill(raw){
 /* ===== end reusable skill engine v1 ===== */
 
 /* ===== command brain: local intents first (instant, offline), then AI ===== */
-async function handle(raw){currentIntent=classifyIntent(raw);const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
+async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPlan.intent;const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
   const skillResult=await routeLocalSkill(raw);if(skillResult!==null)return skillResult;
   if(/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i.test(s)){try{hasN()?N.stopSpeak():("speechSynthesis" in window&&speechSynthesis.cancel())}catch{}return"Okay, I'll stop speaking."}
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
