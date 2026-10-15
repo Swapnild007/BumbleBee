@@ -468,6 +468,41 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
     <div class="panel" id="trainingLab"><h3>JARVIS TRAINING LAB <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Run offline intent and slot checks against the current training set. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">38 regression examples loaded from the training corpus</small></div></div></div></div>
+    <div class="panel" id="mcpLearningLab">
+      <h3>🧩 MCP LEARNING LAB <span class="live">LESSON 01</span></h3>
+      <div class="rows">
+        <p class="d" style="font-size:12px;line-height:1.55;margin:0 0 10px">MCP (Model Context Protocol) is a standard way for an AI application to discover and use tools. Start with a safe calculator, then connect a real AI client to the Python MCP server included in this project.</p>
+        <div class="row"><div class="ico">🧠</div><div><b>AI model</b><small class="d">Understands your request and decides when a tool may help.</small></div></div>
+        <div class="row"><div class="ico">🔌</div><div><b>MCP client + protocol</b><small class="d">The client communicates with a compatible MCP server.</small></div></div>
+        <div class="row"><div class="ico">🛠️</div><div><b>MCP server</b><small class="d">Exposes named, validated tools. It does not automatically grant access to your device.</small></div></div>
+      </div>
+      <div style="padding:0 12px 12px">
+        <h4 style="font-size:11px;letter-spacing:.12em;color:var(--cyan);margin:6px 0 8px">TRY THE TOOL</h4>
+        <label for="mcpPrice" class="d" style="font-size:11px;display:block">Price per item (₹)</label>
+        <input class="in" id="mcpPrice" type="number" min="0" max="1000000000" step="0.01" value="250" inputmode="decimal">
+        <label for="mcpQuantity" class="d" style="font-size:11px;display:block;margin-top:8px">Quantity (whole number)</label>
+        <input class="in" id="mcpQuantity" type="number" min="0" max="1000000" step="1" value="4" inputmode="numeric">
+        <div class="btns"><button class="btn" id="mcpCalculate" type="button">▶ Run calculator tool</button><button class="btn" id="mcpReset" type="button">Reset example</button></div>
+        <div id="mcpResult" class="row" role="status" aria-live="polite" style="margin-top:10px"><div class="ico">🧮</div><div><b>Tool ready</b><small class="d">Run the calculator to see inputs and output.</small></div></div>
+        <div class="chip" style="margin-top:8px"><small>Browser demo status</small><b id="mcpConnection">Local demo only · no server request made</b></div>
+        <h4 style="font-size:11px;letter-spacing:.12em;color:var(--cyan);margin:18px 0 8px">CONNECT YOUR REAL LOCAL MCP SERVER</h4>
+        <p class="d" style="font-size:11px;line-height:1.5;margin:0 0 8px">Start the local bridge from the project folder in Termux. It prints a one-run token. Paste that token here. The token is kept only in this page's memory and is not saved to browser storage.</p>
+        <div class="chip" style="margin:0 0 8px"><small>Step 1 · install once</small><b><code>python -m pip install -r mcp_server/requirements.txt</code></b></div>
+        <div class="chip" style="margin:0 0 8px"><small>Step 2 · start bridge</small><b><code>python mcp_server/gateway.py</code></b></div>
+        <label for="mcpToken" class="d" style="font-size:11px;display:block">One-run local bridge token</label>
+        <input class="in" id="mcpToken" type="password" autocomplete="off" spellcheck="false" placeholder="Paste token from Termux">
+        <div class="btns"><button class="btn" id="mcpConnect" type="button">Connect & discover tools</button><button class="btn" id="mcpRunReal" type="button" disabled>Run real MCP calculator</button></div>
+        <div class="chip" style="margin-top:8px"><small>Live MCP connection</small><b id="mcpLiveStatus">Not connected · local-only bridge</b></div>
+        <div id="mcpTools" class="rows" style="margin-top:8px" aria-live="polite"><div class="row"><div class="ico">🔒</div><div><b>No tools discovered yet</b><small class="d">Connect to your local bridge to discover its allow-listed tools.</small></div></div></div>
+        <p class="d" style="font-size:10.5px;line-height:1.5;margin-top:8px">Safety: the bridge binds to 127.0.0.1, checks a one-run token and local browser origins, and exposes only the calculator and MCP lesson tools. This is for a local page served on localhost, not a remotely hosted web page. Press Ctrl+C in Termux to stop it.</p>
+      </div>
+      <div class="rows">
+        <h4 style="font-size:11px;letter-spacing:.12em;color:var(--cyan);margin:0 0 8px">WHAT YOU JUST LEARNED</h4>
+        <div class="row"><div class="ico">1</div><div><b>Tool</b><small class="d">A small function that does one clearly defined job.</small></div></div>
+        <div class="row"><div class="ico">2</div><div><b>Inputs and output</b><small class="d">Price and quantity go in; the total comes out.</small></div></div>
+        <div class="row"><div class="ico">3</div><div><b>Safety boundary</b><small class="d">The calculator rejects negative, invalid, or excessively large values and does not change files or send data.</small></div></div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -1158,6 +1193,95 @@ function initMem(){const c=$("#memc"),[x,w,h]=fit(c);if(memOn)return;memOn=true;
   (function f(t){if(!$("#t-sys").classList.contains("on")){memOn=false;return}x.clearRect(0,0,w,h);x.strokeStyle=`rgba(${ACC},.55)`;x.lineWidth=1;
     e.forEach(a=>{x.beginPath();x.moveTo(n[a[0]][0]*w,n[a[0]][1]*h*.85);x.lineTo(n[a[1]][0]*w,n[a[1]][1]*h*.85);x.stroke()});
     n.forEach((p,i)=>{x.fillStyle=`rgb(${ACC})`;x.shadowColor=`rgb(${ACC})`;x.shadowBlur=8;x.beginPath();x.arc(p[0]*w,p[1]*h*.85,2.5+Math.sin(t/500+i)*1.2,0,7);x.fill();x.shadowBlur=0});requestAnimationFrame(f)})(0)}
+
+/* ===== MCP learning lab: local demo plus an opt-in loopback MCP connection ===== */
+(function initMcpLearningLab(){
+  const price=$("#mcpPrice"),quantity=$("#mcpQuantity"),result=$("#mcpResult");
+  const tokenInput=$("#mcpToken"),liveStatus=$("#mcpLiveStatus"),toolsBox=$("#mcpTools"),connectBtn=$("#mcpConnect"),realBtn=$("#mcpRunReal");
+  if(!price||!quantity||!result)return;
+  const bridge="http://127.0.0.1:8765";
+  let connected=false;
+  function show(title,detail,icon="🧮",tone="d"){
+    result.innerHTML='<div class="ico">'+esc(icon)+'</div><div><b>'+esc(title)+'</b><small class="'+tone+'">'+esc(detail)+'</small></div>';
+  }
+  function setLive(text,ok=false){
+    if(liveStatus)liveStatus.textContent=text;
+    if(realBtn)realBtn.disabled=!ok;
+    connected=ok;
+  }
+  async function bridgeRequest(path,options={}){
+    const token=tokenInput&&tokenInput.value.trim();
+    if(!token)throw new Error("Paste the one-run token printed by the local bridge.");
+    const response=await fetch(bridge+path,{...options,headers:{"X-JARVIS-Token":token,"Content-Type":"application/json",...(options.headers||{})},cache:"no-store"});
+    let body={};try{body=await response.json()}catch{}
+    if(!response.ok||body.ok===false)throw new Error(body.error||("Local bridge returned HTTP "+response.status));
+    return body;
+  }
+  $("#mcpCalculate").addEventListener("click",()=>{
+    const p=price.value.trim()===""?NaN:Number(price.value);
+    const q=quantity.value.trim()===""?NaN:Number(quantity.value);
+    if(!Number.isFinite(p)||!Number.isFinite(q)||p<0||q<0||p>1e9||q>1e6||!Number.isInteger(q)){
+      show("Input rejected","Use price ₹0–₹1,000,000,000 and a whole-number quantity from 0–1,000,000.","⚠️","a");
+      return;
+    }
+    const total=Math.round((p*q+Number.EPSILON)*100)/100;
+    if(!Number.isFinite(total)){show("Input rejected","The result is outside the supported numeric range.","⚠️","a");return}
+    show("₹"+total.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}),
+      "Browser-only result. No MCP server was called.","✓","g");
+    const status=$("#mcpConnection");
+    if(status)status.textContent="Local browser demo completed · no server request made";
+  });
+  $("#mcpReset").addEventListener("click",()=>{
+    price.value="250";quantity.value="4";
+    show("Tool ready","Choose the browser demo or connect to the real local MCP server.");
+    $("#mcpConnection").textContent="Local demo only · no server request made";
+  });
+  if(connectBtn)connectBtn.addEventListener("click",async()=>{
+    setLive("Connecting to 127.0.0.1:8765…");
+    if(toolsBox)toolsBox.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Discovering tools…</b><small class="d">Contacting the local bridge.</small></div></div>';
+    try{
+      await bridgeRequest("/health");
+      const data=await bridgeRequest("/mcp/tools");
+      const tools=Array.isArray(data.tools)?data.tools:[];
+      if(!tools.length)throw new Error("The MCP server returned no tools.");
+      if(toolsBox)toolsBox.innerHTML=tools.map(t=>'<div class="row"><div class="ico">🛠️</div><div><b>'+esc(t.name||"Unnamed tool")+'</b><small class="d">'+esc(t.description||"No description provided.")+'</small></div></div>').join("");
+      setLive("Connected · discovered "+tools.length+" real MCP tools",true);
+      toast("Connected to local MCP server");
+    }catch(e){
+      setLive("Not connected · "+(e.message||"check local setup"));
+      if(toolsBox)toolsBox.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Connection failed</b><small class="d">'+esc(e.message||"Check that the local bridge is running.")+'</small></div></div>';
+      toast("MCP connection failed");
+    }
+  });
+  if(realBtn)realBtn.addEventListener("click",async()=>{
+    if(!connected){setLive("Connect first to discover tools.");return}
+    const p=price.value.trim()===""?NaN:Number(price.value);
+    const q=quantity.value.trim()===""?NaN:Number(quantity.value);
+    if(!Number.isFinite(p)||!Number.isFinite(q)||p<0||q<0||p>1e9||q>1e6||!Number.isInteger(q)){
+      show("Input rejected","Use price ₹0–₹1,000,000,000 and a whole-number quantity from 0–1,000,000.","⚠️","a");
+      return;
+    }
+    setLive("Calling the real MCP tool…",true);realBtn.disabled=true;
+    try{
+      const response=await bridgeRequest("/mcp/call",{method:"POST",body:JSON.stringify({name:"jarvis_calculate_total",arguments:{price:p,quantity:q}})});
+      let payload=response.structuredContent;
+      if(!payload&&Array.isArray(response.content)){
+        const first=response.content.find(x=>typeof x.text==="string");
+        if(first){try{payload=JSON.parse(first.text)}catch{payload={message:first.text}}}
+      }
+      if(response.isError)throw new Error("The MCP tool reported an error.");
+      if(!payload||payload.total===undefined)throw new Error("The MCP tool returned an unexpected result.");
+      const total=Number(payload.total);
+      show("₹"+total.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}),
+        "Real MCP server result · price="+payload.price+" × quantity="+payload.quantity+" · "+(payload.currency||"INR"),"✓","g");
+      $("#mcpConnection").textContent="Real MCP tool completed · response received from Python server";
+      setLive("Connected · real MCP call succeeded",true);
+    }catch(e){
+      show("MCP call failed",e.message||"Check the local bridge and server.","⚠️","a");
+      setLive("Connected · last call failed: "+(e.message||"check tool output"),true);
+    }finally{realBtn.disabled=!connected}
+  });
+})();
 
 /* ===== boot ===== */
 renderLoc();renderWx();renderNet();renderTasks();renderRems();renderActiveTimers();renderTL();renderNotes();renderActivity();renderFavs();renderInbox();try{buildFeed()}catch(e){console.error("JARVIS feed startup failed",e)}try{repairHomePanels()}catch(e){console.error("JARVIS home recovery failed",e)}try{loadHeads()}catch(e){console.error("JARVIS news startup failed",e)}
