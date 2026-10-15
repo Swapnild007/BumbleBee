@@ -10,6 +10,9 @@ assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse"
 assert.equal((source.match(/(?<!\$)\$\([^)]*\)\.(?:forEach|map|filter)\(/g)||[]).length, 0, "DOM collection operations must use $()/querySelectorAll, not the single-element $() helper");
 assert.ok(source.includes('const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)]'), "single-element and collection DOM helpers must be distinct");
 assert.ok(!source.includes("$".repeat(3)), "undefined triple-dollar selector calls must not abort script initialization");
+assert.ok(source.includes('intent://launch/#Intent;package=') && source.includes('category=android.intent.category.LAUNCHER;end'), "browser app shortcuts should use a well-formed Android package launch intent");
+assert.ok(!source.includes('intent:#Intent;package='), "malformed package intent URI must not regress");
+assert.ok(source.includes('intent://launch/#Intent;action=') && !source.includes('intent:#Intent;action='), "Android settings/action shortcuts should use a well-formed intent URI");
 for (const id of ["cCall", "cWa", "cSms", "ctPick", "ctAdd", "smsLoad", "apps", "fab", "refresh"]) {
   assert.ok(html.includes('id="'+id+'"'), "missing core interaction: "+id);
 }
