@@ -105,6 +105,10 @@ try {
   await page.locator("#vlog [data-b]").last().click({ force: true });
   await page.locator("#vlog").getByText("Added the task.").waitFor();
   assert.ok(await page.locator("#tasks").getByText("AI-proposed task").count() > 0, "confirmed AI task should appear in the task list");
+  await page.locator('nav a[data-t="sys"]').click();
+  page.once("dialog", dialog => dialog.accept());
+  await page.locator("#brainClear").click();
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem("jv_brain_traces_v1") || "[]").length === 0);
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
