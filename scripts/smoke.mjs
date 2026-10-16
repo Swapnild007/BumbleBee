@@ -46,6 +46,10 @@ assert.ok(html.includes("aria-pressed"), "theme swatches should expose accessibl
 assert.ok(html.includes('id="trainingLab"'), "System tab should expose the training self-test panel");
 assert.ok(html.includes("async function runTrainingLab()"), "in-app self-test runner should exist");
 assert.ok(html.includes('fetch("./training/intents.json"'), "self-test should load the shared training corpus");
+assert.ok(html.includes('<script src="./brain/feedback-learning.js"></script>'), "explicit local brain learning module must be loaded");
+assert.ok(html.includes("window.JarvisBrainLearning?.lookup(text)"), "learned phrase corrections must participate in offline intent routing");
+assert.ok(html.includes('id="brainTeach"'), "users must be able to teach a correction from the last command");
+assert.ok(html.includes("No action was executed."), "teaching a correction must not execute an action");
 assert.ok(source.includes('reminder:(id,at,t,k)=>nj("scheduleReminder"'), "native Android reminders must use the persistent scheduler bridge");
 assert.ok(source.includes('cancelReminder:id=>nj("cancelReminder"'), "native Android reminder cancellation must be wired");
 assert.ok(source.includes('N.cancelReminder(x.dataset.r)'), "removing a reminder must cancel native delivery too");
