@@ -1148,7 +1148,7 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,l
 function renderLog(){const l=$("#vlog");if(!l)return;
 l.innerHTML=chat.slice(-14).map(m=> '<div class="msg '+m.r+'">'+esc(m.c)+(m.btn&&pendMap[m.btn]? '<div class="btns"><button class="btn sm" data-b="'+m.btn+'">'+esc(pendMap[m.btn].label)+'</button><button class="btn sm red" data-b-cancel="'+m.btn+'">Cancel</button></div>':'')+'</div>').join("");
   $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();delete pendMap[b.dataset.b];renderLog();Promise.resolve().then(()=>p.fn()).catch(()=>toast("Action failed. Please try again."))}});
-  $$("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
+  $("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;pendingClarification=null;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
   l.scrollTop=l.scrollHeight}
 
 async function runConfirmedCommand(t){
