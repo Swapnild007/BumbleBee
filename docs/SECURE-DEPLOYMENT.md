@@ -19,7 +19,7 @@ The authenticated AI gateway requires a serverless host that runs the repository
 ## Security behavior
 
 - Login creates a signed, expiring session in an `HttpOnly`, `SameSite=Strict` cookie; HTTPS deployments also set `Secure`.
-- The gateway enforces same-origin requests, bounded JSON payloads, supported provider/model validation, and per-session/IP rate limiting.
+- The gateway enforces same-origin requests, bounded JSON payloads, supported provider/model validation, and bounded in-process per-session/IP rate limits. These limits are best-effort per serverless instance, not a globally shared quota. Before a public multi-user launch, move login and AI rate limiting to a shared store (for example Redis or the host's rate-limit service) so traffic spread across instances cannot bypass a single global budget.
 - If a secure session expires, JARVIS asks you to reconnect instead of silently switching back to a browser-stored provider key.
 - Personal-mode BYOK remains available for private testing. It stores the key in browser storage and sends it directly to the provider, so it is **not appropriate for a public deployment**.
 - CI verifies the gateway's authentication and server-side key handling with mocked provider responses. You must still verify the deployed environment variables and real provider connection after deployment.
