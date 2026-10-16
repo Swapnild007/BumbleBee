@@ -545,6 +545,13 @@ let tasks=store.get("jv_tasks",[]).map(t=>(t.over&&!t.due)?{...t,due:1}:t);
 let rems=store.get("jv_rem",[]),activeTimers=store.get("jv_active_timers",[]),notes=store.get("jv_notes",[]),favs=store.get("jv_favs",[]),chat=store.get("jv_chat",[]);
 let msgs=[],turns=0,acts=0,load=12,heap=null;
 const saveAll=()=>{store.set("jv_tasks",tasks);store.set("jv_rem",rems);store.set("jv_notes",notes);store.set("jv_favs",favs);store.set("jv_chat",chat.slice(-40))};
+window.addEventListener("jarvis-native-reminder-status",event=>{
+  const detail=event.detail||{},reminder=rems.find(r=>r.id===detail.id);
+  if(!reminder)return;
+  reminder.nativeDelivery=detail.scheduled?"scheduled":"browser-only";
+  saveAll();renderRems();
+  if(!detail.scheduled)toast(detail.message||"Android notification delivery is unavailable.");
+});
 const overdue=t=>!t.done&&t.due&&t.due<Date.now();
 const rel=ms=>{const m=Math.round(ms/6e4);if(m<1)return"<1m";if(m<60)return m+"m";const h=Math.floor(m/60);return h<24?h+"h "+(m%60)+"m":Math.floor(h/24)+"d "+(h%24)+"h"};
 const fmtT=ts=>new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
@@ -652,7 +659,7 @@ function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300
 setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<864e5)fire(r);else{addActivity("Reminder","Missed reminder",r.text+" · due "+fmtD(r.at),"missed");renderActivity();notify("JARVIS · Missed reminder",r.text+" was due "+fmtD(r.at))}});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
-  el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
+  el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span>${r.nativeDelivery==="scheduled"?" · Android notification":r.nativeDelivery==="permission-pending"?" · permission requested":r.nativeDelivery==="browser-only"?" · browser-only":""}</small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
   $$("#rems .x").forEach(x=>x.onclick=()=>{if(hasN())try{N.cancelReminder(x.dataset.r)}catch{}rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
 $$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
 $("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}const r=addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();if(r.nativeDelivery==="browser-only")toast("Saved in JARVIS, but Android notification delivery is unavailable. It may only alert while JARVIS stays active.");else if(r.nativeDelivery==="scheduled")toast("Android reminder scheduled for "+fmtD(p.at));else if(!hasN())toast("Browser reminder set. Keep JARVIS active for delivery.");}
