@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "purpose": "JARVIS offline intent evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification and confirmation planning; not model fine-tuning data.",
+  "version": 4,
+  "purpose": "JARVIS offline evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification, command confirmation planning and model-action schema validation; not model fine-tuning data.",
   "cases": [
     {
       "id": "hello-01",
@@ -455,5 +455,86 @@
     "Ask a follow-up when a required slot such as time, contact, or message body is missing.",
     "Keep offline intents working without an AI key; do not invent unavailable native Android capabilities.",
     "Use only explicitly saved facts for memory recall; do not fabricate personal memories."
+  ],
+  "actionCases": [
+    {
+      "id": "action-call-valid",
+      "action": {
+        "type": "call",
+        "name": "Mom"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-sms-valid",
+      "action": {
+        "type": "sms",
+        "name": "Dad",
+        "text": "I will be home late"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-task-valid",
+      "action": {
+        "type": "task",
+        "text": "Submit report"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-timer-valid",
+      "action": {
+        "type": "timer",
+        "minutes": 15,
+        "label": "Break"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-unknown-type",
+      "action": {
+        "type": "delete-all-data"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-sms-empty-body",
+      "action": {
+        "type": "sms",
+        "name": "Dad",
+        "text": " "
+      },
+      "valid": false
+    },
+    {
+      "id": "action-timer-out-of-range",
+      "action": {
+        "type": "timer",
+        "minutes": 99999,
+        "label": "Bad timer"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-torch-no-state",
+      "action": {
+        "type": "torch"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-task-empty",
+      "action": {
+        "type": "task",
+        "text": " "
+      },
+      "valid": false
+    },
+    {
+      "id": "action-malformed",
+      "action": null,
+      "valid": false
+    }
   ]
 }
