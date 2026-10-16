@@ -470,11 +470,14 @@ class MainActivity : Activity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && reminder != null) {
                 try {
                     ReminderScheduler.schedule(this, reminder)
+                    dispatchReminderStatus(reminder.optString("id"), true, "Android reminder scheduled.")
                     toast("Android reminder scheduled.")
                 } catch (_: Exception) {
+                    dispatchReminderStatus(reminder.optString("id"), false, "Could not schedule the Android reminder.")
                     toast("Could not schedule the Android reminder.")
                 }
             } else {
+                reminder?.let { dispatchReminderStatus(it.optString("id"), false, "Notifications are disabled.") }
                 toast("Notifications are disabled. This reminder will only alert while JARVIS remains active.")
             }
         }
@@ -495,6 +498,15 @@ class MainActivity : Activity() {
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
             }
         }
+    }
+
+    private fun dispatchReminderStatus(id: String, scheduled: Boolean, message: String) {
+        if (!::webView.isInitialized) return
+        val detail = JSONObject().put("id", id).put("scheduled", scheduled).put("message", message)
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new CustomEvent('jarvis-native-reminder-status',{detail:$detail}))",
+            null
+        )
     }
 
     override fun onBackPressed() {
