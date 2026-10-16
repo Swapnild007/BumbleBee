@@ -29,7 +29,7 @@ The web/PWA is the primary product until its functional acceptance tests pass. A
 ### Gate 3: automation
 - Define a durable job schema: id, trigger, timezone, recurrence, action, permissions, confirmation policy, status, idempotency key, retry budget, created/updated timestamps and run history.
 - Store local jobs for offline UI access, but use a server scheduler or platform notifications for reliable delivery when the web page is closed.
-- Until that scheduler exists, label reminders as foreground/browser-session reminders and show the limitations when created.
+- For web-only deployments, until a server scheduler exists, label reminders as foreground/browser-session reminders and show the limitations when created.
 - The Android APK branch now includes one-shot native notifications, cancellation, app-private persistence, and reboot rescheduling. It uses inexact `AlarmManager` delivery, so power management can delay it; recurring schedules and force-stop recovery are still not guaranteed. The web/PWA path remains browser-session best-effort.
 - Provide pause, resume, edit, cancel, run-now, history and failure recovery.
 
