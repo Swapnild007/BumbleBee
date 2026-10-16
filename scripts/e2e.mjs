@@ -53,7 +53,7 @@ try {
 
   await page.locator('nav a[data-t="sys"]').click();
   await page.locator("#runTraining").click();
-  await page.locator("#trainResults").getByText(/\\d+\\/\\d+ examples passed/).waitFor({ timeout: 10000 });
+  await page.locator("#trainResults").getByText(/\d+\/\d+ examples passed/).waitFor({ timeout: 10000 });
 
   await page.locator("#fab").click();
   await page.locator("#vin").fill("call 1234567890");
