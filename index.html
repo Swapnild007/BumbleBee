@@ -458,6 +458,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="kv"><div class="chip"><small>Network type</small><b id="kNet">—</b></div><div class="chip"><small>Downlink / RTT</small><b id="kDl">—</b></div>
         <div class="chip"><small>Device memory</small><b id="kMem">—</b></div><div class="chip"><small>CPU cores</small><b id="kCpu">—</b></div></div></div>
     <div class="panel"><h3>AI & PROVIDERS <span class="g" id="llmN" style="font-weight:400"></span></h3><div class="llm" id="llms"></div></div>
+    <div class="panel" id="secureGatewayPanel"><h3>SECURE AI GATEWAY <span class="d" id="gatewayStatus" style="font-weight:400">Checking…</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Use a protected server-side provider key instead of sending your key from this browser. The deployment must configure the gateway password, session secret, and provider key.</p><div class="add"><input id="gatewayPassword" type="password" placeholder="Gateway access password" autocomplete="current-password"><button class="btn" id="gatewayConnect">Connect</button></div><div class="btns" style="padding:10px 12px 0"><button class="btn sm" id="gatewayDisconnect">Disconnect secure gateway</button></div></div>
     <div class="panel"><h3>LOCATION <button class="link" id="relocate">↻ Refresh</button></h3>
       <div class="rows"><div class="row"><div class="ico">📍</div><div><b id="lPlace">Locating…</b><small class="d" id="lMeta"></small></div></div></div>
       <iframe class="map" id="map" loading="lazy" title="map"></iframe>
