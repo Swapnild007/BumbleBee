@@ -81,6 +81,7 @@ try {
   await page.locator("#vin").fill("Please organize my day");
   await page.locator("#vin").press("Enter");
   try { await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor({ timeout: 10000 }); } catch { throw new Error("AI action confirmation missing; mock hits="+aiMockHits+"; transcript="+await page.locator("#vlog").innerText()+"; core="+await page.locator("#core").innerText()+"; page errors="+errors.join("; ")); }
+  assert.ok(aiMockHits > 0, "open-ended request must exercise the mocked AI provider");
   assert.equal(await page.locator("#tasks").getByText("AI-proposed task").count(), 0, "AI-proposed task must not execute before confirmation");
   await page.locator("#vlog [data-b]").last().click();
   await page.locator("#vlog").getByText("Added the task.").waitFor();
