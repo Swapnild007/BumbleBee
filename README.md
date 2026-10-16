@@ -8,7 +8,7 @@ A mobile-first JARVIS personal-assistant prototype. The product is named JARVIS;
 - Current-news briefing: topic feeds for World, India, Business, Technology, Science, and Sports. It retrieves headlines through RSS2JSON, displays the feed source and publication time where provided, caches results locally, and reports refresh failures. News summaries use the fetched headlines as context when an AI provider is configured.
 - `orb-engine.js`: optional WebGL orb scene.
 - `manifest.webmanifest` and `sw.js`: installable web-app shell and cache versioning.
-- `training/intents.json`: versioned intent-evaluation corpus covering 46 intent regression cases plus 8 action-schema fixtures covering slot extraction, clarification, confidence, and safety expectations. It is test data, not model fine-tuning data.
+- `training/intents.json`: versioned intent-evaluation corpus covering 46 intent regression cases plus 10 action-schema fixtures covering slot extraction, clarification, confidence, and safety expectations. It is test data, not model fine-tuning data.
 - `scripts/train-intents.mjs`: deterministic offline evaluation of the current rule-based classifier and command-confirmation planner.
 - `brain/trace-store.js`: local-only, bounded command/response trace ledger with explicit helpfulness feedback, latency/failure/clarification metrics, JSON export, and user-controlled deletion. It does not upload conversations or train model weights.
 - `docs/OPENJARVIS-BRAIN-INTEGRATION.md`: integration decisions, architecture mapping, and release gates inspired by OpenJarvis.
