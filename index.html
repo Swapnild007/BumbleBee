@@ -1072,7 +1072,19 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
   const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.replace(a[0],"").trim();try{await runAction(JSON.parse(a[1]))}catch{}}return reply||"Done."}
 function briefing(){const h=new Date().getHours(),e=nextEvent(),o=tasks.filter(t=>!t.done),nm=msgs.length;
   return`Good ${h<12?"morning":h<17?"afternoon":"evening"}, Commander. All systems optimal. ${wx&&loc?`It's ${wx.t} degrees and ${(WX[wx.code]||"").toLowerCase()} in ${loc.city}, high ${wx.hi}. `:""}You have ${o.length} open task${o.length==1?"":"s"}${o.filter(overdue).length?", "+o.filter(overdue).length+" overdue":""}.${e?` Next is ${e.name} in ${rel(e.in*6e4)}.`:""}${nm?` ${nm} new message${nm>1?"s":""}.`:""}${heads&&heads.l[0]?` Top headline: ${heads.l[0].t}.`:""}`}
-$("#brief").onclick=async()=>{hap();await loadHeads();const t=briefing();toast(t);say(t)};
+$("#brief").addEventListener("click",()=>{
+  try{
+    hap();
+    const t=briefing();
+    toast(t);
+    say(t);
+    // Refresh headlines in the background; never block the briefing UI on a remote feed.
+    Promise.resolve().then(()=>loadHeads(true)).catch(()=>{});
+  }catch(error){
+    console.error("Executive briefing failed",error);
+    toast("Executive briefing is temporarily unavailable. Please try again.");
+  }
+});
 function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("speechSynthesis" in window){
   try{
     speechSynthesis.cancel();
