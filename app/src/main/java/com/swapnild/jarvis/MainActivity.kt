@@ -322,13 +322,18 @@ class MainActivity : Activity() {
     }
 
     private fun applyTorch(enabled: Boolean): String {
+        fun response(ok: Boolean, message: String) =
+            JSONObject().put("ok", ok).put("message", message).toString()
         return try {
             val manager = getSystemService(CAMERA_SERVICE) as CameraManager
-            val id = manager.cameraIdList.firstOrNull { cameraId -> manager.getCameraCharacteristics(cameraId).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true }
-                ?: return result(false, "No camera flash is available.")
+            val id = manager.cameraIdList.firstOrNull { cameraId ->
+                manager.getCameraCharacteristics(cameraId).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            } ?: return response(false, "No camera flash is available.")
             manager.setTorchMode(id, enabled)
-            result(true, if (enabled) "Flashlight turned on." else "Flashlight turned off.")
-        } catch (_: Exception) { result(false, "Could not control flashlight. Check permission and device availability.") }
+            response(true, if (enabled) "Flashlight turned on." else "Flashlight turned off.")
+        } catch (_: Exception) {
+            response(false, "Could not control flashlight. Check permission and device availability.")
+        }
     }
     private fun launchSpeechRecognition() {
         try {
