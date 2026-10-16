@@ -46,6 +46,10 @@ assert.ok(html.includes("aria-pressed"), "theme swatches should expose accessibl
 assert.ok(html.includes('id="trainingLab"'), "System tab should expose the training self-test panel");
 assert.ok(html.includes("async function runTrainingLab()"), "in-app self-test runner should exist");
 assert.ok(html.includes('fetch("./training/intents.json"'), "self-test should load the shared training corpus");
+assert.ok(source.includes('reminder:(id,at,t,k)=>nj("scheduleReminder"'), "native Android reminders must use the persistent scheduler bridge");
+assert.ok(source.includes('cancelReminder:id=>nj("cancelReminder"'), "native Android reminder cancellation must be wired");
+assert.ok(source.includes('N.cancelReminder(x.dataset.r)'), "removing a reminder must cancel native delivery too");
+assert.ok(source.includes('nativeDelivery==="browser-only"'), "the UI must disclose when native notification delivery is unavailable");
 assert.ok(html.includes("let totalChecks=0,passedChecks=0"), "brain evaluation must count individual assertions accurately");
 assert.ok(html.includes("assertions passed"), "brain evaluation must display assertion-level results");
 assert.ok(html.includes("failed assertions across"), "brain evaluation should distinguish failed assertions from affected examples");
