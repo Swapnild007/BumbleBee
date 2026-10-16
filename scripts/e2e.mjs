@@ -58,7 +58,6 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
-  await page.route("**/api/ai", route => route.abort());
   let aiMockHits=0;
   await page.route("**/v1/messages", route => { aiMockHits++; if(route.request().method()==="OPTIONS")return route.fulfill({status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type,x-api-key,anthropic-version,anthropic-dangerous-direct-browser-access"}}); return route.fulfill({ status: 200, headers: {"access-control-allow-origin":"*"}, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }); });
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
