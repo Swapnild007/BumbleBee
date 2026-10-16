@@ -33,7 +33,7 @@ export default function handler(req, res) {
   if (req.method === "GET") {
     const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
     const authenticated = verifySession(token, secret());
-    return json(res, 200, { authenticated });
+    return json(res, 200, { authenticated, browserKeysAllowed: process.env.JARVIS_DISABLE_BROWSER_KEYS !== "true" });
   }
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
