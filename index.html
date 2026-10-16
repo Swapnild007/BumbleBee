@@ -925,7 +925,9 @@ function classifyIntent(raw){
  const incomplete=[
   [/^(?:call|dial|phone|ring)$/i,"phone.call",["contact"]],
   [/^(?:text|sms)$/i,"message.sms",["contact","text"]],
+  [/^(?:text|sms)\\s+(.+)$/i,"message.sms",["text"]],
   [/^(?:whatsapp|wa|message)$/i,"message.whatsapp",["contact","text"]],
+  [/^(?:whatsapp|wa|message)\\s+(.+)$/i,"message.whatsapp",["text"]],
   [/^(?:open|launch|start|go to)$/i,"app.open",["target"]],
   [/^(?:set (?:a |an )?)?(?:timer|alarm)(?: (?:for|at|of))?$/i,"timer.create",["when"]],
   [/^(?:remember|note|save|make a note)(?: that| this)?$/i,"memory.save",["text"]],
@@ -1045,6 +1047,7 @@ async function routeLocalSkill(raw){
 /* ===== command brain: local intents first (instant, offline), then AI ===== */
 async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPlan.intent;const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
   const skillResult=await routeLocalSkill(raw);if(skillResult!==null)return skillResult;
+  if(intent.needsClarification&&intent.id!=="general.query"){const prompts={"phone.call":"Who should I call? Please give me a contact name or phone number.","message.sms":"Who should I text, and what should the message say?","message.whatsapp":"Who should receive the WhatsApp message, and what should it say?","app.open":"Which app or JARVIS section should I open?","timer.create":"For how long should I set the timer, or what time should the alarm ring?","memory.save":"What would you like me to remember?","task.create":"What task should I add?","reminder.create":"What should I remind you about, and when?","message.sms":"Who should I text, and what should the message say?"};return prompts[intent.id]||"I need a little more detail before I can do that."}
   if(/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i.test(s)){try{hasN()?N.stopSpeak():("speechSynthesis" in window&&speechSynthesis.cancel())}catch{}return"Okay, I'll stop speaking."}
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
   if(m=s.match(/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/)){const q=m[1].trim(),l=notes.filter(n=>!q||q.split(" ").some(w=>w.length>2&&n.t.toLowerCase().includes(w)));return l.length?`I have ${l.length} note${l.length>1?"s":""}: `+l.slice(0,4).map(n=>n.t).join(". "):"I don't have anything saved about that."}
