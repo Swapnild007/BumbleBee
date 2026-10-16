@@ -22,11 +22,12 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  await context.addInitScript(() => localStorage.setItem("jv_set", JSON.stringify({ voice: false, wake: false, haptic: false, autoloc: false, ai: { prov: "anthropic", keys: {}, models: {} } })));
+  await context.addInitScript(() => localStorage.setItem("jv_set", JSON.stringify({ voice: false, wake: false, haptic: false, autoloc: false, ai: { prov: "anthropic", keys: { anthropic: "test-key" }, models: {} } })));
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
+  await page.route("https://api.anthropic.com/v1/messages", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }));
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
   await page.locator("#t-home").waitFor({ state: "visible" });
   assert.ok(await page.locator("#t-home").getByText("JARVIS").count(), "home screen should render JARVIS branding");
@@ -75,6 +76,15 @@ try {
   await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
   await page.locator("#vlog [data-b-cancel]").last().click();
   await page.locator("#vlog").getByText("Action cancelled.").last().waitFor();
+
+  await page.locator("#vin").fill("Please create task for test");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor();
+  assert.equal(await page.locator("#tasks").getByText("AI-proposed task").count(), 0, "AI-proposed task must not execute before confirmation");
+  await page.locator("#vlog [data-b]").last().click();
+  await page.locator("#vlog").getByText("Added the task.").waitFor();
+  await page.locator('nav a[data-t="tasks"]').click();
+  await page.locator("#tasks").getByText("AI-proposed task").waitFor();
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
