@@ -14,6 +14,14 @@ assert.ok(source.includes('intent://"+target.replace(/^https:\\/\\//,"")+"#Inten
 assert.ok(source.includes('S.browser_fallback_url="+fallback+";end'), "app launch intents should have an HTTPS fallback if Android cannot resolve the app");
 assert.ok(source.includes('scheme=whatsapp;package=com.whatsapp'), "WhatsApp should try its installed app package first");
 assert.ok(source.includes('"com.google.android.youtube":"www.youtube.com/"'), "YouTube package launch should target its matching host");
+assert.ok(source.includes('"com.google.android.apps.youtube.music":"https://music.youtube.com/"'), "YouTube Music shortcut should use its service URL");
+assert.ok(source.includes('"com.openai.chatgpt":"https://chatgpt.com/"'), "ChatGPT shortcut should use its service URL");
+assert.ok(source.includes('"com.google.android.apps.bard":"https://gemini.google.com/app"'), "Gemini shortcut should use its service URL");
+assert.ok(source.includes('"com.netflix.mediaclient":"https://www.netflix.com/"'), "Netflix shortcut should use its service URL");
+assert.ok(source.includes('"in.startv.hotstar":"https://www.hotstar.com/in"'), "Disney+ Hotstar shortcut should use its service URL");
+assert.ok(source.includes('"com.amazon.avod.thirdpartyclient":"https://www.primevideo.com/"'), "Amazon Prime Video shortcut should use its service URL");
+for (const label of ["YouTube Music","ChatGPT","Gemini","Netflix","Disney+ Hotstar","Amazon Prime"]) assert.ok(html.includes('"'+label+'"'), "missing requested app shortcut: "+label);
+
 assert.ok(source.includes('requires the JARVIS Android app'), "native-only actions should fail honestly instead of redirecting to Play Store");
 for (const id of ["cCall", "cWa", "cSms", "ctPick", "ctAdd", "smsLoad", "apps", "fab", "refresh"]) {
   assert.ok(html.includes('id="'+id+'"'), "missing core interaction: "+id);
