@@ -109,7 +109,7 @@ try {
   await page.locator("#runTraining").click();
   await page.locator("#trainResults").getByText(/(?:checks|assertions) passed/).waitFor({ timeout: 10000 });
   const evaluationSummary=await page.locator("#trainResults").innerText();
-  const evaluationMatch=evaluationSummary.match(/(\d+)\/(\d+) checks passed/);
+  const evaluationMatch=evaluationSummary.match(/(\d+)\/(\d+) (?:checks|assertions) passed/);
   assert.ok(evaluationMatch, "brain evaluation should report its check count: "+evaluationSummary);
   assert.equal(evaluationMatch[1],evaluationMatch[2], "all brain and action-schema checks must pass: "+evaluationSummary);
 
