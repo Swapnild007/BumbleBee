@@ -8,7 +8,8 @@ function createStore(){
   const values=new Map();
   const window={localStorage:{
     getItem:key=>values.has(key)?values.get(key):null,
-    setItem:(key,value)=>values.set(key,String(value))
+    setItem:(key,value)=>values.set(key,String(value)),
+    removeItem:key=>values.delete(key)
   }};
   vm.runInNewContext(source,{window,Date,JSON,String,Number,Math});
   return {api:window.JarvisTraceStore,values};
