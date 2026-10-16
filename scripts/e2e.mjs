@@ -55,6 +55,7 @@ try {
 
   await page.locator('nav a[data-t="sys"]').click();
   await page.locator("#runTraining").click();
+  await page.locator("#trainResults").getByText(/checks passed/).waitFor({ timeout: 10000 });
   const evaluationSummary=await page.locator("#trainResults").innerText();
   const evaluationMatch=evaluationSummary.match(/(\d+)\/(\d+) checks passed/);
   assert.ok(evaluationMatch, "brain evaluation should report its check count: "+evaluationSummary);
