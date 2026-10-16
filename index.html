@@ -1194,7 +1194,7 @@ async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=t
   let r;
   if(plan.requiresConfirmation){pend={label:"Confirm action",fn:()=>runConfirmedCommand(t)};r="This action may contact someone or open another app. Confirm below before I continue."}
   else r=await safeHandle(t);
-  addActivity("Command","Command received",String(t).slice(0,240),plan.requiresConfirmation?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+  addActivity("Command","Command received",String(t).slice(0,240),(plan.requiresConfirmation||pend)?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
 function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave"></canvas><div class="bigmic" id="bigmic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div>
   <p class="d" id="vstate" style="text-align:center;font-size:12px">${SR||hasN()?"Tap the mic and speak":"Voice input isn't supported here — type below"}</p>
