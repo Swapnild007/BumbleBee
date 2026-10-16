@@ -66,5 +66,5 @@ export default function handler(req, res) {
   loginAttempts.delete(ip);
   const token = createSession(configuredSecret);
   res.setHeader("Set-Cookie", sessionCookie(token, req));
-  return json(res, 200, { authenticated: true, expiresIn: SESSION_TTL_SECONDS });
+  return json(res, 200, { authenticated: true, expiresIn: SESSION_TTL_SECONDS, browserKeysAllowed: process.env.JARVIS_DISABLE_BROWSER_KEYS !== "true" });
 }
