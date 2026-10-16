@@ -394,6 +394,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 }
 /* ===== End Phone tab visual refresh ===== */
 
+.native-map-preview{height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at center,rgba(34,211,238,.12),rgba(2,8,19,.96));border-top:1px solid var(--line);color:var(--muted);font-size:14px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -564,7 +565,16 @@ function locate(){$("#cLoc").textContent="Locating…";
     e=>ipLoc(e.code===1?"Location permission denied — using approximate location":"GPS unavailable — using approximate location"),{enableHighAccuracy:true,timeout:12000,maximumAge:120000})}
 function renderLoc(){if(!loc)return;$("#cLoc").textContent=loc.city;$("#lPlace").textContent=loc.city+(loc.country?", "+loc.country:"");
   $("#lMeta").textContent=`${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} · ${loc.src}${loc.acc?" · ±"+loc.acc+" m":""}`;
-  const d=.02;$("#map").src=`https://www.openstreetmap.org/export/embed.html?bbox=${loc.lon-d},${loc.lat-d},${loc.lon+d},${loc.lat+d}&layer=mapnik&marker=${loc.lat},${loc.lon}`;
+  const map=$("#map");
+  if(hasN()){
+    map.removeAttribute("src");map.style.display="none";
+    let preview=$("#nativeMapPreview");
+    if(!preview){preview=document.createElement("div");preview.id="nativeMapPreview";preview.className="native-map-preview";preview.setAttribute("role","img");preview.setAttribute("aria-label","Map preview is available in Maps");map.insertAdjacentElement("afterend",preview)}
+    preview.textContent="📍 "+loc.city+(loc.region?", "+loc.region:"")+" · "+loc.lat.toFixed(4)+", "+loc.lon.toFixed(4)+" · Open Maps for the live map";
+  }else{
+    map.style.display="";$("#nativeMapPreview")?.remove();
+    const d=.02;map.src="https://www.openstreetmap.org/export/embed.html?bbox="+(loc.lon-d)+","+(loc.lat-d)+","+(loc.lon+d)+","+(loc.lat+d)+"&layer=mapnik&marker="+loc.lat+","+loc.lon;
+  }
   $("#openMaps").href=`https://www.google.com/maps?q=${loc.lat},${loc.lon}`}
 async function getWx(){if(!loc)return;
   try{const j=await jget(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`);
