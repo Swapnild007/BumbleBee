@@ -21,6 +21,7 @@ test("trace ledger stores bounded, normalized command evidence locally",()=>{
   assert.equal(first.confidence,1);
   assert.equal(first.durationMs,13);
   assert.equal(api.summary().total,1);
+  assert.equal(api.summary().averageDurationMs,13);
   assert.ok(values.has("jv_brain_traces_v1"));
   for(let i=0;i<105;i++)api.record({input:"command "+i,intent:"general.query",response:"reply"});
   assert.equal(api.list().length,100,"trace storage must stay within its fixed retention limit");
