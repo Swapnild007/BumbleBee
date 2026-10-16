@@ -274,6 +274,51 @@ class MainActivity : Activity() {
             result(false, "Notification replies are not implemented.")
         @JavascriptInterface fun callAction(action: String): String = result(false, "Unsupported action.")
 
+    private fun launchSpeechRecognition() {
+        try {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to JARVIS")
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            }
+            startActivityForResult(intent, requestSpeechRecognition)
+        } catch (_: Exception) {
+            toast("Speech recognition is unavailable. Check that a speech service is installed.")
+            webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+        }
+    }
+
+    @Deprecated("Deprecated by Android, retained for compatibility with the current Activity shell")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == requestAudioPermission) {
+            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                launchSpeechRecognition()
+            } else {
+                toast("Microphone permission is needed for voice input.")
+                webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated by Android, retained for compatibility with the current Activity shell")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == requestSpeechRecognition) {
+            if (resultCode == RESULT_OK) {
+                val spoken = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
+                if (spoken.isNotBlank()) {
+                    webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech', {detail: " + JSONObject.quote(spoken) + "}))", null)
+                } else {
+                    webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+                }
+            } else {
+                webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+            }
+        }
+    }
+
         private fun launchIntent(intent: Intent, error: String): String = try {
             startActivity(intent)
             result(true, "Action handed to Android.")
