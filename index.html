@@ -1096,7 +1096,9 @@ function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave">
     $("#vin").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";converse(t)}};
     const c=$("#vwave"),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=46*d;const x=c.getContext("2d");x.scale(d,d);let stop=false;sheetCleanup=()=>{stop=true;stopListen();try{hasN()?N.stopSpeak():speechSynthesis.cancel()}catch{}};
     (function f(t){if(stop)return;x.clearRect(0,0,r.width,46);const n=46,bw=r.width/n;for(let i=0;i<n;i++){const env=Math.sin(Math.PI*i/n),v=(Math.sin(t/160+i*.7)+Math.sin(t/100+i*1.9))/4+.5,bh=Math.max(2,46*env*v*(listening?1:.16));x.fillStyle=`rgb(${ACC})`;x.fillRect(i*bw+1,(46-bh)/2,bw-2,bh)}requestAnimationFrame(f)})(0)})}
-function startListen(){if(hasN()){N.listen();return}
+window.addEventListener("jarvis-native-speech",e=>{listening=false;const b=$("#bigmic");b&&b.classList.remove("live");$("#vstate")&&($("#vstate").textContent="Processing…");const text=typeof e.detail==="string"?e.detail:"";if(text.trim())converse(text);else toast("No speech detected — try again")});
+window.addEventListener("jarvis-native-speech-error",()=>{listening=false;const b=$("#bigmic");b&&b.classList.remove("live");$("#vstate")&&($("#vstate").textContent="Tap the mic and speak");toast("Voice input cancelled or unavailable")});
+function startListen(){if(hasN()){listening=true;const b=$("#bigmic");b&&b.classList.add("live");$("#vstate")&&($("#vstate").textContent="Listening…");N.listen();return}
   if(!SR){toast("Speech recognition isn't supported here — type instead");return}
   try{wakeRec&&wakeRec.abort()}catch{}
   rec=new SR();rec.lang=navigator.language||"en-US";
