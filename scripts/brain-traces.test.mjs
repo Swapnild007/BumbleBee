@@ -41,6 +41,15 @@ test("explicit feedback is attached to the selected trace and appears in summary
   assert.equal(exported.traces[0].feedback,"unhelpful");
 });
 
+test("users can clear local brain traces",()=>{
+  const {api,values}=createStore();
+  api.record({input:"private test command"});
+  assert.equal(api.list().length,1);
+  assert.equal(api.clear(),true);
+  assert.equal(api.list().length,0);
+  assert.equal(values.has("jv_brain_traces_v1"),false);
+});
+
 test("unavailable local storage fails safely without crashing the app",()=>{
   const window={localStorage:{getItem(){throw new Error("blocked")},setItem(){throw new Error("blocked")}}};
   vm.runInNewContext(source,{window,Date,JSON,String,Number,Math});
