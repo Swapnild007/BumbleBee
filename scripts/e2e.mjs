@@ -60,12 +60,21 @@ try {
   await page.locator("#vin").press("Enter");
   await page.locator("#vlog").getByText("Who should I call? Please give me a contact name or phone number.").waitFor();
   assert.equal(await page.locator("#vlog").getByText("Confirm below before I continue.").count(), 0, "incomplete call commands must clarify before confirmation");
-  await page.locator("#vin").fill("call 1234567890");
+  await page.locator("#vin").fill("Mom");
   await page.locator("#vin").press("Enter");
   await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
   await page.locator("#vlog [data-b-cancel]").last().click();
   await page.locator("#vlog").getByText("Action cancelled.").waitFor();
   assert.ok(!page.url().startsWith("tel:"), "cancelling a consequential action must not launch the dialer");
+
+  await page.locator("#vin").fill("SMS Dad");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("What should the text to Dad say?").waitFor();
+  await page.locator("#vin").fill("I will be home late");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
+  await page.locator("#vlog [data-b-cancel]").last().click();
+  await page.locator("#vlog").getByText("Action cancelled.").last().waitFor();
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
