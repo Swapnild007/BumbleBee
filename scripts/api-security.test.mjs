@@ -94,6 +94,9 @@ test("authenticated AI gateway uses only server-side provider credentials",async
     return new Response(JSON.stringify({content:[{type:"text",text:"Secure response"}]}),{status:200,headers:{"content-type":"application/json"}});
   };
   try{
+    const badLoginRes=mockResponse();
+    authHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test"},body:{password:"wrong-password"},socket:{remoteAddress:"127.0.0.1"}},badLoginRes);
+    assert.equal(badLoginRes.statusCode,401,"wrong gateway password must not create a session");
     const loginRes=mockResponse();
     authHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test"},body:{password:"test-gateway-password-long"},socket:{remoteAddress:"127.0.0.1"}},loginRes);
     assert.equal(loginRes.statusCode,200);
