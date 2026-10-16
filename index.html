@@ -1122,7 +1122,7 @@ $("#fab").onclick=openVoice;
 
 /* ===== wake word: say "Jarvis, <command>" ===== */
 let wakeRec=null,wakeMode="wake";
-function startWake(){if(hasN()){N.wake(true);wakeOn=true;renderCore();return true}
+function startWake(){if(hasN()){let r;try{r=JSON.parse(N.wake(true))}catch{r={ok:false,message:"Native wake-word service returned an invalid response."}}if(!r.ok){toast(r.message||"Hands-free wake word is not available in this build.");wakeOn=false;renderCore();return false}wakeOn=true;renderCore();return true}
   if(!SR){toast("Wake word needs Chrome, Edge or Samsung Internet");return false}wakeOn=true;spawnWake();renderCore();$("#fab").classList.add("wk");return true}
 function spawnWake(){if(!wakeOn||document.hidden||listening||wakeRec)return;const r=new SR();wakeRec=r;r.continuous=true;r.interimResults=true;r.lang=navigator.language||"en-US";
   r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(!res.isFinal)continue;const t=res[0].transcript.toLowerCase().trim();
