@@ -1,7 +1,7 @@
 package com.swapnild.jarvis
 
 import android.annotation.SuppressLint
-import android.app.AlarmClock
+import android.provider.AlarmClock
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -33,7 +33,7 @@ class MainActivity : Activity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         assetLoader = WebViewAssetLoader.Builder()
-            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this, "www"))
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
             .build()
 
         webView = WebView(this).apply {
