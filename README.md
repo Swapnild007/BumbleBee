@@ -8,7 +8,7 @@ A mobile-first JARVIS personal-assistant prototype. The product is named JARVIS;
 - Current-news briefing: topic feeds for World, India, Business, Technology, Science, and Sports. It retrieves headlines through RSS2JSON, displays the feed source and publication time where provided, caches results locally, and reports refresh failures. News summaries use the fetched headlines as context when an AI provider is configured.
 - `orb-engine.js`: optional WebGL orb scene.
 - `manifest.webmanifest` and `sw.js`: installable web-app shell and cache versioning.
-- `training/intents.json`: versioned intent-evaluation corpus covering 50 intent regression cases plus action-schema fixtures covering slot extraction, clarification, confidence, and safety expectations. It is test data, not model fine-tuning data.
+- `training/intents.json`: versioned intent-evaluation corpus covering 54 intent regression cases plus action-schema fixtures covering slot extraction, clarification, confidence, and safety expectations. It is test data, not model fine-tuning data.
 - `scripts/train-intents.mjs`: deterministic offline evaluation of the current rule-based classifier and command-confirmation planner.
 - `scripts/smoke.mjs`: dependency-free source, JavaScript syntax, and safety-contract checks, run by GitHub Actions.
 - `scripts/e2e.mjs`: Playwright mobile-browser acceptance checks for key interactions and safety flows.
