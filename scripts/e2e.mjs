@@ -21,7 +21,7 @@ await new Promise(resolveListen => server.listen(4173, "127.0.0.1", resolveListe
 let browser;
 try {
   browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
   await context.addInitScript(() => { if (!localStorage.getItem("jv_set")) localStorage.setItem("jv_set", JSON.stringify({ voice: false, wake: false, haptic: false, autoloc: false, ai: { prov: "anthropic", keys: { anthropic: "test-key" }, models: {} } })); });
   const page = await context.newPage();
   const errors = [];
