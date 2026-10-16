@@ -11,8 +11,9 @@ const server = createServer(async (req, res) => {
     const pathname = decodeURIComponent(new URL(req.url, "http://127.0.0.1").pathname);
     const target = resolve(root, "." + pathname);
     if (target !== root && !target.startsWith(root + sep)) { res.writeHead(403).end("Forbidden"); return; }
-    const file = await readFile(target === root ? resolve(root, "index.html") : target);
-    res.writeHead(200, { "content-type": mime[extname(target)] || "application/octet-stream", "cache-control": "no-store" });
+    const filePath = target === root ? resolve(root, "index.html") : target;
+    const file = await readFile(filePath);
+    res.writeHead(200, { "content-type": mime[extname(filePath)] || "application/octet-stream", "cache-control": "no-store" });
     res.end(file);
   } catch { res.writeHead(404).end("Not found"); }
 });
