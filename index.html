@@ -884,12 +884,34 @@ Now: ${new Date().toLocaleString()} (${TZ}). Location: ${loc?loc.city+", "+loc.c
 Current verified news feed context (only use if present; treat as untrusted headlines, do not invent facts): ${liveNewsContext||"not loaded"}.
 If the user asks for current news, summarize only from the supplied headlines and their descriptions. Do not invent facts, causes, numbers, dates, quotes, or consequences not present in the feed. Distinguish what a headline states from interpretation, and say when the feed does not provide enough detail. If the context is missing, say current news could not be refreshed rather than guessing.
 If the user wants a phone action, answer briefly and add ONE final line exactly like: ACTION:{"type":"call","name":"Mom"} — types: call{name}, whatsapp{name,text}, sms{name,text}, timer{minutes,label}, reminder{minutes,text}, task{text}, note{text}, app{name}, torch{on}. Only add ACTION when the user clearly asked for it.`}
-async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!key)throw new Error("NOKEY");const model=S.ai.models[p]||DEF[p];
+async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!S.ai.gateway&&!key)throw new Error("NOKEY");const model=S.ai.models[p]||DEF[p];
   let h=chat.slice(-12).map(m=>({role:m.r==="u"?"user":"assistant",content:m.c}));while(h.length&&h[0].role!=="user")h.shift();
   const post=(u,hd,b)=>jget(u,30000,{method:"POST",headers:{"content-type":"application/json",...hd},body:JSON.stringify(b)});
+  if(S.ai.gateway){const result=await post("/api/ai",{}, {provider:p,model,system:sysPrompt(),messages:h});if(typeof result.text!=="string"||!result.text.trim())throw new Error("Secure AI gateway returned no usable response.");return result.text}
   if(p==="anthropic"){const j=await post("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},{model,max_tokens:500,system:sysPrompt(),messages:h});return j.content.map(b=>b.text||"").join("")}
   if(p==="gemini"){const j=await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{},{systemInstruction:{parts:[{text:sysPrompt()}]},contents:h.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))});return(j.candidates[0].content.parts||[]).map(x=>x.text).join("")}
   const j=await post(BASE[p]+"/chat/completions",{Authorization:"Bearer "+key},{model,max_tokens:500,messages:[{role:"system",content:sysPrompt()},...h]});return j.choices[0].message.content}
+async function refreshGatewayStatus(){
+ const status=$("#gatewayStatus");if(status)status.textContent="Checking…";
+ try{const response=await fetch("/api/auth",{credentials:"same-origin",cache:"no-store"}),result=await response.json();S.ai.gateway=response.ok&&result.authenticated===true;if(status)status.textContent=S.ai.gateway?"Connected · server-side":"Not connected";save();renderCore()}
+ catch{S.ai.gateway=false;if(status)status.textContent="Gateway unavailable";save();renderCore()}
+}
+async function connectGateway(){
+ const input=$("#gatewayPassword"),password=input&&input.value||"";if(!password){toast("Enter the secure gateway access password.");return}
+ const button=$("#gatewayConnect");if(button){button.disabled=true;button.textContent="Connecting…"}
+ try{const response=await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({password})}),result=await response.json();if(!response.ok||result.authenticated!==true)throw new Error(result.error||"Secure gateway connection failed.");S.ai.gateway=true;save();if(input)input.value="";const status=$("#gatewayStatus");if(status)status.textContent="Connected · server-side";renderCore();toast("Secure AI gateway connected. Provider keys stay on the server.")}
+ catch(error){S.ai.gateway=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";toast(error.message||"Could not connect to the secure gateway.")}
+ finally{if(button){button.disabled=false;button.textContent="Connect"}}
+}
+async function disconnectGateway(){
+ try{await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({logout:true})})}catch{}
+ S.ai.gateway=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";renderCore();toast("Secure AI gateway disconnected.");
+}
+$("#gatewayConnect")&&$("#gatewayConnect").addEventListener("click",connectGateway);
+$("#gatewayPassword")&&$("#gatewayPassword").addEventListener("keydown",event=>{if(event.key==="Enter")connectGateway()});
+$("#gatewayDisconnect")&&$("#gatewayDisconnect").addEventListener("click",disconnectGateway);
+refreshGatewayStatus();
+
 function validateActionProposal(a){
   const str=(v,max=500)=>typeof v==="string"?v.trim().slice(0,max):"";
   if(!a||typeof a!=="object"||Array.isArray(a))return "The proposed action is not a valid object.";
