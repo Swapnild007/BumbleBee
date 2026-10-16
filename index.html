@@ -1087,6 +1087,16 @@ l.innerHTML=chat.slice(-14).map(m=> '<div class="msg '+m.r+'">'+esc(m.c)+(m.btn&
   $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();delete pendMap[b.dataset.b];renderLog();Promise.resolve().then(()=>p.fn()).catch(()=>toast("Action failed. Please try again."))}});
   $$("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
   l.scrollTop=l.scrollHeight}
+
+async function runConfirmedCommand(t){
+  const r=await safeHandle(t);
+  addActivity("Command","Confirmed command",String(t).slice(0,240),"confirmed");
+  addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");
+  renderActivity();
+  const e={r:"a",c:r};
+  if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}
+  chat.push(e);saveAll();renderLog();say(r);return r
+}
 async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
   const plan=commandPlan(t);
