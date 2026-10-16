@@ -395,6 +395,26 @@
       "expected": {},
       "needsClarification": true,
       "pattern": null
+    },
+    {
+      "id": "incomplete-sms-recipient-01",
+      "intent": "message.sms",
+      "utterance": "SMS Dad",
+      "expected": {
+        "contact": "Dad"
+      },
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-whatsapp-recipient-01",
+      "intent": "message.whatsapp",
+      "utterance": "WhatsApp Neha",
+      "expected": {
+        "contact": "Neha"
+      },
+      "needsClarification": true,
+      "pattern": null
     }
   ],
   "safety": [
