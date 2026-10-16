@@ -55,7 +55,10 @@ try {
 
   await page.locator('nav a[data-t="sys"]').click();
   await page.locator("#runTraining").click();
-  await page.locator("#trainResults").getByText(/\d+\/\d+ (?:examples|checks) passed/).waitFor({ timeout: 10000 });
+  const evaluationSummary=await page.locator("#trainResults").innerText();
+  const evaluationMatch=evaluationSummary.match(/(\d+)\/(\d+) checks passed/);
+  assert.ok(evaluationMatch, "brain evaluation should report its check count: "+evaluationSummary);
+  assert.equal(evaluationMatch[1],evaluationMatch[2], "all brain and action-schema checks must pass: "+evaluationSummary);
 
   await page.locator("#fab").click();
   await page.locator("#vin").fill("call");
