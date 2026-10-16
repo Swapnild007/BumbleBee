@@ -1204,6 +1204,7 @@ async function converse(t){const traceStartedAt=Date.now();chat.push({r:"u",c:t}
 function renderBrainTraceStatus(){
  const status=$("#brainTraceStatus"),counts=$("#brainTraceCounts");
  if(!window.JarvisTraceStore)return;
+ const traces=window.JarvisTraceStore.list();if(!window.lastBrainTrace&&traces.length)window.lastBrainTrace=traces[traces.length-1];
  const s=window.JarvisTraceStore.summary(),totalRatings=s.helpful+s.unhelpful;
  if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed";
  if(status)status.textContent=window.lastBrainTrace?(window.lastBrainTrace.intent+" · "+window.lastBrainTrace.outcome):"No response rated yet";
