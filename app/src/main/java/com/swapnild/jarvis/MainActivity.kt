@@ -1,0 +1,462 @@
+package com.swapnild.jarvis
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.provider.AlarmClock
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
+import android.provider.MediaStore
+import android.view.View
+import android.view.WindowManager
+import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.GeolocationPermissions
+import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
+import android.webkit.WebView
+import android.widget.Toast
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+import android.app.Activity
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewClientCompat
+import org.json.JSONArray
+import org.json.JSONObject
+
+class MainActivity : Activity() {
+    private lateinit var webView: WebView
+    private lateinit var assetLoader: WebViewAssetLoader
+    private var textToSpeech: TextToSpeech? = null
+    private var ttsReady = false
+    private var pendingSpeech: String? = null
+    private var launchGreetingQueued = false
+    private val requestAudioPermission = 4101
+    private val requestSpeechRecognition = 4102
+    private val requestLocationPermission = 4103
+    private val requestCameraPermission = 4104
+    private var pendingTorchState: Boolean? = null
+    private var pendingGeoOrigin: String? = null
+    private var pendingGeoCallback: GeolocationPermissions.Callback? = null
+
+    @SuppressLint("SetJavaScriptEnabled")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.statusBarColor = android.graphics.Color.rgb(2, 8, 19)
+        window.navigationBarColor = android.graphics.Color.rgb(2, 8, 19)
+        window.decorView.systemUiVisibility = 0
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        textToSpeech = TextToSpeech(this) { status ->
+            runOnUiThread {
+                val engine = textToSpeech
+                if (status == TextToSpeech.SUCCESS && engine != null) {
+                    val locale = Locale.getDefault()
+                    val availability = engine.isLanguageAvailable(locale)
+                    val selected = if (availability >= TextToSpeech.LANG_AVAILABLE) locale else Locale.US
+                    val languageStatus = engine.setLanguage(selected)
+                    ttsReady = languageStatus >= TextToSpeech.LANG_AVAILABLE
+                    if (ttsReady) {
+                        engine.setSpeechRate(0.96f)
+                        engine.setPitch(1.0f)
+                        pendingSpeech?.let { queued ->
+                            pendingSpeech = null
+                            speakNow(queued)
+                        }
+                    } else {
+                        toast("Text-to-speech language is unavailable. Install a voice in Android Text-to-speech settings.")
+                    }
+                } else {
+                    ttsReady = false
+                    toast("Android text-to-speech could not initialize. Check your speech engine settings.")
+                }
+            }
+        }
+
+        assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
+            .build()
+
+        webView = WebView(this).apply {
+            setBackgroundColor(android.graphics.Color.rgb(2, 8, 19))
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.setGeolocationEnabled(true)
+            settings.allowFileAccess = false
+            settings.allowContentAccess = false
+            settings.javaScriptCanOpenWindowsAutomatically = false
+            settings.setSupportMultipleWindows(false)
+            settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            webChromeClient = object : WebChromeClient() {
+                override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+                    val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    val coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    if (fine || coarse) callback.invoke(origin, true, false)
+                    else {
+                        pendingGeoOrigin = origin
+                        pendingGeoCallback = callback
+                        requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), requestLocationPermission)
+                    }
+                }
+            }
+            webViewClient = object : LocalOnlyWebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    if (url == "https://appassets.androidplatform.net/assets/index.html" && !launchGreetingQueued) {
+                        launchGreetingQueued = true
+                        speak("Hello! I'm JARVIS, your personal assistant. I'm ready to help.")
+                    }
+                }
+            }
+            addJavascriptInterface(JarvisBridge(), "JarvisNative")
+        }
+        setContentView(webView)
+        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+    }
+
+    private open inner class LocalOnlyWebViewClient : WebViewClientCompat() {
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest) =
+            assetLoader.shouldInterceptRequest(request.url)
+
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            val uri = request.url
+            if (uri.host == "appassets.androidplatform.net" && uri.scheme == "https") return false
+            if (uri.scheme == "https" || uri.scheme == "http" || uri.scheme == "mailto" ||
+                uri.scheme == "tel" || uri.scheme == "sms") {
+                return openExternal(uri)
+            }
+            return true
+        }
+    }
+
+    private fun openExternal(uri: Uri): Boolean {
+        return try {
+            val intent = when (uri.scheme) {
+                "tel" -> Intent(Intent.ACTION_DIAL, uri)
+                "sms" -> Intent(Intent.ACTION_SENDTO, uri)
+                else -> Intent(Intent.ACTION_VIEW, uri)
+            }
+            startActivity(intent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            toast("No app is available for this action.")
+            true
+        } catch (_: Exception) {
+            toast("Could not open that link.")
+            true
+        }
+    }
+
+    private fun toast(message: String) = runOnUiThread {
+        Toast.makeText(this, message.take(180), Toast.LENGTH_SHORT).show()
+    }
+
+    private inner class JarvisBridge {
+        private val appPackages = setOf(
+            "com.whatsapp", "com.google.android.youtube", "com.google.android.apps.youtube.music",
+            "com.openai.chatgpt", "com.google.android.apps.bard", "com.netflix.mediaclient",
+            "in.startv.hotstar", "com.amazon.avod.thirdpartyclient", "com.google.android.apps.maps",
+            "com.google.android.gm", "com.android.chrome", "com.instagram.android"
+        )
+
+        @JavascriptInterface
+        fun openApp(packageName: String): String {
+            // The web UI passes Android intent action strings for these system shortcuts,
+            // not package names. Handle them explicitly before the installed-app allowlist.
+            val systemIntent = when (packageName) {
+                "android.media.action.IMAGE_CAPTURE" ->
+                    Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                "android.intent.action.SHOW_ALARMS" ->
+                    Intent(AlarmClock.ACTION_SHOW_ALARMS)
+                "android.settings.SETTINGS" ->
+                    Intent(Settings.ACTION_SETTINGS)
+                else -> null
+            }
+            if (systemIntent != null) {
+                if (packageName == "android.intent.action.SHOW_ALARMS") {
+                    // Some OEM clock apps do not implement ACTION_SHOW_ALARMS.
+                    // Try it first, then fall back to the standard set-alarm screen.
+                    try {
+                        startActivity(systemIntent)
+                        return result(true, "Clock opened.")
+                    } catch (_: Exception) {
+                        val now = java.util.Calendar.getInstance()
+                        val fallback = Intent(AlarmClock.ACTION_SET_ALARM)
+                            .putExtra(AlarmClock.EXTRA_HOUR, now.get(java.util.Calendar.HOUR_OF_DAY))
+                            .putExtra(AlarmClock.EXTRA_MINUTES, now.get(java.util.Calendar.MINUTE))
+                            .putExtra(AlarmClock.EXTRA_SKIP_UI, false)
+                        return launchIntent(fallback, "No compatible clock app was found.")
+                    }
+                }
+                return launchIntent(systemIntent, when (packageName) {
+                    "android.media.action.IMAGE_CAPTURE" -> "No camera app can handle the camera action."
+                    else -> "Could not open Android settings."
+                })
+            }
+            if (packageName !in appPackages) return result(false, "App shortcut is not allowlisted.")
+            return try {
+                val launch = packageManager.getLaunchIntentForPackage(packageName)
+                if (launch == null) {
+                    toast("That app is not installed or cannot be opened.")
+                    result(false, "App not installed or no launch activity.")
+                } else {
+                    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(launch)
+                    result(true, "App launch requested.")
+                }
+            } catch (_: Exception) {
+                toast("Could not open that app.")
+                result(false, "App launch failed.")
+            }
+        }
+
+        @JavascriptInterface
+        fun openSettings(section: String): String {
+            val intent = when (section.lowercase()) {
+                "dialer", "phone" -> Intent(Intent.ACTION_DIAL)
+                "wifi" -> Intent(Settings.ACTION_WIFI_SETTINGS)
+                "bluetooth" -> Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                "location" -> Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                "app" -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                else -> Intent(Settings.ACTION_SETTINGS)
+            }
+            return launchIntent(intent, "Could not open Android settings.")
+        }
+
+        @JavascriptInterface
+        fun call(number: String): String {
+            val clean = number.filter { it.isDigit() || it == '+' }
+            if (clean.length !in 3..20) return result(false, "Enter a valid phone number.")
+            return launchIntent(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$clean")), "Could not open the dialer.")
+        }
+
+        @JavascriptInterface
+        fun sms(number: String, message: String): String {
+            val clean = number.filter { it.isDigit() || it == '+' }
+            if (clean.length !in 3..20) return result(false, "Enter a valid phone number.")
+            val uri = Uri.parse("smsto:$clean")
+            val intent = Intent(Intent.ACTION_SENDTO, uri).putExtra("sms_body", message.take(2000))
+            return launchIntent(intent, "Could not open the SMS app.")
+        }
+
+        @JavascriptInterface
+        fun whatsapp(number: String, message: String, autoSend: Boolean): String {
+            val digits = number.filter { it.isDigit() }
+            if (digits.length !in 7..15) return result(false, "Enter a valid WhatsApp number.")
+            val uri = Uri.parse("https://wa.me/$digits").buildUpon()
+                .apply { if (message.isNotBlank()) appendQueryParameter("text", message.take(2000)) }
+                .build()
+            return try {
+                startActivity(Intent(Intent.ACTION_VIEW, uri).setPackage("com.whatsapp"))
+                result(true, "WhatsApp opened for review. Sending still requires the user's action.")
+            } catch (_: Exception) {
+                openExternal(uri)
+                result(true, "Opened WhatsApp link in an available browser.")
+            }
+        }
+
+        @JavascriptInterface
+        fun setAlarm(epochMillis: String, label: String): String {
+            val epoch = epochMillis.toLongOrNull() ?: return result(false, "Invalid alarm time.")
+            val calendar = java.util.Calendar.getInstance().apply { timeInMillis = epoch }
+            val intent = Intent(AlarmClock.ACTION_SET_ALARM)
+                .putExtra(AlarmClock.EXTRA_HOUR, calendar.get(java.util.Calendar.HOUR_OF_DAY))
+                .putExtra(AlarmClock.EXTRA_MINUTES, calendar.get(java.util.Calendar.MINUTE))
+                .putExtra(AlarmClock.EXTRA_MESSAGE, label.take(100))
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, false)
+            return launchIntent(intent, "No clock app can set an alarm.")
+        }
+
+        @JavascriptInterface fun speak(text: String): String {
+            val clean = text.trim().take(4000)
+            if (clean.isBlank()) return result(false, "Nothing to speak.")
+            runOnUiThread { speak(clean) }
+            return result(true, if (ttsReady) "Speech queued." else "Speech queued until Android text-to-speech is ready.")
+        }
+        @JavascriptInterface fun stopSpeaking(): String {
+            runOnUiThread { textToSpeech?.stop() }
+            return result(true, "Speech stopped.")
+        }
+        @JavascriptInterface fun listen(): String {
+            runOnUiThread {
+                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), requestAudioPermission)
+                } else {
+                    launchSpeechRecognition()
+                }
+            }
+            return result(true, "Voice input requested.")
+        }
+        @JavascriptInterface fun setWake(enabled: Boolean): String =
+            result(false, "Always-on wake listening is not implemented.")
+        @JavascriptInterface fun setVolume(percent: Int): String {
+            return try {
+                val audio = getSystemService(AUDIO_SERVICE) as AudioManager
+                val safePercent = percent.coerceIn(0, 100)
+                val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                val target = ((safePercent / 100.0) * max).toInt()
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0)
+                result(true, "Media volume changed.")
+            } catch (_: Exception) { result(false, "Could not change media volume.") }
+        }
+        @JavascriptInterface fun globalAction(action: String): String =
+            result(false, "System-wide accessibility actions are not implemented.")
+        @JavascriptInterface fun torch(enabled: Boolean): String {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                pendingTorchState = enabled
+                runOnUiThread { requestPermissions(arrayOf(Manifest.permission.CAMERA), requestCameraPermission) }
+                return result(false, "Camera permission is required to control the flashlight.")
+            }
+            return applyTorch(enabled)
+        }
+        @JavascriptInterface fun requestPermissions(): String =
+            result(false, "No runtime permissions are requested by this first APK foundation.")
+        @JavascriptInterface fun hasNotificationAccess(): Boolean = false
+        @JavascriptInterface fun openNotificationAccessSettings(): String {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            return result(true, "Opened notification access settings.")
+        }
+        @JavascriptInterface fun isAccessibilityOn(): Boolean = false
+        @JavascriptInterface fun openAccessibilitySettings(): String {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            return result(true, "Opened accessibility settings.")
+        }
+        @JavascriptInterface fun getContacts(query: String): String = JSONArray().toString()
+        @JavascriptInterface fun getSms(limit: Int): String = JSONArray().toString()
+        @JavascriptInterface fun getNotifications(): String = JSONArray().toString()
+        @JavascriptInterface fun replyNotification(key: String, text: String): String =
+            result(false, "Notification replies are not implemented.")
+        @JavascriptInterface fun callAction(action: String): String = result(false, "Unsupported action.")
+
+        private fun launchIntent(intent: Intent, error: String): String = try {
+            startActivity(intent)
+            result(true, "Action handed to Android.")
+        } catch (_: Exception) {
+            toast(error)
+            result(false, error)
+        }
+
+        private fun result(ok: Boolean, message: String) =
+            JSONObject().put("ok", ok).put("message", message).toString()
+    }
+
+    private fun speak(text: String) {
+        val clean = text.trim().take(4000)
+        if (clean.isBlank()) return
+        if (!ttsReady || textToSpeech == null) {
+            pendingSpeech = clean
+            return
+        }
+        speakNow(clean)
+    }
+
+    private fun speakNow(text: String) {
+        val engine = textToSpeech ?: run {
+            pendingSpeech = text
+            return
+        }
+        if (!ttsReady) {
+            pendingSpeech = text
+            return
+        }
+        val status = engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis-" + System.currentTimeMillis())
+        if (status == TextToSpeech.ERROR) {
+            toast("Android could not speak. Check the selected text-to-speech engine and voice.")
+        }
+    }
+
+    private fun applyTorch(enabled: Boolean): String {
+        fun response(ok: Boolean, message: String) =
+            JSONObject().put("ok", ok).put("message", message).toString()
+        return try {
+            val manager = getSystemService(CAMERA_SERVICE) as CameraManager
+            val id = manager.cameraIdList.firstOrNull { cameraId ->
+                manager.getCameraCharacteristics(cameraId).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            } ?: return response(false, "No camera flash is available.")
+            manager.setTorchMode(id, enabled)
+            response(true, if (enabled) "Flashlight turned on." else "Flashlight turned off.")
+        } catch (_: Exception) {
+            response(false, "Could not control flashlight. Check permission and device availability.")
+        }
+    }
+    private fun launchSpeechRecognition() {
+        try {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to JARVIS")
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            }
+            startActivityForResult(intent, requestSpeechRecognition)
+        } catch (_: Exception) {
+            toast("Speech recognition is unavailable. Check that a speech service is installed.")
+            webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+        }
+    }
+
+    @Deprecated("Deprecated by Android, retained for compatibility with the current Activity shell")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == requestAudioPermission) {
+            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                launchSpeechRecognition()
+            } else {
+                toast("Microphone permission is needed for voice input.")
+                webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+            }
+        }
+        if (requestCode == requestLocationPermission) {
+            val granted = grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+            pendingGeoCallback?.invoke(pendingGeoOrigin, granted, false)
+            pendingGeoCallback = null
+            pendingGeoOrigin = null
+            if (!granted) toast("Location permission denied. Showing approximate IP location instead.")
+        }
+        if (requestCode == requestCameraPermission) {
+            val desired = pendingTorchState
+            pendingTorchState = null
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && desired != null) {
+                toast(try { JSONObject(applyTorch(desired)).optString("message") } catch (_: Exception) { "Flashlight request finished." })
+            } else toast("Camera permission is required for the flashlight.")
+        }
+    }
+
+    @Deprecated("Deprecated by Android, retained for compatibility with the current Activity shell")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == requestSpeechRecognition) {
+            if (resultCode == RESULT_OK) {
+                val spoken = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
+                if (spoken.isNotBlank()) {
+                    webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech', {detail: " + JSONObject.quote(spoken) + "}))", null)
+                } else {
+                    webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+                }
+            } else {
+                webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (::webView.isInitialized && webView.canGoBack()) webView.goBack()
+        else super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        if (::webView.isInitialized) {
+            webView.removeJavascriptInterface("JarvisNative")
+            webView.destroy()
+        }
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+        textToSpeech = null
+        ttsReady = false
+        super.onDestroy()
+    }
+}

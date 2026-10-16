@@ -84,3 +84,24 @@ const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { en
 assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
 
 console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
+
+const nativeKotlin = readFileSync(new URL("../app/src/main/java/com/swapnild/jarvis/MainActivity.kt", import.meta.url), "utf8");
+const androidManifest = readFileSync(new URL("../app/src/main/AndroidManifest.xml", import.meta.url), "utf8");
+assert.ok(nativeKotlin.includes("settings.setGeolocationEnabled(true)"), "Android WebView geolocation must be explicitly enabled");
+assert.ok(nativeKotlin.includes("onGeolocationPermissionsShowPrompt"), "native geolocation must have an explicit permission callback");
+assert.ok(nativeKotlin.includes("requestLocationPermission"), "native geolocation must request Android runtime permission");
+assert.ok(androidManifest.includes("android.permission.ACCESS_COARSE_LOCATION") && androidManifest.includes("android.permission.ACCESS_FINE_LOCATION"), "Android location permissions must be declared");
+assert.ok(androidManifest.includes('android:allowBackup="false"'), "personal assistant data must not be included in automatic Android backup by default");
+const nativeMapGuard = source.indexOf('if(hasN()){', source.indexOf('function renderLoc()'));
+const nativeMapFallback = source.indexOf('map.src="https://www.openstreetmap.org/export/embed.html', nativeMapGuard);
+assert.ok(nativeMapGuard >= 0 && nativeMapFallback > nativeMapGuard, "native app must avoid loading the remote map iframe into the bridge-enabled WebView");
+
+assert.ok(source.includes('if(loc&&loc.src==="GPS"){toast("GPS refresh failed; keeping your last GPS location instead of replacing it with an IP estimate.");return}'), "IP fallback must not overwrite a known GPS fix");
+
+assert.ok(source.includes('if(r&&typeof r==="object"&&r.ok===false){wakeOn=false;renderCore();toast(r.message||"Always-on wake listening is unavailable in this Android build.");return false}'), "native wake-word UI must not show enabled when the Android service reports unsupported");
+
+assert.ok(source.includes('$("#brief").addEventListener("click",()=>{'), "Executive Briefing must use a guarded non-blocking click handler");
+assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(()=>{})'), "news refresh must run in the background without blocking Executive Briefing");
+
+assert.ok(source.includes('window.addEventListener("jarvis-native-speech",event=>{'), "Android speech results must be connected to the command brain");
+assert.ok(source.includes('listen:()=>nj("listen"),wake:o=>nj("setWake",o)'), "native voice bridge results must be parsed as structured action results");

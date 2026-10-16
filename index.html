@@ -500,7 +500,7 @@ const hasN=()=>!!window.JarvisNative;
 const nj=(f,...a)=>{try{return JSON.parse(window.JarvisNative[f](...a))}catch{return []}};
 const N={call:n=>JarvisNative.call(n),sms:(n,t)=>JarvisNative.sms(n,t),wa:(n,t)=>JarvisNative.whatsapp(n,t||"",!!S.autosend),app:p=>JarvisNative.openApp(p),torch:o=>JarvisNative.torch(o),
   alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
-  speak:t=>JarvisNative.speak(t),stopSpeak:()=>JarvisNative.stopSpeaking(),listen:()=>JarvisNative.listen(),wake:o=>JarvisNative.setWake(o),vol:p=>JarvisNative.setVolume(p),
+  speak:t=>nj("speak",t),stopSpeak:()=>nj("stopSpeaking"),listen:()=>nj("listen"),wake:o=>nj("setWake",o),vol:p=>nj("setVolume",p),
   global:a=>JarvisNative.globalAction(a),settings:p=>JarvisNative.openSettings(p),perms:()=>JarvisNative.requestPermissions(),notifAccess:()=>JarvisNative.hasNotificationAccess(),
   openNotifAccess:()=>JarvisNative.openNotificationAccessSettings(),a11y:()=>JarvisNative.isAccessibilityOn(),openA11y:()=>JarvisNative.openAccessibilitySettings(),recent:()=>nj("getNotifications")};
 
@@ -564,7 +564,7 @@ function locate(){$("#cLoc").textContent="Locating…";
     e=>ipLoc(e.code===1?"Location permission denied — using approximate location":"GPS unavailable — using approximate location"),{enableHighAccuracy:true,timeout:12000,maximumAge:120000})}
 function renderLoc(){if(!loc)return;$("#cLoc").textContent=loc.city;$("#lPlace").textContent=loc.city+(loc.country?", "+loc.country:"");
   $("#lMeta").textContent=`${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} · ${loc.src}${loc.acc?" · ±"+loc.acc+" m":""}`;
-  const d=.02;$("#map").src=`https://www.openstreetmap.org/export/embed.html?bbox=${loc.lon-d},${loc.lat-d},${loc.lon+d},${loc.lat+d}&layer=mapnik&marker=${loc.lat},${loc.lon}`;
+  const d=.02;if(hasN())$("#map").removeAttribute("src");else $("#map").src=`https://www.openstreetmap.org/export/embed.html?bbox=${loc.lon-d},${loc.lat-d},${loc.lon+d},${loc.lat+d}&layer=mapnik&marker=${loc.lat},${loc.lon}`;
   $("#openMaps").href=`https://www.google.com/maps?q=${loc.lat},${loc.lon}`}
 async function getWx(){if(!loc)return;
   try{const j=await jget(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`);
@@ -645,7 +645,7 @@ function updateActiveTimerClocks(){
 function addRem(at,text,kind){const r={id:uid(),at,text:text||kind||"Reminder",kind:kind||"Reminder"};rems.push(r);rems.sort((a,b)=>a.at-b.at);saveAll();askNotif();
   if(hasN())try{N.alarm(at,r.text)}catch{}renderRems();renderTL();buildFeed();return r}
 function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);beep();const t=`${r.kind}: ${r.text}`;toast("⏰ "+t);notify("Jarvis — "+r.kind,r.text);say(`${r.kind}. ${r.text}`)}
-setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<6e4*30)fire(r)});renderRems();renderTL();buildFeed()}
+setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<864e5)fire(r);else{addActivity("Reminder","Missed reminder",r.text+" · due "+fmtD(r.at),"missed");renderActivity();notify("JARVIS · Missed reminder",r.text+" was due "+fmtD(r.at))}});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
   el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
@@ -1022,8 +1022,8 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
   if(m=s.match(/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/)){const q=m[1].trim(),l=notes.filter(n=>!q||q.split(" ").some(w=>w.length>2&&n.t.toLowerCase().includes(w)));return l.length?`I have ${l.length} note${l.length>1?"s":""}: `+l.slice(0,4).map(n=>n.t).join(". "):"I don't have anything saved about that."}
   if(m=s.match(/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\s+(.+)/)){const k=m[1]==="alarm"?"Alarm":"Timer",p=parseWhen(k==="Timer"?"in "+m[2].replace(/^in /,""):"at "+m[2].replace(/^at /,""));
-    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return`${k} set for ${fmtT(p.at)}.`}}
-  if(m=s.match(/^(?:remind me|reminder)\s+(.+)/)){const p=parseWhen(m[1]);if(p.at){addRem(p.at,p.rest||"Reminder");acts++;return`Okay, I'll remind you at ${fmtD(p.at)}${p.rest?" to "+p.rest:""}.`}return"When should I remind you? Say something like “in 20 minutes” or “at 5 pm”."}
+    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return hasN()?`${k} set for ${fmtT(p.at)}.`:`${k} set for ${fmtT(p.at)}. Browser reminders only run while JARVIS stays active; closing the page or device sleep may prevent the alert.`}}
+  if(m=s.match(/^(?:remind me|reminder)\s+(.+)/)){const p=parseWhen(m[1]);if(p.at){addRem(p.at,p.rest||"Reminder");acts++;return hasN()?`Reminder set for ${fmtD(p.at)}${p.rest?" to "+p.rest:""}.`:`Reminder saved for ${fmtD(p.at)}${p.rest?" to "+p.rest:""}. This browser reminder may not fire if JARVIS is closed or the device sleeps.`}return"When should I remind you? Say something like “in 20 minutes” or “at 5 pm”."}
   if(m=s.match(/^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)/)){addTask(m[1]);acts++;return`Added task: ${m[1]}`}
   if(m=s.match(/^(?:whatsapp|wa|message)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/)||s.match(/^send (?:a )?(?:whatsapp )?message to\s+(.+?)\s+(?:saying|say|that)\s+(.+)$/)){const c=await findContact(m[1]);if(!c)return`I can't find ${m[1]} — add them in Quick Contacts or say the number.`;act("💬 WhatsApp "+c.name,()=>sendWa(c.num,m[2]));return`WhatsApp to ${c.name}: “${m[2]}”.`+(hasN()&&S.autosend?"":" Tap send in WhatsApp.")}
   if(m=s.match(/^(?:text|sms)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/)){const c=await findContact(m[1]);if(!c)return`I can't find ${m[1]}.`;act("✉ Text "+c.name,()=>sendSms(c.num,m[2]));return`Texting ${c.name}: “${m[2]}”.`}
@@ -1057,12 +1057,24 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
   }
   if(/^focus/.test(s)||/focus mode/.test(s)){await toggleFocus();return document.body.classList.contains("focus")?"Focus mode on.":"Focus mode off."}
   if(/briefing|brief me|good morning/.test(s))return briefing();
+  if(/^(?:help|what can you do|what can jarvis do|list capabilities|capabilities)$/i.test(s))return "I work without an AI API key for supported tasks: manage tasks and browser-session reminders, save and search memory notes, report local time/date and available weather/location, retrieve current headlines when feeds are reachable, speak replies, and guide phone/app actions. Calls, messages and app launches require your confirmation. Hands-free wake words and alerts depend on browser support and the page staying active. I do not yet have a fully offline general-knowledge language model, so I will say when I cannot answer instead of inventing facts.";
   if(/^(hello|hi|hey|jarvis)$/.test(s))return"Hello, Commander. How can I help?";
-  if(!aiKey())return`I don't know that one yet. Add an API key in Settings and I can answer anything — or try “call…”, “remind me…”, “weather”, “add task…”.`;
+  if(!aiKey())return "I can handle supported JARVIS commands offline, but I do not have a local general-knowledge model for that question. Try “help” to see available capabilities, or ask me about your tasks, notes, date, time, location, weather or news when available. I will not require a Gemini key or invent an answer.";
   const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.replace(a[0],"").trim();try{await runAction(JSON.parse(a[1]))}catch{}}return reply||"Done."}
 function briefing(){const h=new Date().getHours(),e=nextEvent(),o=tasks.filter(t=>!t.done),nm=msgs.length;
   return`Good ${h<12?"morning":h<17?"afternoon":"evening"}, Commander. All systems optimal. ${wx&&loc?`It's ${wx.t} degrees and ${(WX[wx.code]||"").toLowerCase()} in ${loc.city}, high ${wx.hi}. `:""}You have ${o.length} open task${o.length==1?"":"s"}${o.filter(overdue).length?", "+o.filter(overdue).length+" overdue":""}.${e?` Next is ${e.name} in ${rel(e.in*6e4)}.`:""}${nm?` ${nm} new message${nm>1?"s":""}.`:""}${heads&&heads.l[0]?` Top headline: ${heads.l[0].t}.`:""}`}
-$("#brief").onclick=async()=>{hap();await loadHeads();const t=briefing();toast(t);say(t)};
+$("#brief").addEventListener("click",()=>{
+  try{
+    hap();
+    const t=briefing();
+    toast(t);
+    say(t);
+    Promise.resolve().then(()=>loadHeads(true)).catch(error=>console.warn("Background headline refresh failed",error));
+  }catch(error){
+    console.error("Executive briefing failed",error);
+    toast("Executive briefing is temporarily unavailable. Please try again.");
+  }
+});
 function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("speechSynthesis" in window){
   try{
     speechSynthesis.cancel();
@@ -1082,11 +1094,28 @@ async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}
 
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
-function renderLog(){const l=$("#vlog");if(!l)return;l.innerHTML=chat.slice(-14).map(m=>`<div class="msg ${m.r}">${esc(m.c)}${m.btn&&pendMap[m.btn]?`<div class="btns"><button class="btn sm" data-b="${m.btn}">${esc(pendMap[m.btn].label)}</button></div>`:""}</div>`).join("");
-  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
+function renderLog(){const l=$("#vlog");if(!l)return;
+l.innerHTML=chat.slice(-14).map(m=> '<div class="msg '+m.r+'">'+esc(m.c)+(m.btn&&pendMap[m.btn]? '<div class="btns"><button class="btn sm" data-b="'+m.btn+'">'+esc(pendMap[m.btn].label)+'</button><button class="btn sm red" data-b-cancel="'+m.btn+'">Cancel</button></div>':'')+'</div>').join("");
+  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();delete pendMap[b.dataset.b];renderLog();Promise.resolve().then(()=>p.fn()).catch(()=>toast("Action failed. Please try again."))}});
+  $$("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
+  l.scrollTop=l.scrollHeight}
+
+async function runConfirmedCommand(t){
+  const r=await safeHandle(t);
+  addActivity("Command","Confirmed command",String(t).slice(0,240),"confirmed");
+  addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");
+  renderActivity();
+  const e={r:"a",c:r};
+  if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}
+  chat.push(e);saveAll();renderLog();say(r);return r
+}
 async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
-  const r=await safeHandle(t);addActivity("Command","Command received",String(t).slice(0,240),"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+  const plan=commandPlan(t);
+  let r;
+  if(plan.requiresConfirmation){pend={label:"Confirm action",fn:()=>runConfirmedCommand(t)};r="This action may contact someone or open another app. Confirm below before I continue."}
+  else r=await safeHandle(t);
+  addActivity("Command","Command received",String(t).slice(0,240),plan.requiresConfirmation?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
 function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave"></canvas><div class="bigmic" id="bigmic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div>
   <p class="d" id="vstate" style="text-align:center;font-size:12px">${SR||hasN()?"Tap the mic and speak":"Voice input isn't supported here — type below"}</p>
@@ -1096,7 +1125,33 @@ function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave">
     $("#vin").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";converse(t)}};
     const c=$("#vwave"),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=46*d;const x=c.getContext("2d");x.scale(d,d);let stop=false;sheetCleanup=()=>{stop=true;stopListen();try{hasN()?N.stopSpeak():speechSynthesis.cancel()}catch{}};
     (function f(t){if(stop)return;x.clearRect(0,0,r.width,46);const n=46,bw=r.width/n;for(let i=0;i<n;i++){const env=Math.sin(Math.PI*i/n),v=(Math.sin(t/160+i*.7)+Math.sin(t/100+i*1.9))/4+.5,bh=Math.max(2,46*env*v*(listening?1:.16));x.fillStyle=`rgb(${ACC})`;x.fillRect(i*bw+1,(46-bh)/2,bw-2,bh)}requestAnimationFrame(f)})(0)})}
-function startListen(){if(hasN()){N.listen();return}
+// Android MainActivity dispatches these events when native speech recognition finishes.
+window.addEventListener("jarvis-native-speech",event=>{
+  const spoken=String(event.detail||"").trim();
+  listening=false;
+  $("#bigmic")&&$("#bigmic").classList.remove("live");
+  $("#vstate")&&($("#vstate").textContent=spoken?"Processing your request…":"Tap the mic and speak");
+  if(!spoken){toast("I didn't catch that. Please try again.");return}
+  converse(spoken).catch(error=>{console.error("Native speech command failed",error);toast("I couldn't process that voice command. Please try again.")});
+});
+window.addEventListener("jarvis-native-speech-error",()=>{
+  listening=false;
+  $("#bigmic")&&$("#bigmic").classList.remove("live");
+  $("#vstate")&&($("#vstate").textContent="Voice input failed. Tap the mic to retry.");
+  toast("Voice input failed. Check microphone permission and Android speech recognition.");
+});
+function startListen(){if(hasN()){
+  listening=true;
+  $("#vstate")&&($("#vstate").textContent="Starting Android speech recognition…");
+  $("#bigmic")&&$("#bigmic").classList.add("live");
+  const result=N.listen();
+  if(result&&typeof result==="object"&&result.ok===false){
+    listening=false;$("#bigmic")&&$("#bigmic").classList.remove("live");
+    $("#vstate")&&($("#vstate").textContent="Voice input failed. Tap the mic to retry.");
+    toast(result.message||"Android voice input could not start");
+  }
+  return
+}
   if(!SR){toast("Speech recognition isn't supported here — type instead");return}
   try{wakeRec&&wakeRec.abort()}catch{}
   rec=new SR();rec.lang=navigator.language||"en-US";
@@ -1110,7 +1165,7 @@ $("#fab").onclick=openVoice;
 
 /* ===== wake word: say "Jarvis, <command>" ===== */
 let wakeRec=null,wakeMode="wake";
-function startWake(){if(hasN()){N.wake(true);wakeOn=true;renderCore();return true}
+function startWake(){if(hasN()){const r=N.wake(true);if(r&&typeof r==="object"&&r.ok===false){wakeOn=false;renderCore();toast(r.message||"Always-on wake listening is unavailable in this Android build.");return false}wakeOn=true;renderCore();return true}
   if(!SR){toast("Wake word needs Chrome, Edge or Samsung Internet");return false}wakeOn=true;spawnWake();renderCore();$("#fab").classList.add("wk");return true}
 function spawnWake(){if(!wakeOn||document.hidden||listening||wakeRec)return;const r=new SR();wakeRec=r;r.continuous=true;r.interimResults=true;r.lang=navigator.language||"en-US";
   r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const res=e.results[i];if(!res.isFinal)continue;const t=res[0].transcript.toLowerCase().trim();
