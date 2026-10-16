@@ -960,7 +960,7 @@ const COMMAND_CONFIRMATION_INTENTS=new Set([
 function commandPlan(raw){
   const normalized=cleanLocalText(raw);
   const intent=classifyIntent(normalized);
-  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id);
+  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.needsClarification;
   return Object.freeze({
     normalized,
     intent,
