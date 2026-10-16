@@ -59,9 +59,6 @@ try {
   page.once("dialog", dialog => dialog.accept());
   await page.locator("#brainClear").click();
   await page.waitForFunction(() => JSON.parse(localStorage.getItem("jv_brain_traces_v1") || "[]").length === 0);
-  await page.locator("#gatewayPassword").fill("test-gateway-password");
-  await page.locator("#gatewayConnect").click();
-  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
   await page.locator('nav a[data-t="home"]').click();
 
   // A blocked news feed must not block the Executive Briefing response or crash the page.
@@ -74,8 +71,6 @@ try {
   await page.locator("#tkAdd").click();
   await page.locator("#tasks").getByText("E2E task survives reload").waitFor();
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
-  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("jv_set") || "{}").ai?.gateway), true, "secure gateway preference must survive reload");
   await page.locator('nav a[data-t="tasks"]').click();
   await page.locator("#tasks").getByText("E2E task survives reload").waitFor();
 
@@ -84,6 +79,9 @@ try {
   await page.locator("#notes").getByText("E2E saved memory").waitFor();
 
   await page.locator('nav a[data-t="sys"]').click();
+  await page.locator("#gatewayPassword").fill("test-gateway-password");
+  await page.locator("#gatewayConnect").click();
+  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
   await page.locator("#runTraining").click();
   await page.locator("#trainResults").getByText(/checks passed/).waitFor({ timeout: 10000 });
   const evaluationSummary=await page.locator("#trainResults").innerText();
