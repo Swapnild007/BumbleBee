@@ -939,11 +939,11 @@ const INTENT_RULES=[
  {id:"message.sms",re:/^(?:text|sms)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/i,slots:m=>({contact:m[1].trim(),text:m[2].trim()})},
  {id:"phone.call",re:/^(?:call|dial|phone|ring)\s+(.+)/i,slots:m=>({contact:m[1].trim()})},
  {id:"app.open",re:/^(?:open|launch|start|go to)\s+(.+)/i,slots:m=>({target:m[1].trim()})},
- {id:"weather.current",re:/\b(?:weather|temperature|forecast|umbrella)\b/i,slots:()=>({})},
+ {id:"weather.current",re:/^(?:(?:what(?:'s| is) the )?(?:weather|temperature|forecast)(?:\s+(?:like|in|for|today|tomorrow|now)\b.*)?|will (?:i|we|it) need (?:an? )?umbrella(?:\s+.*)?|should i (?:take|bring) (?:an? )?umbrella(?:\s+.*)?|do i need (?:an? )?umbrella(?:\s+.*)?|will it rain(?:\s+.*)?)\??$/i,slots:()=>({})},
  {id:"location.current",re:/\b(?:where am i|my location)\b/i,slots:()=>({})},
- {id:"news.latest",re:/\b(?:news|headlines|current events|latest developments|world update)\b/i,slots:()=>({})},
- {id:"task.list",re:/\b(?:tasks?|to-?do)\b/i,slots:()=>({})},
- {id:"time.current",re:/\btime\b/i,slots:()=>({})},
+ {id:"news.latest",re:/^(?:(?:show|give me|tell me|get|fetch|read|summari[sz]e)\s+)?(?:(?:the )?(?:latest|current)\s+)?(?:(?:world|india|indian|maharashtra|technology|tech|business|science|sports|cricket|ai)\s+)*(?:news|headlines|current events|latest developments|world update)(?:\s+(?:about|on|from|in)\s+.+)?$|^(?:what(?:'s| is) happening (?:in|around) (?:the )?world)\??$/i,slots:()=>({})},
+ {id:"task.list",re:/^(?:(?:show|list|view|check|display)\s+(?:(?:my|open|pending|all)\s+)?tasks?|how many tasks (?:do i have|are there)(?:\s+.*)?|(?:show|list|view)\s+(?:my )?to-?do(?: items| list)?|to-?do list)\??$/i,slots:()=>({})},
+ {id:"time.current",re:/^(?:what(?:'s| is) (?:the )?time|what time is it|tell me (?:the )?time|current time|time now|time)\??$/i,slots:()=>({})},
  {id:"focus.toggle",re:/\bfocus mode\b|^focus$/i,slots:()=>({})},
  {id:"greeting",re:/^(?:(?:hello|hi|hey)(?: jarvis)?|jarvis)$/i,slots:()=>({})}
 ];
