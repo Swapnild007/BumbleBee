@@ -111,3 +111,6 @@ assert.ok(source.includes('confidence:0.25,slots:{query:text},source:"offline-ru
 assert.ok(source.includes("const incomplete=["), "incomplete command prefixes must be detected before dispatch");
 assert.ok(source.includes('intent.needsClarification&&intent.id!=="general.query"'), "incomplete supported commands must ask a targeted follow-up instead of falling through to unknown handling");
 assert.ok(source.includes('COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.needsClarification'), "incomplete consequential commands must be clarified before asking for confirmation");
+assert.ok(source.includes("function composeClarificationAnswer(pending,answer)"), "brain must preserve context across follow-up answers");
+assert.ok(source.includes("currentPlan.composedFromClarification"), "clarification answers must be merged before command dispatch");
+assert.ok(source.includes("pendingClarification=null;delete pendMap[id]"), "cancelling an action must discard pending clarification context");
