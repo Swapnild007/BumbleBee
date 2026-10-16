@@ -105,6 +105,7 @@ try {
   await page.locator("#vlog [data-b]").last().click({ force: true });
   await page.locator("#vlog").getByText("Added the task.").waitFor();
   assert.ok(await page.locator("#tasks").getByText("AI-proposed task").count() > 0, "confirmed AI task should appear in the task list");
+  await page.locator("#scrim").click({ force: true });
   await page.locator('nav a[data-t="sys"]').click();
   page.once("dialog", dialog => dialog.accept());
   await page.locator("#brainClear").click();
