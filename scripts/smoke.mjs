@@ -104,7 +104,7 @@ assert.ok(source.includes('addActivity("Reminder","Missed reminder"'), "older re
 assert.ok(source.includes('window.addEventListener("jarvis-native-speech",event=>{'), "Android speech results must be connected to the web command brain");
 assert.ok(source.includes('window.addEventListener("jarvis-native-speech-error",()=>{'), "Android speech errors must restore voice UI state and explain recovery");
 
-assert.ok(source.includes('JARVIS BRAIN EVALUATION'), "training UI must accurately describe itself as evaluation, not model training");
-assert.ok(source.includes('This measures rule-based routing; it does not train or fine-tune an AI model.'), "UI must not misrepresent a regression test as AI training");
+assert.ok(html.includes('JARVIS BRAIN EVALUATION'), "training UI must accurately describe itself as evaluation, not model training");
+assert.ok(html.includes('This measures rule-based routing; it does not train or fine-tune an AI model.'), "UI must not misrepresent a regression test as AI training");
 assert.ok(source.includes('needsClarification:missing.length>0'), "brain classifier must mark commands with missing required slots for clarification");
 assert.ok(source.includes('confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true'), "unknown requests must remain low-confidence rather than being falsely classified as understood");
