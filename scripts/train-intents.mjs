@@ -11,11 +11,26 @@ const marker = "/* ===== command brain: local intents first (instant, offline), 
 const endAt = source.indexOf(marker, start);
 assert.ok(endAt > start, "classifier block must end before command handler");
 const classifierSource = source.slice(start, endAt);
-const { classifyIntent, commandPlan, composeClarificationAnswer } = new Function(classifierSource + "\nreturn { classifyIntent, commandPlan, composeClarificationAnswer };")();
+const { classifyIntent, commandPlan, composeClarificationAnswer } = new Function("window", classifierSource + "\nreturn { classifyIntent, commandPlan, composeClarificationAnswer };")({ JarvisBrainLearning: { lookup: () => null } });
 const validationStart = source.indexOf("function validateActionProposal(a)");
 const validationEnd = source.indexOf("async function runAction(a)", validationStart);
 assert.ok(validationStart >= 0 && validationEnd > validationStart, "AI action validator must exist");
 const validateActionProposal = new Function(source.slice(validationStart, validationEnd) + "\nreturn validateActionProposal;")();
+
+const learnedPhrases = new Map([
+  ["please check the weather", { intent: "weather.current", phrase: "please check the weather" }],
+  ["please ring mom", { intent: "phone.call", phrase: "please ring mom" }]
+]);
+const learnedClassifier = new Function("window", classifierSource + "\\nreturn { classifyIntent, commandPlan };")({
+  JarvisBrainLearning: { lookup: phrase => learnedPhrases.get(phrase) || null }
+});
+const learnedWeather = learnedClassifier.classifyIntent("please check the weather");
+assert.equal(learnedWeather.id, "weather.current", "a user-taught exact phrase should override offline rule precedence");
+assert.equal(learnedWeather.source, "local-learning", "learned routing should be identifiable in traces");
+const learnedCall = learnedClassifier.commandPlan("please ring mom");
+assert.equal(learnedCall.intent.id, "phone.call", "a taught action phrase should route to the chosen intent");
+assert.equal(learnedCall.intent.needsClarification, true, "learned action phrases without safely parsed slots must clarify");
+assert.equal(learnedCall.requiresConfirmation, false, "a learned action must not become executable before required slots are supplied");
 
 const failures = [];
 for (const c of cases.cases) {
