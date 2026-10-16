@@ -48,10 +48,10 @@ The web/PWA is the primary product until its functional acceptance tests pass. A
 
 ### Gate 6: browser acceptance
 - Run JavaScript syntax checks and intent corpus tests in CI.
-- A Playwright mobile-Chromium acceptance suite now checks the home screen, task persistence across reload, memory saving, the in-app intent self-test, confirmation/cancellation of a call command, and uncaught browser exceptions. This suite is newly added and must pass in GitHub Actions before the change is considered validated.
+- A Playwright mobile-Chromium acceptance suite now checks the home screen, task persistence across reload, memory saving, the in-app intent self-test, confirmation/cancellation of a call command, and uncaught browser exceptions. The suite passed in GitHub Actions on commit `cead42b5ef965ace1db27641388ecc14994e5918`; it is a baseline, not full production certification.
 - Add Playwright browser tests for primary navigation, settings, notes, tasks, reminders, confirmation gates, offline behavior, import/export, errors and mobile viewport.
 - Run manual checks on Android Chrome and desktop Chrome/Firefox/Safari where supported.
 - Verify GitHub Pages deploy and a real browser session before considering Android packaging.
 
 ## Current change in this branch
-The command planner's `requiresConfirmation` flag is enforced at the dispatch boundary for configured consequential intents. The user must click an explicit confirmation button before the handler is run, and can cancel without running the action. Browser reminders now disclose that closing JARVIS or device sleep can prevent delivery. Smoke assertions and a Playwright mobile-browser suite are added; CI results are the acceptance gate. Source syntax and all 38 intent cases passed in a direct validation run, but a green CI run is still required.
+The command planner's `requiresConfirmation` flag is enforced at the dispatch boundary for configured consequential intents. The user must click an explicit confirmation button before the handler is run, and can cancel without running the action. Browser reminders now disclose that closing JARVIS or device sleep can prevent delivery. Smoke assertions and a Playwright mobile-browser suite are added; The current smoke and Playwright CI run passed on commit `cead42b5ef965ace1db27641388ecc14994e5918`. Source syntax and all 38 intent cases passed. Additional coverage and manual real-device/browser checks remain before production readiness.
