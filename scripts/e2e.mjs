@@ -51,9 +51,9 @@ try {
   await page.locator("#fab").click();
   await page.locator("#vin").fill("call 1234567890");
   await page.locator("#vin").press("Enter");
-  await page.getByText("Confirm below before I continue.").waitFor();
+  await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
   await page.locator("#vlog [data-b-cancel]").last().click();
-  await page.getByText("Action cancelled.").waitFor();
+  await page.locator("#vlog").getByText("Action cancelled.").waitFor();
   assert.ok(!page.url().startsWith("tel:"), "cancelling a consequential action must not launch the dialer");
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
