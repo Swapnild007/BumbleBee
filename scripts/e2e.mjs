@@ -27,7 +27,8 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
-  await page.route("https://api.anthropic.com/v1/messages", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }));
+  let aiMockHits=0;
+  await page.route("**/v1/messages", route => { aiMockHits++; return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }); });
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
   await page.locator("#t-home").waitFor({ state: "visible" });
   assert.ok(await page.locator("#t-home").getByText("JARVIS").count(), "home screen should render JARVIS branding");
@@ -79,7 +80,7 @@ try {
 
   await page.locator("#vin").fill("Please create task for test");
   await page.locator("#vin").press("Enter");
-  await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor();
+  try { await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor({ timeout: 10000 }); } catch { throw new Error("AI action confirmation missing; mock hits="+aiMockHits+"; transcript="+await page.locator("#vlog").innerText()+"; core="+await page.locator("#core").innerText()+"; page errors="+errors.join("; ")); }
   assert.equal(await page.locator("#tasks").getByText("AI-proposed task").count(), 0, "AI-proposed task must not execute before confirmation");
   await page.locator("#vlog [data-b]").last().click();
   await page.locator("#vlog").getByText("Added the task.").waitFor();
