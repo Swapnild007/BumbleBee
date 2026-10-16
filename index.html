@@ -468,7 +468,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
-    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button><button class="btn red" id="brainClear" style="width:100%;margin-top:8px">Delete local traces</button></div>
+    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button><button class="btn red" id="brainClear" style="width:100%;margin-top:8px">Delete local traces</button><div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px"><b style="display:block;margin-bottom:6px">TEACH JARVIS</b><p class="d" style="font-size:12px;line-height:1.5;margin-bottom:8px">Correct the last command's intent. JARVIS saves an exact-phrase rule on this device only. External actions still require their usual details and confirmation.</p><select id="brainCorrectIntent" class="btn" style="width:100%;text-align:left;margin-bottom:8px"><option value="">Choose the correct intent…</option></select><button class="btn" id="brainTeach" style="width:100%">Teach from last command</button><small class="d" id="brainLearningCount" style="display:block;margin-top:6px">0 learned phrases</small><button class="btn red" id="brainLearningClear" style="width:100%;margin-top:8px">Delete learned corrections</button></div></div>
     <div class="panel" id="trainingLab"><h3>JARVIS BRAIN EVALUATION <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Evaluate offline intent classification and slot extraction against a versioned test corpus. This measures rule-based routing; it does not train or fine-tune an AI model. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">Regression examples loaded from the versioned evaluation corpus</small></div></div></div></div>
   </section>
 </div>
@@ -485,6 +485,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 <div id="toast"></div>
 
 <script src="./brain/trace-store.js"></script>
+<script src="./brain/feedback-learning.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
@@ -985,6 +986,17 @@ function classifyIntent(raw){
  const original=String(raw||"");
  const text=cleanLocalText(original).trim().replace(/[.!?]+$/,"");
  if(!text)return{id:"general.query",confidence:0,slots:{query:""},source:"offline-rule",needsClarification:true};
+ const learned=window.JarvisBrainLearning?.lookup(text);
+ if(learned){
+  const learnedRule=INTENT_RULES.find(rule=>rule.id===learned.intent);
+  if(learnedRule){
+   const learnedMatch=text.match(learnedRule.re),slots=learnedMatch?learnedRule.slots(learnedMatch):{};
+   const required={"memory.save":["text"],"task.create":["text"],"phone.call":["contact"],"message.sms":["contact","text"],"message.whatsapp":["contact","text"],"app.open":["target"],"timer.create":["when"],"reminder.create":["request"]}[learned.intent]||[];
+   const missing=required.filter(key=>!String(slots[key]||"").trim());
+   return{id:learned.intent,confidence:missing.length?0.42:0.97,slots,source:"local-learning",needsClarification:missing.length>0,missingSlots:missing};
+  }
+  return{id:learned.intent,confidence:0.97,slots:{query:text},source:"local-learning",needsClarification:false,missingSlots:[]};
+ }
  const incomplete=[
   [/^(?:call|dial|phone|ring)$/i,"phone.call",["contact"]],
   [/^(?:text|sms)$/i,"message.sms",["contact","text"]],
@@ -1246,12 +1258,36 @@ function renderBrainTraceStatus(){
  if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed · "+s.clarifications+" clarifications · "+s.averageDurationMs+" ms avg";
  if(status)status.textContent=window.lastBrainTrace?(window.lastBrainTrace.intent+" · "+window.lastBrainTrace.outcome):"No response rated yet";
 }
+function renderBrainLearningStatus(){
+ const count=$("#brainLearningCount");if(!count||!window.JarvisBrainLearning)return;
+ const total=window.JarvisBrainLearning.list().length;
+ count.textContent=total+" learned phrase"+(total===1?"":"s")+" · stored on this device";
+}
+function initBrainLearning(){
+ const select=$("#brainCorrectIntent");if(!select||!window.JarvisBrainLearning)return;
+ const intents=[...new Set([...INTENT_RULES.map(rule=>rule.id),"general.query"])].sort();
+ select.innerHTML='<option value="">Choose the correct intent…</option>'+intents.map(id=>'<option value="'+esc(id)+'">'+esc(id)+'</option>').join("");
+ renderBrainLearningStatus();
+ $("#brainTeach")?.addEventListener("click",()=>{
+  const trace=window.lastBrainTrace,intent=select.value;
+  if(!trace){toast("Send a command first, then teach JARVIS from that command.");return}
+  if(!intent){toast("Choose the correct intent first.");return}
+  const result=window.JarvisBrainLearning.teach(trace.command,intent);
+  if(!result.ok){toast(result.reason||"Could not save this correction.");return}
+  renderBrainLearningStatus();toast("Learned locally: this exact phrase routes to "+intent+". No action was executed.");
+ });
+ $("#brainLearningClear")?.addEventListener("click",()=>{
+  if(!window.JarvisBrainLearning.clear()){toast("Could not delete learned corrections.");return}
+  renderBrainLearningStatus();toast("Learned corrections deleted from this device.");
+ });
+}
 function rateLatestBrainTrace(rating){
  const trace=window.lastBrainTrace;
  if(!trace){toast("Send a command first so there is a response to rate.");return}
  if(!window.JarvisTraceStore.rate(trace.id,rating)){toast("Couldn't save feedback on this device.");return}
  renderBrainTraceStatus();toast(rating==="helpful"?"Feedback saved: helpful.":"Feedback saved: needs improvement.");
 }
+initBrainLearning();
 $("#brainHelpful")&&$("#brainHelpful").addEventListener("click",()=>rateLatestBrainTrace("helpful"));
 $("#brainUnhelpful")&&$("#brainUnhelpful").addEventListener("click",()=>rateLatestBrainTrace("unhelpful"));
 $("#brainExport")&&$("#brainExport").addEventListener("click",()=>{
