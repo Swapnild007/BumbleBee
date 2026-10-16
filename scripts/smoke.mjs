@@ -13,7 +13,7 @@ assert.ok(!source.includes("$".repeat(3)), "undefined triple-dollar selector cal
 assert.ok(source.includes('const appLinks=new Set(["com.google.android.youtube","com.google.android.apps.maps","com.google.android.apps.youtube.music","in.startv.hotstar","com.instagram.android"])'), "only the device-verified HTTPS app-link routes should use Android intent URLs");
 assert.ok(source.includes('Web version: opening the service website. Launching this installed app requires the JARVIS Android app.'), "web-only shortcuts must clearly disclose when they open a website instead of an installed app");
 assert.ok(source.includes('location.href=web[p]'), "unsupported package launches should use a direct HTTPS fallback instead of a launcher-intent redirect");
-assert.ok(source.includes('S.browser_fallback_url='+encodeURIComponent(web[p])+';end'), "verified app-link intents should retain an HTTPS fallback");
+assert.ok(source.includes('S.browser_fallback_url="+encodeURIComponent(web[p])+";end'), "verified app-link intents should retain an HTTPS fallback");
 assert.ok(source.includes('"com.whatsapp":"https://wa.me/"'), "WhatsApp should use its app-friendly universal link as fallback");
 assert.ok(source.includes('"com.google.android.youtube":"www.youtube.com/"'), "YouTube package launch should target its matching host");
 assert.ok(source.includes('"com.google.android.apps.youtube.music":"https://music.youtube.com/"'), "YouTube Music shortcut should use its service URL");
