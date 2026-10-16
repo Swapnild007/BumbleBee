@@ -2,7 +2,7 @@ name: JARVIS Android APK
 
 on:
   push:
-    branches: [main, feature/android-apk-foundation]
+    branches: [main, feature/android-apk-foundation, feature/jarvis-android-reminders]
     paths:
       - "index.html"
       - "training/**"
