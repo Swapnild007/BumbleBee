@@ -987,6 +987,8 @@ async function runTrainingLab(){
    const expected=c.intent==="fallback.unknown"?"general.query":c.intent;
    if(got.id!==expected)failures.push({id:c.id,expected,got:got.id,reason:"intent"});
    if(c.needsClarification!==undefined&&got.needsClarification!==c.needsClarification)failures.push({id:c.id,expected:"needsClarification="+c.needsClarification,got:"needsClarification="+got.needsClarification,reason:"clarification"});
+   if(c.missingSlots&&JSON.stringify(got.missingSlots||[])!==JSON.stringify(c.missingSlots))failures.push({id:c.id,expected:"missingSlots="+c.missingSlots.join(","),got:"missingSlots="+(got.missingSlots||[]).join(","),reason:"slots"});
+   if(got.needsClarification&&!(got.confidence<0.5))failures.push({id:c.id,expected:"confidence below 0.5",got:"confidence="+got.confidence,reason:"confidence"});
    const slots=c.expected||{};
    for(const key of ["text","query","contact","target","kind","when"]){
     if(slots[key]!==undefined&&got.slots[key]!==slots[key])failures.push({id:c.id,expected: key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
