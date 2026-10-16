@@ -56,6 +56,10 @@ try {
   await page.locator("#trainResults").getByText(/\d+\/\d+ examples passed/).waitFor({ timeout: 10000 });
 
   await page.locator("#fab").click();
+  await page.locator("#vin").fill("call");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("Who should I call? Please give me a contact name or phone number.").waitFor();
+  assert.equal(await page.locator("#vlog").getByText("Confirm below before I continue.").count(), 0, "incomplete call commands must clarify before confirmation");
   await page.locator("#vin").fill("call 1234567890");
   await page.locator("#vin").press("Enter");
   await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
