@@ -80,7 +80,7 @@ export function validateAiPayload(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return { ok: false, error: "Expected an AI request object." };
   if (!PROVIDERS.has(body.provider)) return { ok: false, error: "Unsupported AI provider." };
   const model = typeof body.model === "string" ? body.model.trim() : "";
-  if (!model || model.length > 160 || !/^[A-Za-z0-9._:/-]+$/.test(model)) return { ok: false, error: "Invalid model identifier." };
+  if (!model || model.length > 160 || !/^[A-Za-z0-9][A-Za-z0-9._:/-]*$/.test(model) || model.split(/[/:]/).some(part => part === "." || part === "..")) return { ok: false, error: "Invalid model identifier." };
   const system = typeof body.system === "string" ? body.system : "";
   if (system.length > 8000) return { ok: false, error: "System context is too large." };
   if (!Array.isArray(body.messages) || body.messages.length < 1 || body.messages.length > MAX_AI_MESSAGES) {
