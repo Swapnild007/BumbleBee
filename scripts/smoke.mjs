@@ -88,3 +88,7 @@ console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, fr
 assert.ok(source.includes("async function runConfirmedCommand(t)"), "consequential web commands must have an explicit confirmation execution path");
 assert.ok(source.includes("if(plan.requiresConfirmation){pend={label:\"Confirm action\",fn:()=>runConfirmedCommand(t)}"), "the command planner's confirmation flag must gate dispatch before the local handler runs");
 assert.ok(source.includes("Confirm below before I continue."), "confirmation prompt must be explicit");
+assert.ok(source.includes("data-b-cancel"), "pending consequential actions must have a visible cancel path");
+assert.ok(source.includes("No external action was run"), "cancellation must be recorded as not executed");
+assert.ok(source.includes("This browser reminder may not fire if JARVIS is closed or the device sleeps"), "browser reminder limitations must be disclosed at creation time");
+assert.ok(source.includes("Browser reminders only run while JARVIS stays active"), "browser timer limitations must be disclosed at creation time");
