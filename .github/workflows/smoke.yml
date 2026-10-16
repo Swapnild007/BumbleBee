@@ -20,8 +20,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run JARVIS smoke checks
-        run: node scripts/smoke.mjs
+      - name: Run JARVIS unit and security tests
+        run: npm test
       - name: Install Playwright
         run: npm install --no-audit --no-fund
       - name: Install Chromium
