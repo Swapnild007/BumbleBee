@@ -66,6 +66,13 @@ try {
   await page.locator("#vin").press("Enter");
   await page.locator("#vlog").getByText("Who should I call? Please give me a contact name or phone number.").waitFor();
   assert.equal(await page.locator("#vlog").getByText("Confirm below before I continue.").count(), 0, "incomplete call commands must clarify before confirmation");
+  await page.locator("#vin").fill("cancel");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("Cancelled. Nothing was executed.").waitFor();
+  assert.equal(await page.locator("#vlog").getByText("Confirm below before I continue.").count(), 0, "voice cancellation must discard a pending clarification");
+  await page.locator("#vin").fill("call");
+  await page.locator("#vin").press("Enter");
+  await page.locator("#vlog").getByText("Who should I call? Please give me a contact name or phone number.").last().waitFor();
   await page.locator("#vin").fill("Mom");
   await page.locator("#vin").press("Enter");
   await page.locator("#vlog").getByText("Confirm below before I continue.").waitFor();
