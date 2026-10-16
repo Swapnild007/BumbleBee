@@ -12,6 +12,7 @@ A mobile-first JARVIS personal-assistant prototype. The product is named JARVIS;
 - `scripts/train-intents.mjs`: deterministic offline evaluation of the current rule-based classifier and command-confirmation planner.
 - `brain/trace-store.js`: local-only, bounded command/response trace ledger with explicit helpfulness feedback, latency/failure/clarification metrics, JSON export, and user-controlled deletion. It does not upload conversations or train model weights.
 - `docs/OPENJARVIS-BRAIN-INTEGRATION.md`: integration decisions, architecture mapping, and release gates inspired by OpenJarvis.
+- `docs/SECURE-DEPLOYMENT.md` and `.env.example`: safe server-side AI gateway setup; placeholders only, never real secrets.
 - `scripts/brain-traces.test.mjs`: unit tests for trace retention, feedback/export/deletion, and blocked-storage recovery.
 - `scripts/smoke.mjs`: dependency-free source, JavaScript syntax, and safety-contract checks, run by GitHub Actions.
 - `scripts/e2e.mjs`: Playwright mobile-browser acceptance checks for key interactions and safety flows.
