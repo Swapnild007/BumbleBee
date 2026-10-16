@@ -33,6 +33,9 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var assetLoader: WebViewAssetLoader
     private var textToSpeech: TextToSpeech? = null
+    private var ttsReady = false
+    private var pendingSpeech: String? = null
+    private var launchGreetingQueued = false
     private val requestAudioPermission = 4101
     private val requestSpeechRecognition = 4102
     private val requestLocationPermission = 4103
@@ -50,8 +53,28 @@ class MainActivity : Activity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         textToSpeech = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                textToSpeech?.language = Locale.getDefault()
+            runOnUiThread {
+                val engine = textToSpeech
+                if (status == TextToSpeech.SUCCESS && engine != null) {
+                    val locale = Locale.getDefault()
+                    val availability = engine.isLanguageAvailable(locale)
+                    val selected = if (availability >= TextToSpeech.LANG_AVAILABLE) locale else Locale.US
+                    val languageStatus = engine.setLanguage(selected)
+                    ttsReady = languageStatus >= TextToSpeech.LANG_AVAILABLE
+                    if (ttsReady) {
+                        engine.setSpeechRate(0.96f)
+                        engine.setPitch(1.0f)
+                        pendingSpeech?.let { queued ->
+                            pendingSpeech = null
+                            speakNow(queued)
+                        }
+                    } else {
+                        toast("Text-to-speech language is unavailable. Install a voice in Android Text-to-speech settings.")
+                    }
+                } else {
+                    ttsReady = false
+                    toast("Android text-to-speech could not initialize. Check your speech engine settings.")
+                }
             }
         }
 
@@ -81,14 +104,22 @@ class MainActivity : Activity() {
                     }
                 }
             }
-            webViewClient = LocalOnlyWebViewClient()
+            webViewClient = object : LocalOnlyWebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    if (url == "https://appassets.androidplatform.net/assets/index.html" && !launchGreetingQueued) {
+                        launchGreetingQueued = true
+                        speak("Hello! I'm JARVIS, your personal assistant. I'm ready to help.")
+                    }
+                }
+            }
             addJavascriptInterface(JarvisBridge(), "JarvisNative")
         }
         setContentView(webView)
         webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
     }
 
-    private inner class LocalOnlyWebViewClient : WebViewClientCompat() {
+    private open inner class LocalOnlyWebViewClient : WebViewClientCompat() {
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest) =
             assetLoader.shouldInterceptRequest(request.url)
 
@@ -244,15 +275,8 @@ class MainActivity : Activity() {
         @JavascriptInterface fun speak(text: String): String {
             val clean = text.trim().take(4000)
             if (clean.isBlank()) return result(false, "Nothing to speak.")
-            runOnUiThread {
-                val engine = textToSpeech
-                if (engine == null) {
-                    toast("Speech engine is not ready.")
-                } else {
-                    engine.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "jarvis-" + System.currentTimeMillis())
-                }
-            }
-            return result(true, "Speech queued.")
+            runOnUiThread { speak(clean) }
+            return result(true, if (ttsReady) "Speech queued." else "Speech queued until Android text-to-speech is ready.")
         }
         @JavascriptInterface fun stopSpeaking(): String {
             runOnUiThread { textToSpeech?.stop() }
@@ -319,6 +343,31 @@ class MainActivity : Activity() {
 
         private fun result(ok: Boolean, message: String) =
             JSONObject().put("ok", ok).put("message", message).toString()
+    }
+
+    private fun speak(text: String) {
+        val clean = text.trim().take(4000)
+        if (clean.isBlank()) return
+        if (!ttsReady || textToSpeech == null) {
+            pendingSpeech = clean
+            return
+        }
+        speakNow(clean)
+    }
+
+    private fun speakNow(text: String) {
+        val engine = textToSpeech ?: run {
+            pendingSpeech = text
+            return
+        }
+        if (!ttsReady) {
+            pendingSpeech = text
+            return
+        }
+        val status = engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis-" + System.currentTimeMillis())
+        if (status == TextToSpeech.ERROR) {
+            toast("Android could not speak. Check the selected text-to-speech engine and voice.")
+        }
     }
 
     private fun applyTorch(enabled: Boolean): String {
@@ -404,6 +453,10 @@ class MainActivity : Activity() {
             webView.removeJavascriptInterface("JarvisNative")
             webView.destroy()
         }
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+        textToSpeech = null
+        ttsReady = false
         super.onDestroy()
     }
 }
