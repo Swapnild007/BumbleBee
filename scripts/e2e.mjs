@@ -94,7 +94,7 @@ try {
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
-  console.log("JARVIS browser E2E passed: mobile home, command response, non-blocking executive briefing, task persistence, memory save, intent self-test, explicit action confirmation/cancel, and no uncaught page errors.");
+  console.log("JARVIS browser E2E passed: mobile UI, multi-turn clarification, task and memory persistence, 58-check brain/action evaluation, AI-proposed action confirmation, cancellation safety, and no uncaught page errors.");
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
