@@ -29,11 +29,11 @@ try {
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
   let gatewayConnected=false,gatewayMockHits=0;
   await page.route("**/api/auth",async route=>{
-    if(route.request().method()==="GET"){const cookie=route.request().headers().cookie||"";return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:gatewayConnected||cookie.includes("jarvis_gateway_test=1")})})}
+    if(route.request().method()==="GET"){const cookie=route.request().headers().cookie||"";return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:gatewayConnected||cookie.includes("jarvis_gateway_test=1"),browserKeysAllowed:false})})}
     const body=route.request().postDataJSON()||{};
     if(body.logout===true){gatewayConnected=false;return route.fulfill({status:200,headers:{"set-cookie":"jarvis_gateway_test=; Path=/; Max-Age=0; SameSite=Lax"},contentType:"application/json",body:JSON.stringify({authenticated:false})})}
     if(body.password!=="test-gateway-password")return route.fulfill({status:401,contentType:"application/json",body:JSON.stringify({error:"Incorrect gateway password."})});
-    gatewayConnected=true;return route.fulfill({status:200,headers:{"set-cookie":"jarvis_gateway_test=1; Path=/; SameSite=Lax"},contentType:"application/json",body:JSON.stringify({authenticated:true})});
+    gatewayConnected=true;return route.fulfill({status:200,headers:{"set-cookie":"jarvis_gateway_test=1; Path=/; SameSite=Lax"},contentType:"application/json",body:JSON.stringify({authenticated:true,browserKeysAllowed:false})});
   });
   await page.route("**/api/ai",async route=>{
     gatewayMockHits++;
