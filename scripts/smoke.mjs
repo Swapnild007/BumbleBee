@@ -75,7 +75,7 @@ for (const id of ["cTo", "cMsg", "cCall", "cWa", "cSms", "ctPick", "ctAdd", "sms
 
 assert.ok(source.includes("function commandPlan(raw)"), "Phase 03 structured command planner should exist");
 assert.ok(source.includes("const COMMAND_CONFIRMATION_INTENTS=new Set(["), "external-action intents should be explicitly listed for confirmation");
-assert.ok(source.includes('currentPlan=commandPlan(raw);currentIntent=currentPlan.intent'), "commands should pass through the planner before dispatch");
+assert.ok(source.includes('currentPlan=commandPlan(raw);if(currentPlan.composedFromClarification)'), "commands should pass through the planner and resolve clarification context before dispatch");
 assert.ok(source.includes('requiresConfirmation:needsConfirmation'), "planner should expose confirmation requirements");
 assert.ok(source.includes('"phone.call","message.whatsapp","message.sms","app.open"'), "calls, messages, and app launches should be identified as consequential actions");
 
