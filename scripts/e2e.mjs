@@ -6,9 +6,40 @@ import { chromium } from "playwright";
 
 const root = resolve(".");
 const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".webmanifest": "application/manifest+json", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml" };
+let gatewayConnected = false, gatewayMockHits = 0, aiMockHits = 0;
+const sendJson = (res, status, body, headers = {}) => { res.writeHead(status, { "content-type": "application/json", ...headers }); res.end(JSON.stringify(body)); };
+const readJson = async req => { let raw = ""; for await (const chunk of req) raw += chunk; try { return JSON.parse(raw || "{}"); } catch { return {}; } };
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, "http://127.0.0.1").pathname);
+    if (pathname === "/api/auth") {
+      if (req.method === "GET") {
+        const cookie = req.headers.cookie || "";
+        sendJson(res, 200, { authenticated: gatewayConnected || cookie.includes("jarvis_gateway_test=1"), browserKeysAllowed: false });
+        return;
+      }
+      const body = await readJson(req);
+      if (body.logout === true) {
+        gatewayConnected = false;
+        sendJson(res, 200, { authenticated: false }, { "set-cookie": "jarvis_gateway_test=; Path=/; Max-Age=0; SameSite=Lax" });
+        return;
+      }
+      if (body.password !== "test-gateway-password") {
+        sendJson(res, 401, { error: "Incorrect gateway password." });
+        return;
+      }
+      gatewayConnected = true;
+      sendJson(res, 200, { authenticated: true, browserKeysAllowed: false }, { "set-cookie": "jarvis_gateway_test=1; Path=/; SameSite=Lax" });
+      return;
+    }
+    if (pathname === "/api/ai") {
+      gatewayMockHits++;
+      const body = await readJson(req);
+      assert.equal(body.provider, "anthropic", "secure gateway should receive the selected provider");
+      assert.ok(Array.isArray(body.messages), "secure gateway should receive a structured conversation");
+      sendJson(res, 200, { text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' });
+      return;
+    }
     const target = resolve(root, "." + pathname);
     if (target !== root && !target.startsWith(root + sep)) { res.writeHead(403).end("Forbidden"); return; }
     const filePath = target === root ? resolve(root, "index.html") : target;
@@ -27,21 +58,7 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
-  let gatewayConnected=false,gatewayMockHits=0;
-  await page.route("**/api/auth",async route=>{
-    if(route.request().method()==="GET"){const cookie=route.request().headers().cookie||"";return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:gatewayConnected||cookie.includes("jarvis_gateway_test=1"),browserKeysAllowed:false})})}
-    const body=route.request().postDataJSON()||{};
-    if(body.logout===true){gatewayConnected=false;return route.fulfill({status:200,headers:{"set-cookie":"jarvis_gateway_test=; Path=/; Max-Age=0; SameSite=Lax"},contentType:"application/json",body:JSON.stringify({authenticated:false})})}
-    if(body.password!=="test-gateway-password")return route.fulfill({status:401,contentType:"application/json",body:JSON.stringify({error:"Incorrect gateway password."})});
-    gatewayConnected=true;return route.fulfill({status:200,headers:{"set-cookie":"jarvis_gateway_test=1; Path=/; SameSite=Lax"},contentType:"application/json",body:JSON.stringify({authenticated:true,browserKeysAllowed:false})});
-  });
-  await page.route("**/api/ai",async route=>{
-    gatewayMockHits++;
-    const body=route.request().postDataJSON()||{};
-    assert.equal(body.provider,"anthropic","secure gateway should receive the selected provider");
-    assert.ok(Array.isArray(body.messages),"secure gateway should receive a structured conversation");
-    return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({text:'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}'})});
-  });
+  await page.route("**/api/ai", route => route.abort());
   let aiMockHits=0;
   await page.route("**/v1/messages", route => { aiMockHits++; if(route.request().method()==="OPTIONS")return route.fulfill({status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type,x-api-key,anthropic-version,anthropic-dangerous-direct-browser-access"}}); return route.fulfill({ status: 200, headers: {"access-control-allow-origin":"*"}, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }); });
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
