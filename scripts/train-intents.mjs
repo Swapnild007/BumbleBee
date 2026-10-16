@@ -11,7 +11,7 @@ const marker = "/* ===== command brain: local intents first (instant, offline), 
 const endAt = source.indexOf(marker, start);
 assert.ok(endAt > start, "classifier block must end before command handler");
 const classifierSource = source.slice(start, endAt);
-const { classifyIntent, commandPlan } = new Function('const cleanLocalText=value=>String(value||"").trim();\n' + classifierSource + "\nreturn { classifyIntent, commandPlan };")();
+const { classifyIntent, commandPlan } = new Function(classifierSource + "\nreturn { classifyIntent, commandPlan };")();
 
 const failures = [];
 for (const c of cases.cases) {
