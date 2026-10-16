@@ -467,7 +467,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
-    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button></div>
+    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button><button class="btn red" id="brainClear" style="width:100%;margin-top:8px">Delete local traces</button></div>
     <div class="panel" id="trainingLab"><h3>JARVIS BRAIN EVALUATION <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Evaluate offline intent classification and slot extraction against a versioned test corpus. This measures rule-based routing; it does not train or fine-tune an AI model. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">Regression examples loaded from the versioned evaluation corpus</small></div></div></div></div>
   </section>
 </div>
@@ -1220,6 +1220,12 @@ $("#brainUnhelpful")&&$("#brainUnhelpful").addEventListener("click",()=>rateLate
 $("#brainExport")&&$("#brainExport").addEventListener("click",()=>{
  try{const payload=window.JarvisTraceStore.exportJson(),blob=new Blob([payload],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jarvis-brain-traces.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Local trace export prepared.");}
  catch(error){console.error("Trace export failed",error);toast("Trace export is unavailable in this browser.")}
+});
+$("#brainClear")&&$("#brainClear").addEventListener("click",()=>{
+ if(!window.JarvisTraceStore)return;
+ if(!confirm("Delete all locally stored JARVIS brain traces? This cannot be undone."))return;
+ if(!window.JarvisTraceStore.clear()){toast("Couldn't delete local traces in this browser.");return}
+ window.lastBrainTrace=null;renderBrainTraceStatus();toast("Local brain traces deleted.");
 });
 renderBrainTraceStatus();
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
