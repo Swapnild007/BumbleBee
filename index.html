@@ -557,7 +557,7 @@ async function reverse(lat,lon){
   try{const j=await jget(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${lat}&lon=${lon}`);const a=j.address||{};return{city:a.city||a.town||a.village||a.county||j.name||"Unknown",region:a.state||"",country:a.country||""}}catch{}
   return{city:lat.toFixed(2)+", "+lon.toFixed(2),region:"",country:""}}
 async function setLoc(lat,lon,src,acc,known){const place=known||await reverse(lat,lon);loc={lat,lon,src,acc:acc||null,ts:Date.now(),...place};store.set("jv_loc",loc);renderLoc();await getWx()}
-async function ipLoc(why){try{const j=await jget("https://ipwho.is/");if(!j.success)throw 0;await setLoc(j.latitude,j.longitude,"IP (approximate)",null,{city:j.city,region:j.region,country:j.country});why&&toast(why)}
+async function ipLoc(why){try{const j=await jget("https://ipwho.is/");if(!j.success)throw 0;if(loc&&loc.src==="GPS"){toast("GPS refresh failed; keeping your last GPS location instead of replacing it with an IP estimate.");return}await setLoc(j.latitude,j.longitude,"IP (approximate)",null,{city:j.city,region:j.region,country:j.country});why&&toast(why)}
   catch{if(!loc){$("#cLoc").textContent="Unavailable";$("#lPlace").textContent="Location unavailable";$("#lMeta").textContent="Tap “Change location” to set it manually"}}}
 function locate(){$("#cLoc").textContent="Locating…";
   if(!navigator.geolocation||!window.isSecureContext){ipLoc("GPS needs HTTPS — using approximate location");return}
