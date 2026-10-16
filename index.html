@@ -1049,35 +1049,40 @@ async function runTrainingLab(){
  const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
  if(!button||!status||!out)return;
  button.disabled=true;button.textContent="Testing…";status.textContent="Running";
+ status.style.color="";
  out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running brain evaluation</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
  try{
   const response=await fetch("./training/intents.json",{cache:"no-store"});
   if(!response.ok)throw new Error("Training corpus unavailable (HTTP "+response.status+")");
   const corpus=await response.json(),failures=[];
+  let totalChecks=0,passedChecks=0;
+  const check=(condition,failure)=>{totalChecks++;if(condition)passedChecks++;else failures.push(failure)};
   for(const c of corpus.cases){
    const got=classifyIntent(c.utterance);
    const expected=c.intent==="fallback.unknown"?"general.query":c.intent;
-   if(got.id!==expected)failures.push({id:c.id,expected,got:got.id,reason:"intent"});
-   if(c.needsClarification!==undefined&&got.needsClarification!==c.needsClarification)failures.push({id:c.id,expected:"needsClarification="+c.needsClarification,got:"needsClarification="+got.needsClarification,reason:"clarification"});
-   if(c.missingSlots&&JSON.stringify(got.missingSlots||[])!==JSON.stringify(c.missingSlots))failures.push({id:c.id,expected:"missingSlots="+c.missingSlots.join(","),got:"missingSlots="+(got.missingSlots||[]).join(","),reason:"slots"});
-   if(got.needsClarification&&!(got.confidence<0.5))failures.push({id:c.id,expected:"confidence below 0.5",got:"confidence="+got.confidence,reason:"confidence"});
+   check(got.id===expected,{id:c.id,expected,got:got.id,reason:"intent"});
+   if(c.needsClarification!==undefined)check(got.needsClarification===c.needsClarification,{id:c.id,expected:"needsClarification="+c.needsClarification,got:"needsClarification="+got.needsClarification,reason:"clarification"});
+   if(c.missingSlots)check(JSON.stringify(got.missingSlots||[])===JSON.stringify(c.missingSlots),{id:c.id,expected:"missingSlots="+c.missingSlots.join(","),got:"missingSlots="+(got.missingSlots||[]).join(","),reason:"slots"});
+   if(c.needsClarification===true)check(got.confidence<0.5,{id:c.id,expected:"confidence below 0.5",got:"confidence="+got.confidence,reason:"confidence"});
    const slots=c.expected||{};
    for(const key of ["text","query","contact","target","kind","when"]){
-    if(slots[key]!==undefined&&got.slots[key]!==slots[key])failures.push({id:c.id,expected: key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
+    if(slots[key]!==undefined)check(got.slots[key]===slots[key],{id:c.id,expected:key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
    }
   }
-  for(const c of corpus.actionCases||[]){const valid=!validateActionProposal(c.action);if(valid!==c.valid)failures.push({id:c.id,expected:"valid="+c.valid,got:"valid="+valid,reason:"action-validation"});}
-  const total=corpus.cases.length+(corpus.actionCases||[]).length;
-  const pass=total-new Set(failures.map(f=>f.id)).size;
+  for(const c of corpus.actionCases||[]){
+   const valid=!validateActionProposal(c.action);
+   check(valid===c.valid,{id:c.id,expected:"valid="+c.valid,got:"valid="+valid,reason:"action-validation"});
+  }
+  const intentCases=corpus.cases.length,actionCases=(corpus.actionCases||[]).length;
+  const failedCaseCount=new Set(failures.map(f=>f.id)).size;
   status.textContent=failures.length?"Needs fixes":"All checks passed";
   status.style.color=failures.length?"#ff9b9b":"#42e6b1";
-  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+total+' checks passed</b><small class="d">'+failures.length+' failing checks · '+corpus.cases.length+' intent cases · '+(corpus.actionCases||[]).length+' action schemas · corpus v'+corpus.version+' · no real device actions</small></div></div>'+
-    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent evaluation passed</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
+  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+passedChecks+'/'+totalChecks+' assertions passed</b><small class="d">'+failures.length+' failed assertions across '+failedCaseCount+' examples · '+intentCases+' intent cases · '+actionCases+' action schemas · corpus v'+esc(corpus.version)+' · no real device actions</small></div></div>'+
+    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent evaluation passed</b><small class="d">Next: manual voice, network and device-permission tests. Passing this corpus is a regression signal, not proof of general intelligence.</small></div></div>');
   button.textContent="↻ Run self-test again";
- }catch(e){status.textContent="Test unavailable";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run training tests</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
+ }catch(e){status.textContent="Test unavailable";status.style.color="#ff9b9b";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run brain evaluation</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
  button.disabled=false;
 }
-
 
 /* ===== reusable skill engine v1: deterministic local skills ===== */
 const JARVIS_SKILLS = Object.freeze({
