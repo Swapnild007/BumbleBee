@@ -38,7 +38,7 @@
   function list(){return read()}
   function summary(){
     const items=read();
-    return {total:items.length,helpful:items.filter(x=>x.feedback==="helpful").length,unhelpful:items.filter(x=>x.feedback==="unhelpful").length,failed:items.filter(x=>x.outcome==="failed").length,awaitingConfirmation:items.filter(x=>x.outcome==="awaiting-confirmation").length};
+    const durations=items.map(x=>x.durationMs).filter(Number.isFinite);return {total:items.length,helpful:items.filter(x=>x.feedback==="helpful").length,unhelpful:items.filter(x=>x.feedback==="unhelpful").length,failed:items.filter(x=>x.outcome==="failed").length,clarifications:items.filter(x=>x.outcome==="clarification").length,awaitingConfirmation:items.filter(x=>x.outcome==="awaiting-confirmation").length,averageDurationMs:durations.length?Math.round(durations.reduce((sum,n)=>sum+n,0)/durations.length):0};
   }
   root.JarvisTraceStore=Object.freeze({record,rate,list,summary,exportJson:()=>JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),localOnly:true,traces:read()},null,2)});
 })(window);
