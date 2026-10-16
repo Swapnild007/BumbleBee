@@ -11,7 +11,7 @@ const marker = "/* ===== command brain: local intents first (instant, offline), 
 const endAt = source.indexOf(marker, start);
 assert.ok(endAt > start, "classifier block must end before command handler");
 const classifierSource = source.slice(start, endAt);
-const classifyIntent = new Function(classifierSource + "\nreturn classifyIntent;")();
+const { classifyIntent, commandPlan } = new Function('const cleanLocalText=value=>String(value||"").trim();\n' + classifierSource + "\nreturn { classifyIntent, commandPlan };")();
 
 const failures = [];
 for (const c of cases.cases) {
@@ -31,5 +31,10 @@ for (const c of cases.cases) {
   }
 }
 assert.equal(failures.length, 0, failures.join("\n"));
+assert.equal(commandPlan("call").requiresConfirmation, false, "incomplete calls must clarify before confirmation");
+assert.equal(commandPlan("call Mom").requiresConfirmation, true, "complete calls must require confirmation");
+assert.equal(commandPlan("SMS Dad").requiresConfirmation, false, "incomplete messages must clarify before confirmation");
+assert.equal(commandPlan("SMS Dad saying I will be home late").requiresConfirmation, true, "complete messages must require confirmation");
+assert.equal(commandPlan("Explain quantum physics").requiresConfirmation, false, "unknown questions must not trigger external-action confirmation");
 assert.ok(cases.safety.length >= 5, "safety rules should remain part of the training corpus");
 console.log("JARVIS intent evaluation: " + (cases.cases.length - failures.length) + "/" + cases.cases.length + " cases passed.");
