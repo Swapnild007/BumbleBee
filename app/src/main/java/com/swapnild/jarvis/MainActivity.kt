@@ -113,9 +113,23 @@ class MainActivity : Activity() {
                 else -> null
             }
             if (systemIntent != null) {
+                if (packageName == "android.intent.action.SHOW_ALARMS") {
+                    // Some OEM clock apps do not implement ACTION_SHOW_ALARMS.
+                    // Try it first, then fall back to the standard set-alarm screen.
+                    try {
+                        startActivity(systemIntent)
+                        return result(true, "Clock opened.")
+                    } catch (_: Exception) {
+                        val now = java.util.Calendar.getInstance()
+                        val fallback = Intent(AlarmClock.ACTION_SET_ALARM)
+                            .putExtra(AlarmClock.EXTRA_HOUR, now.get(java.util.Calendar.HOUR_OF_DAY))
+                            .putExtra(AlarmClock.EXTRA_MINUTES, now.get(java.util.Calendar.MINUTE))
+                            .putExtra(AlarmClock.EXTRA_SKIP_UI, false)
+                        return launchIntent(fallback, "No compatible clock app was found.")
+                    }
+                }
                 return launchIntent(systemIntent, when (packageName) {
                     "android.media.action.IMAGE_CAPTURE" -> "No camera app can handle the camera action."
-                    "android.intent.action.SHOW_ALARMS" -> "No clock app can show alarms."
                     else -> "Could not open Android settings."
                 })
             }
