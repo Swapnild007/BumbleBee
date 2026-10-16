@@ -37,7 +37,7 @@ val syncJarvisWebAssets by tasks.registering(Copy::class) {
     from(rootProject.file("orb-engine.js"))
     from(rootProject.file("sw.js"))
     from(rootProject.file("manifest.webmanifest"))
-    into(layout.projectDirectory.dir("src/main/assets/www"))
+    into(layout.projectDirectory.dir("src/main/assets"))
     from(rootProject.file("training/intents.json")) {
         into("training")
     }
