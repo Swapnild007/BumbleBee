@@ -97,3 +97,5 @@ const nativeMapFallback = source.indexOf('map.src="https://www.openstreetmap.org
 assert.ok(nativeMapGuard >= 0 && nativeMapFallback > nativeMapGuard, "native app must avoid loading the remote map iframe into the bridge-enabled WebView");
 
 assert.ok(source.includes('if(loc&&loc.src==="GPS"){toast("GPS refresh failed; keeping your last GPS location instead of replacing it with an IP estimate.");return}'), "IP fallback must not overwrite a known GPS fix");
+
+assert.ok(source.includes('if(!r.ok){toast(r.message||"Hands-free wake word is not available in this build.");wakeOn=false;renderCore();return false}'), "native wake-word UI must not show enabled when the Android service reports unsupported");
