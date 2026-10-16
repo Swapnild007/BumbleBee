@@ -22,6 +22,8 @@ for (const c of cases.cases) {
   }
   if (got.id !== c.intent) failures.push(c.id + ": expected " + c.intent + ", got " + got.id);
   if (c.needsClarification !== undefined && got.needsClarification !== c.needsClarification) failures.push(c.id + ": expected needsClarification=" + c.needsClarification + ", got " + got.needsClarification);
+  if (c.missingSlots !== undefined && JSON.stringify(got.missingSlots || []) !== JSON.stringify(c.missingSlots)) failures.push(c.id + ": expected missingSlots=" + JSON.stringify(c.missingSlots) + ", got " + JSON.stringify(got.missingSlots || []));
+  if (got.needsClarification && !(got.confidence < 0.5)) failures.push(c.id + ": clarification cases must have low confidence, got " + got.confidence);
   for (const key of ["text", "query", "contact", "target", "kind", "when"]) {
     if (c.expected[key] !== undefined && got.slots[key] !== c.expected[key]) {
       failures.push(c.id + ": expected " + key + "=" + JSON.stringify(c.expected[key]) + ", got " + JSON.stringify(got.slots[key]));
