@@ -887,14 +887,42 @@ async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!key)throw new Erro
   if(p==="anthropic"){const j=await post("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},{model,max_tokens:500,system:sysPrompt(),messages:h});return j.content.map(b=>b.text||"").join("")}
   if(p==="gemini"){const j=await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{},{systemInstruction:{parts:[{text:sysPrompt()}]},contents:h.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))});return(j.candidates[0].content.parts||[]).map(x=>x.text).join("")}
   const j=await post(BASE[p]+"/chat/completions",{Authorization:"Bearer "+key},{model,max_tokens:500,messages:[{role:"system",content:sysPrompt()},...h]});return j.choices[0].message.content}
-async function runAction(a){try{switch(a.type){
-  case"call":{const c=await findContact(a.name||a.number||"");if(c)act("📞 Call "+c.name,()=>dial(c.num));break}
-  case"whatsapp":{const c=await findContact(a.name||a.number||"");if(c)act("💬 WhatsApp "+c.name,()=>sendWa(c.num,a.text||""));break}
-  case"sms":{const c=await findContact(a.name||a.number||"");if(c)act("✉ Text "+c.name,()=>sendSms(c.num,a.text||""));break}
-  case"timer":addRem(Date.now()+(+a.minutes||5)*6e4,a.label||"Timer","Timer");acts++;break;
-  case"reminder":addRem(Date.now()+(+a.minutes||5)*6e4,a.text||"Reminder");acts++;break;
-  case"task":addTask(a.text||"");acts++;break;case"note":addNote(a.text||"");acts++;break;
-  case"app":openAppByName(a.name||"");break;case"torch":await setTorch(!!a.on);acts++;break}}catch{}$("#m3").textContent=acts}
+function validateActionProposal(a){
+  const str=(v,max=500)=>typeof v==="string"?v.trim().slice(0,max):"";
+  if(!a||typeof a!=="object"||Array.isArray(a))return "The proposed action is not a valid object.";
+  switch(a.type){
+    case "call":return str(a.name||a.number,120)?"":"A call needs a contact name or phone number.";
+    case "whatsapp":case "sms":return !str(a.name||a.number,120)?"A message needs a recipient.":!str(a.text,1000)?"A message needs a non-empty body.":"";
+    case "timer":case "reminder":{const minutes=Number(a.minutes);return Number.isFinite(minutes)&&minutes>=1&&minutes<=1440?"":"A timer or reminder needs a duration from 1 to 1440 minutes."}
+    case "task":case "note":return str(a.text,1000)?"":"This action needs non-empty text.";
+    case "app":return str(a.name,120)?"":"An app action needs an app name.";
+    case "torch":return typeof a.on==="boolean"?"":"A flashlight action needs an explicit on/off value.";
+    default:return "This action type is not supported.";
+  }
+}
+async function runAction(a){
+  const invalid=validateActionProposal(a);if(invalid)return{ok:false,message:invalid};
+  try{
+    switch(a.type){
+      case "call":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};act("📞 Call "+c.name,()=>dial(c.num));return{ok:true,message:"Opened the dialer for "+c.name+"."}}
+      case "whatsapp":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};act("💬 WhatsApp "+c.name,()=>sendWa(c.num,a.text));return{ok:true,message:"Prepared the WhatsApp action for "+c.name+". Complete sending in WhatsApp if prompted."}}
+      case "sms":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};act("✉ Text "+c.name,()=>sendSms(c.num,a.text));return{ok:true,message:"Prepared the text action for "+c.name+". Complete sending in the messaging app if prompted."}}
+      case "timer":{const minutes=Number(a.minutes);addRem(Date.now()+minutes*6e4,String(a.label||"Timer").slice(0,120),"Timer");acts++;return{ok:true,message:"Saved a "+minutes+" minute timer. Browser alerts may not fire if JARVIS is closed or the device sleeps."}}
+      case "reminder":{const minutes=Number(a.minutes);addRem(Date.now()+minutes*6e4,String(a.text).slice(0,1000));acts++;return{ok:true,message:"Saved a reminder for "+minutes+" minutes from now. Browser alerts may not fire if JARVIS is closed or the device sleeps."}}
+      case "task":addTask(String(a.text).trim().slice(0,1000));acts++;return{ok:true,message:"Added the task."};
+      case "note":addNote(String(a.text).trim().slice(0,1000));acts++;return{ok:true,message:"Saved the note."};
+      case "app":return openAppByName(String(a.name).trim())?{ok:true,message:"Requested opening "+String(a.name).trim()+"."}:{ok:false,message:"That app isn't available in this JARVIS version."};
+      case "torch":{const ok=await setTorch(a.on);if(!ok)return{ok:false,message:"The flashlight isn't available here."};acts++;return{ok:true,message:a.on?"Flashlight on.":"Flashlight off."}}
+    }
+  }catch(error){return{ok:false,message:"The action failed: "+String(error&&error.message||"unknown error")}}
+  return{ok:false,message:"The action was not executed."};
+}
+async function runConfirmedAIAction(action){
+  const result=await runAction(action),reply=result.message;
+  addActivity("Command","Confirmed AI action",String(action.type||"unknown"),result.ok?"confirmed":"failed");
+  addActivity("Response","JARVIS response",String(reply).slice(0,400),result.ok?"answered":"failed");
+  renderActivity();chat.push({r:"a",c:reply});saveAll();renderLog();say(reply);return reply;
+}
 function openAppByName(n){n=(n||"").toLowerCase();const a=APPS.find(x=>x[1].toLowerCase()===n||n.includes(x[1].toLowerCase()));
   if(a){act("Open "+a[1],()=>openApp(a));return true}if(hasN()){acts++;return N.app(n)}return false}
 
@@ -1111,7 +1139,7 @@ async function handle(raw){currentPlan=commandPlan(raw);if(currentPlan.composedF
   if(/^(?:help|what can you do|what can jarvis do|list capabilities|capabilities)$/i.test(s))return "I work without an AI API key for supported tasks: manage tasks and browser-session reminders, save and search memory notes, report local time/date and available weather/location, retrieve current headlines when feeds are reachable, speak replies, and guide phone/app actions. Calls, messages and app launches require your confirmation. Hands-free wake words and alerts depend on browser support and the page staying active. I do not yet have a fully offline general-knowledge language model, so I will say when I cannot answer instead of inventing facts.";
   if(/^(hello|hi|hey|jarvis)$/.test(s))return"Hello, Commander. How can I help?";
   if(!aiKey())return "I can handle supported JARVIS commands offline, but I do not have a local general-knowledge model for that question. Try “help” to see available capabilities, or ask me about your tasks, notes, date, time, location, weather or news when available. I will not require a Gemini key or invent an answer.";
-  const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.replace(a[0],"").trim();try{await runAction(JSON.parse(a[1]))}catch{}}return reply||"Done."}
+  const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.slice(0,a.index).trim();let action;try{action=JSON.parse(a[1])}catch{return reply||"I couldn't parse the proposed action, so I did not execute it."}const invalid=validateActionProposal(action);if(invalid)return (reply?reply+" ":"")+"I did not execute the proposed action. "+invalid;pend={label:"Confirm AI action",fn:()=>runConfirmedAIAction(action)};return (reply?reply+" ":"")+"I prepared a proposed action. Confirm below before I execute it."}return reply||"Done."}
 function briefing(){const h=new Date().getHours(),e=nextEvent(),o=tasks.filter(t=>!t.done),nm=msgs.length;
   return`Good ${h<12?"morning":h<17?"afternoon":"evening"}, Commander. All systems optimal. ${wx&&loc?`It's ${wx.t} degrees and ${(WX[wx.code]||"").toLowerCase()} in ${loc.city}, high ${wx.hi}. `:""}You have ${o.length} open task${o.length==1?"":"s"}${o.filter(overdue).length?", "+o.filter(overdue).length+" overdue":""}.${e?` Next is ${e.name} in ${rel(e.in*6e4)}.`:""}${nm?` ${nm} new message${nm>1?"s":""}.`:""}${heads&&heads.l[0]?` Top headline: ${heads.l[0].t}.`:""}`}
 $("#brief").addEventListener("click",()=>{
