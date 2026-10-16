@@ -21,7 +21,7 @@ const learnedPhrases = new Map([
   ["please check the weather", { intent: "weather.current", phrase: "please check the weather" }],
   ["please ring mom", { intent: "phone.call", phrase: "please ring mom" }]
 ]);
-const learnedClassifier = new Function("window", classifierSource + "\\nreturn { classifyIntent, commandPlan };")({
+const learnedClassifier = new Function("window", classifierSource + "\nreturn { classifyIntent, commandPlan };")({
   JarvisBrainLearning: { lookup: phrase => learnedPhrases.get(phrase) || null }
 });
 const learnedWeather = learnedClassifier.classifyIntent("please check the weather");
