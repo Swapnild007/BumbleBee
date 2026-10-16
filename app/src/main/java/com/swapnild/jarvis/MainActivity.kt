@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.MediaStore
 import android.view.View
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -100,6 +101,24 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun openApp(packageName: String): String {
+            // The web UI passes Android intent action strings for these system shortcuts,
+            // not package names. Handle them explicitly before the installed-app allowlist.
+            val systemIntent = when (packageName) {
+                "android.media.action.IMAGE_CAPTURE" ->
+                    Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                "android.intent.action.SHOW_ALARMS" ->
+                    Intent(AlarmClock.ACTION_SHOW_ALARMS)
+                "android.settings.SETTINGS" ->
+                    Intent(Settings.ACTION_SETTINGS)
+                else -> null
+            }
+            if (systemIntent != null) {
+                return launchIntent(systemIntent, when (packageName) {
+                    "android.media.action.IMAGE_CAPTURE" -> "No camera app can handle the camera action."
+                    "android.intent.action.SHOW_ALARMS" -> "No clock app can show alarms."
+                    else -> "Could not open Android settings."
+                })
+            }
             if (packageName !in appPackages) return result(false, "App shortcut is not allowlisted.")
             return try {
                 val launch = packageManager.getLaunchIntentForPackage(packageName)
