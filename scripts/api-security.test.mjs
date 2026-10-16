@@ -98,6 +98,7 @@ test("authenticated AI gateway uses only server-side provider credentials",async
     authHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test"},body:{password:"test-gateway-password-long"},socket:{remoteAddress:"127.0.0.1"}},loginRes);
     assert.equal(loginRes.statusCode,200);
     assert.equal(loginRes.body.authenticated,true);
+    assert.equal(loginRes.body.browserKeysAllowed,false,"login response must communicate gateway-only policy immediately");
     const cookie=loginRes.headers["Set-Cookie"];
     assert.match(cookie,/HttpOnly/);
     assert.match(cookie,/SameSite=Strict/);
