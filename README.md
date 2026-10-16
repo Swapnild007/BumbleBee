@@ -10,9 +10,9 @@ A mobile-first JARVIS personal-assistant prototype. The product is named JARVIS;
 - `manifest.webmanifest` and `sw.js`: installable web-app shell and cache versioning.
 - `training/intents.json`: versioned intent-evaluation corpus covering 54 intent regression cases plus action-schema fixtures covering slot extraction, clarification, confidence, and safety expectations. It is test data, not model fine-tuning data.
 - `scripts/train-intents.mjs`: deterministic offline evaluation of the current rule-based classifier and command-confirmation planner.
-- `brain/trace-store.js`: local-only, bounded command/response trace ledger with explicit helpfulness feedback, latency/failure/clarification metrics, and JSON export. It does not upload conversations or train model weights.
+- `brain/trace-store.js`: local-only, bounded command/response trace ledger with explicit helpfulness feedback, latency/failure/clarification metrics, JSON export, and user-controlled deletion. It does not upload conversations or train model weights.
 - `docs/OPENJARVIS-BRAIN-INTEGRATION.md`: integration decisions, architecture mapping, and release gates inspired by OpenJarvis.
-- `scripts/brain-traces.test.mjs`: unit tests for trace retention, feedback/export, and blocked-storage recovery.
+- `scripts/brain-traces.test.mjs`: unit tests for trace retention, feedback/export/deletion, and blocked-storage recovery.
 - `scripts/smoke.mjs`: dependency-free source, JavaScript syntax, and safety-contract checks, run by GitHub Actions.
 - `scripts/e2e.mjs`: Playwright mobile-browser acceptance checks for key interactions and safety flows.
 
@@ -26,7 +26,7 @@ The current offline brain is a deterministic rule-based command classifier with 
 
 ## Security
 
-Provider API keys are currently configured in the client prototype. This is not production-secure: browser storage and client-side requests cannot protect secrets from a device user or injected script. Do not use this pattern for a public production deployment. The production architecture should keep provider credentials on a protected backend and validate actions server-side.
+An authenticated same-origin server-side AI gateway is available at `api/auth.js` and `api/ai.js`. In System → Secure AI Gateway, connect with the deployment's `JARVIS_ACCESS_PASSWORD`; the server also requires `JARVIS_SESSION_SECRET` and the selected provider's environment key (for example `ANTHROPIC_API_KEY`). While connected, JARVIS sends the conversation to `/api/ai` and the provider key remains on the server. Direct BYOK mode still stores and sends a user key from the browser, so it is for personal/prototype use only and is not safe for a public deployment. Before public production, configure the gateway and disable or explicitly restrict browser-key mode.
 
 ## Native Android status
 
