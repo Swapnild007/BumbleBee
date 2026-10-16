@@ -79,7 +79,13 @@ try {
   await page.locator("#notes").getByText("E2E saved memory").waitFor();
 
   await page.locator('nav a[data-t="sys"]').click();
-  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Secure gateway required"));
+  await page.waitForFunction(() => {
+    const status = document.querySelector("#gatewayStatus")?.textContent || "";
+    const settings = JSON.parse(localStorage.getItem("jv_set") || "{}");
+    return status !== "Checking…" && settings.ai?.browserKeysAllowed === false;
+  }, { timeout: 10000 });
+  const gatewayStatus = await page.locator("#gatewayStatus").innerText();
+  assert.ok(/Secure gateway required|Session expired · reconnect/.test(gatewayStatus), "gateway-only mode must report that secure authentication is required; status=" + gatewayStatus);
   assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("jv_set") || "{}").ai?.keys), {}, "gateway-only deployment must clear browser-stored provider keys");
   await page.locator("#gatewayPassword").fill("test-gateway-password");
   await page.locator("#gatewayConnect").click();
