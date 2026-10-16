@@ -502,7 +502,7 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");cl
 const hasN=()=>!!window.JarvisNative;
 const nj=(f,...a)=>{try{return JSON.parse(window.JarvisNative[f](...a))}catch{return []}};
 const N={call:n=>JarvisNative.call(n),sms:(n,t)=>JarvisNative.sms(n,t),wa:(n,t)=>JarvisNative.whatsapp(n,t||"",!!S.autosend),app:p=>JarvisNative.openApp(p),torch:o=>JarvisNative.torch(o),
-  alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
+  alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),reminder:(id,at,t,k)=>nj("scheduleReminder",String(id),String(at),t,k),cancelReminder:id=>nj("cancelReminder",String(id)),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
   speak:t=>JarvisNative.speak(t),stopSpeak:()=>JarvisNative.stopSpeaking(),listen:()=>JarvisNative.listen(),wake:o=>JarvisNative.setWake(o),vol:p=>JarvisNative.setVolume(p),
   global:a=>JarvisNative.globalAction(a),settings:p=>JarvisNative.openSettings(p),perms:()=>JarvisNative.requestPermissions(),notifAccess:()=>JarvisNative.hasNotificationAccess(),
   openNotifAccess:()=>JarvisNative.openNotificationAccessSettings(),a11y:()=>JarvisNative.isAccessibilityOn(),openA11y:()=>JarvisNative.openAccessibilitySettings(),recent:()=>nj("getNotifications")};
@@ -646,15 +646,16 @@ function updateActiveTimerClocks(){
 /* ===== end countdown timers ===== */
 
 function addRem(at,text,kind){const r={id:uid(),at,text:text||kind||"Reminder",kind:kind||"Reminder"};rems.push(r);rems.sort((a,b)=>a.at-b.at);saveAll();askNotif();
-  if(hasN())try{N.alarm(at,r.text)}catch{}renderRems();renderTL();buildFeed();return r}
+  if(hasN())try{const delivery=N.reminder(r.id,at,r.text,r.kind);r.nativeDelivery=delivery?.ok?(String(delivery.message||"").toLowerCase().includes("permission requested")?"permission-pending":"scheduled"):"browser-only";if(!delivery?.ok)toast("Android notification not scheduled: "+(delivery?.message||"native scheduler unavailable"));else if(r.nativeDelivery==="permission-pending")toast(delivery.message)}catch(error){r.nativeDelivery="browser-only";toast("Android notification scheduling failed. The reminder only works while JARVIS stays active.")}
+  renderRems();renderTL();buildFeed();return r}
 function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);beep();const t=`${r.kind}: ${r.text}`;toast("⏰ "+t);notify("Jarvis — "+r.kind,r.text);say(`${r.kind}. ${r.text}`)}
 setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<864e5)fire(r);else{addActivity("Reminder","Missed reminder",r.text+" · due "+fmtD(r.at),"missed");renderActivity();notify("JARVIS · Missed reminder",r.text+" was due "+fmtD(r.at))}});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
   el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
-  $$("#rems .x").forEach(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
+  $("#rems .x").forEach(x=>x.onclick=()=>{if(hasN())try{N.cancelReminder(x.dataset.r)}catch{}rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
 $$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
-$("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();toast("Reminder set for "+fmtD(p.at))};
+$("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}const r=addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();if(r.nativeDelivery==="browser-only")toast("Saved in JARVIS, but Android notification delivery is unavailable. It may only alert while JARVIS stays active.");else if(r.nativeDelivery==="scheduled")toast("Android reminder scheduled for "+fmtD(p.at));else if(!hasN())toast("Browser reminder set. Keep JARVIS active for delivery.");}
 $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
 
 /* ===== tasks ===== */
