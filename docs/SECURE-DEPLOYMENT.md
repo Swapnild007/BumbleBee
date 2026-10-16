@@ -8,6 +8,7 @@ The authenticated AI gateway requires a serverless host that runs the repository
 2. In **Project Settings → Environment Variables**, add:
    - `JARVIS_ACCESS_PASSWORD`: a unique, strong password of at least 12 characters.
    - `JARVIS_SESSION_SECRET`: a random secret of at least 32 characters. Generate one locally with `openssl rand -base64 48`.
+   - `JARVIS_DISABLE_BROWSER_KEYS=true`: keep this enabled for public deployments so JARVIS cannot fall back to keys stored in browser storage. Set it to `false` only for trusted personal testing.
    - One or more provider keys, for example `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`. Only configured providers can answer requests.
    - `JARVIS_PUBLIC_ORIGIN` is optional and is used for OpenRouter request metadata.
 3. Add secrets directly in the host dashboard. Do not put real values in GitHub, `.env.example`, HTML, screenshots, or chat logs.
