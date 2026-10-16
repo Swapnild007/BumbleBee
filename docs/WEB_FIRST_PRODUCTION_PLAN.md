@@ -6,7 +6,7 @@ The web/PWA is the primary product until its functional acceptance tests pass. A
 ## Verified baseline
 - Main branch's GitHub Pages deployment and smoke workflow were green on commit `7b93daf2375f70134b849e1d37b2c9d94d15f130`.
 - The web UI embeds its JavaScript in `index.html`; intent training corpus is `training/intents.json`.
-- 46 versioned intent regression cases plus 10 action-schema fixtures are evaluated by the offline classifier and action validator.
+- 54 versioned intent regression cases plus 10 action-schema fixtures are evaluated by the offline classifier and action validator.
 - The smoke test checks JavaScript syntax, intent/slot evaluation, action validation, security helpers, and static feature contracts. A Playwright mobile-browser suite also runs in CI.
 - An authenticated server-side AI gateway is implemented. Public deployment should set `JARVIS_DISABLE_BROWSER_KEYS=true`; browser-key mode remains available only for trusted personal testing.
 - Browser wake-word recognition depends on browser support, microphone permission, network/service behavior, page visibility and device power management. It cannot guarantee OS-level always-on listening.
@@ -54,4 +54,4 @@ The web/PWA is the primary product until its functional acceptance tests pass. A
 - Verify GitHub Pages deploy and a real browser session before considering Android packaging.
 
 ## Current change in this branch
-The command planner's `requiresConfirmation` flag is enforced at the dispatch boundary for configured consequential intents. The user must click an explicit confirmation button before the handler is run, and can cancel without running the action. Browser reminders now disclose that closing JARVIS or device sleep can prevent delivery. Smoke assertions and a Playwright mobile-browser suite are added; The current smoke and Playwright CI run passed on commit `6f691c53a6af07d11e000f4824c9278c9dcddda7`. Source syntax, all 46 intent cases, and all 10 action-schema fixtures passed. Additional coverage and manual real-device/browser checks remain before production readiness.
+The command planner's `requiresConfirmation` flag is enforced at the dispatch boundary for configured consequential intents. The user must click an explicit confirmation button before the handler is run, and can cancel without running the action. Browser reminders now disclose that closing JARVIS or device sleep can prevent delivery. Smoke assertions and a Playwright mobile-browser suite are added; The current smoke and Playwright CI run passed on commit `6f691c53a6af07d11e000f4824c9278c9dcddda7`. Source syntax, all 54 intent cases, and all 10 action-schema fixtures passed. Additional coverage and manual real-device/browser checks remain before production readiness.
