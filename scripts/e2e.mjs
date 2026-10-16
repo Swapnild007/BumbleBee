@@ -74,6 +74,8 @@ try {
   await page.locator("#tkAdd").click();
   await page.locator("#tasks").getByText("E2E task survives reload").waitFor();
   await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("jv_set") || "{}").ai?.gateway), true, "secure gateway preference must survive reload");
   await page.locator('nav a[data-t="tasks"]').click();
   await page.locator("#tasks").getByText("E2E task survives reload").waitFor();
 
@@ -120,7 +122,7 @@ try {
   await page.locator("#vin").fill("Please organize my day");
   await page.locator("#vin").press("Enter");
   try { await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor({ timeout: 10000 }); } catch { throw new Error("AI action confirmation missing; mock hits="+aiMockHits+"; transcript="+await page.locator("#vlog").innerText()+"; core="+await page.locator("#core").innerText()+"; page errors="+errors.join("; ")); }
-  assert.ok(gatewayMockHits > 0, "open-ended request must use the authenticated server-side AI gateway");
+  assert.ok(gatewayMockHits > 0, "open-ended request must use the authenticated server-side AI gateway; gatewayHits="+gatewayMockHits+", directHits="+aiMockHits+", status="+await page.locator("#gatewayStatus").innerText()+", stored="+JSON.stringify(await page.evaluate(() => JSON.parse(localStorage.getItem("jv_set") || "{}").ai?.gateway)));
   assert.equal(aiMockHits, 0, "secure gateway mode must not send provider requests directly from the browser");
   assert.equal(await page.locator("#tasks").getByText("AI-proposed task").count(), 0, "AI-proposed task must not execute before confirmation");
   await page.locator("#vlog [data-b]").last().scrollIntoViewIfNeeded();
