@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "node scripts/smoke.mjs && node --test scripts/api-security.test.mjs",
+    "test": "node scripts/smoke.mjs && node --test scripts/api-security.test.mjs scripts/brain-learning.test.mjs",
     "test:e2e": "node scripts/e2e.mjs"
   },
   "devDependencies": {
