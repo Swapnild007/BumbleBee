@@ -1310,8 +1310,8 @@ $("#pinGo").onclick=async()=>{if(await sha($("#pinIn").value)===S.pin){$("#lock"
 function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<small>${s}</small>`:""}</div><div class="tg ${S[k]?"on":""}" data-k="${k}"></div></div>`,p=S.ai.prov;
   openSheet(`<h2>SETTINGS</h2>
   <h4>AI BRAIN</h4><select class="in" id="aiP" style="margin-top:0"><option value="anthropic">Claude (Anthropic)</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="groq">Groq (free tier)</option><option value="openrouter">OpenRouter</option></select>
-  <input class="in" id="aiK" type="password" placeholder="API key" autocomplete="off"><input class="in" id="aiM" placeholder="Model"><div class="btns"><button class="btn sm" id="aiT">Test connection</button></div>
-  <small class="d" style="display:block;margin-top:6px">Your key stays on this device only and goes straight to the provider.</small>
+  <input class="in" id="aiK" type="password" placeholder="Personal-mode API key" autocomplete="off"><input class="in" id="aiM" placeholder="Model"><div class="btns"><button class="btn sm" id="aiT">Test connection</button></div>
+  <small class="d" style="display:block;margin-top:6px">Personal mode stores this key in browser storage and sends it directly to the provider. Use only on a trusted personal device. For a public deployment, connect the authenticated Secure AI Gateway in System settings instead.</small>
   <h4>VOICE</h4>${sw("voice","Spoken replies")}${sw("wake","“Jarvis…” wake word","Hands-free while the app is open")}${sw("readmsg","Read incoming messages aloud","Needs the Android app")}${sw("autosend","Auto-send WhatsApp messages","Android app + accessibility; use with care")}
   <h4>PHONE</h4><input class="in" id="cc" inputmode="numeric" placeholder="Default country code, e.g. 91" value="${esc(S.cc||"")}" style="margin-top:0">
   <h4>GENERAL</h4>${sw("haptic","Haptic feedback")}${sw("autoloc","Auto-refresh location (10 min)")}<div class="sw">Focus mode<div class="tg ${document.body.classList.contains("focus")?"on":""}" id="fm"></div></div>
