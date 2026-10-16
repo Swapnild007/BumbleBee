@@ -123,6 +123,8 @@ assert.ok(html.includes('id="gatewayPassword"') && html.includes('id="gatewayCon
 assert.ok(html.includes("Personal mode stores this key in browser storage and sends it directly to the provider."), "browser-key mode must disclose its security limitations");
 assert.ok(source.includes('fetch("/api/ai",{method:"POST",credentials:"same-origin"') && source.includes('body:JSON.stringify({provider:p,model,system:sysPrompt(),messages:h})'), "connected gateway mode must route AI requests through the same-origin server endpoint");
 assert.ok(source.includes('S.ai.gatewayRequired&&!S.ai.gateway'), "expired secure sessions must not silently fall back to browser-stored provider keys");
+assert.ok(source.includes('S.ai.browserKeysAllowed===false'), "public deployment policy must disable browser-key AI mode");
+assert.ok(source.includes('S.ai.browserKeysAllowed=result.browserKeysAllowed!==false'), "browser-key policy must be read from the authenticated server endpoint");
 assert.ok(source.includes('S.ai.gatewayRequired=true'), "successful secure gateway login must persist secure-mode preference");
 assert.ok(source.includes('fetch("/api/auth",{method:"POST",credentials:"same-origin"'), "gateway login must use same-origin cookie-based authentication");
 assert.ok(source.includes('window.JarvisTraceStore.clear()'), "trace deletion control must invoke the local trace-store deletion API");
