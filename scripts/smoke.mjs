@@ -94,3 +94,6 @@ assert.ok(source.includes("This browser reminder may not fire if JARVIS is close
 assert.ok(source.includes("Browser reminders only run while JARVIS stays active"), "browser timer limitations must be disclosed at creation time");
 assert.ok(source.includes("I work without an AI API key for supported tasks"), "offline brain must explain its supported capabilities without requiring a provider key");
 assert.ok(source.includes("I will not require a Gemini key or invent an answer"), "unknown open-ended questions must fail honestly without requiring a Gemini key");
+
+assert.ok(source.includes('$("#brief").addEventListener("click",()=>{'), "Executive Briefing must respond immediately with a guarded click handler");
+assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(error=>console.warn("Background headline refresh failed",error))'), "headline refresh must run in the background and not block the briefing");
