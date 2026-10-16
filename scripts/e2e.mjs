@@ -35,6 +35,13 @@ try {
   await page.locator("#q").fill("help");
   await page.locator("#q").press("Enter");
   await page.waitForFunction(() => (document.querySelector("#toast")?.textContent || "").trim().length > 0);
+  await page.locator('nav a[data-t="sys"]').click();
+  await page.locator("#brainHelpful").click();
+  await page.waitForFunction(() => /Feedback saved: helpful/.test(document.querySelector("#toast")?.textContent || ""));
+  const firstTrace=await page.evaluate(() => JSON.parse(localStorage.getItem("jv_brain_traces_v1")||"[]"));
+  assert.equal(firstTrace.length,1,"first user command should create one local brain trace");
+  assert.equal(firstTrace[0].feedback,"helpful","explicit response feedback should be persisted locally");
+  await page.locator('nav a[data-t="home"]').click();
 
   // A blocked news feed must not block the Executive Briefing response or crash the page.
   await page.locator("#brief").click();
