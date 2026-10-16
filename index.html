@@ -1044,7 +1044,7 @@ async function runTrainingLab(){
   const pass=total-new Set(failures.map(f=>f.id)).size;
   status.textContent=failures.length?"Needs fixes":"All checks passed";
   status.style.color=failures.length?"#ff9b9b":"#42e6b1";
-  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+total+' checks passed</b><small class="d">'+failures.length+' failing checks · brain and action schema only, not real device actions</small></div></div>'+
+  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+total+' checks passed</b><small class="d">'+failures.length+' failing checks · '+corpus.cases.length+' intent cases · '+(corpus.actionCases||[]).length+' action schemas · corpus v'+corpus.version+' · no real device actions</small></div></div>'+
     (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent evaluation passed</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
   button.textContent="↻ Run self-test again";
  }catch(e){status.textContent="Test unavailable";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run training tests</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
