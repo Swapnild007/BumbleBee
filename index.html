@@ -725,7 +725,7 @@ $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.n
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["🎵","Spotify","com.spotify.music"],["📷","Instagram","com.instagram.android"],["✈","Telegram","org.telegram.messenger"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
-  /* Web-only fallback: use verified HTTPS app links instead of package intent URLs. Android can hand these to an installed app; if not, the service opens in the browser. */
+  /* Try an explicit Android package launch first. If Android cannot resolve the app, return to that service's HTTPS website. */
   const web={
     "com.whatsapp":"https://www.whatsapp.com/",
     "com.google.android.youtube":"https://www.youtube.com/",
@@ -736,7 +736,20 @@ function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.setting
     "com.instagram.android":"https://www.instagram.com/",
     "org.telegram.messenger":"https://t.me/"
   };
-  if(web[p]){location.href=web[p];return}
+  if(web[p]){
+    const fallback=encodeURIComponent(web[p]);
+    const target=p==="com.whatsapp"?"https://wa.me/":"https://"+({
+      "com.google.android.youtube":"www.youtube.com/",
+      "com.google.android.apps.maps":"maps.google.com/",
+      "com.google.android.gm":"mail.google.com/",
+      "com.android.chrome":"www.google.com/chrome/",
+      "com.spotify.music":"open.spotify.com/",
+      "com.instagram.android":"www.instagram.com/",
+      "org.telegram.messenger":"t.me/"
+    }[p]||"");
+    if(p==="com.whatsapp"){location.href="intent://send/#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url="+fallback+";end";return}
+    location.href="intent://"+target.replace(/^https:\/\//,"")+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+fallback+";end";return
+  }
   if(p==="tel:"){toast("Opening the dialer requires the JARVIS Android app.");return}
   if(p.startsWith("android.")){toast("This system action requires the JARVIS Android app.");return}
   toast("This app shortcut is not supported in the web version yet.")}
