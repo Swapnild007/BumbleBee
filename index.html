@@ -1206,7 +1206,7 @@ function renderBrainTraceStatus(){
  if(!window.JarvisTraceStore)return;
  const traces=window.JarvisTraceStore.list();if(!window.lastBrainTrace&&traces.length)window.lastBrainTrace=traces[traces.length-1];
  const s=window.JarvisTraceStore.summary(),totalRatings=s.helpful+s.unhelpful;
- if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed";
+ if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed · "+s.clarifications+" clarifications · "+s.averageDurationMs+" ms avg";
  if(status)status.textContent=window.lastBrainTrace?(window.lastBrainTrace.intent+" · "+window.lastBrainTrace.outcome):"No response rated yet";
 }
 function rateLatestBrainTrace(rating){
