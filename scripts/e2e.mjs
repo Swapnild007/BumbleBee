@@ -32,7 +32,7 @@ try {
   assert.equal(await page.locator("#t-home h1").innerText(), "JARVIS", "home screen should render");
   await page.locator("#q").fill("help");
   await page.locator("#q").press("Enter");
-  await page.locator("#toast").getByText("I work without an AI API key").waitFor();
+  await page.waitForFunction(() => document.querySelector("#toast")?.textContent.includes("I work without an AI API key"));
 
   await page.locator('nav a[data-t="tasks"]').click();
   await page.locator("#t-tasks").waitFor({ state: "visible" });
