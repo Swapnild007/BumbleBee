@@ -810,7 +810,7 @@ function renderCore(){if(!S.ai||typeof S.ai!=="object")S.ai={prov:"anthropic",ke
   $("#llms").innerHTML=P.map(p=>{const has=!!S.ai.keys[p[0]],on=S.ai.prov===p[0]&&has;return`<div class="lm ${on?"on":""}" data-p="${p[0]}"><div class="ico">${p[1][0]}</div><div><b>${p[1]}</b><small class="${has?"g":"d"}">${on?"Active":has?"Connected":"Not Linked"}</small></div></div>`}).join("")+`<div class="lm"><div class="ico">📱</div><div><b>Native App</b><small class="${hasN()?"g":"d"}">${hasN()?"Connected":"Not installed"}</small></div></div>`;
   $("#llmN").textContent=prov+" Connected";$$(".lm[data-p]").forEach(e=>e.onclick=()=>{hap();S.ai.prov=e.dataset.p;save();openSettings()})}
 let torchOn=false,torchStream=null;
-async function setTorch(on){if(hasN()){N.torch(on);torchOn=on;return true}
+async function setTorch(on){if(hasN()){let r;try{r=JSON.parse(N.torch(on))}catch{r={ok:false,message:"Invalid flashlight response"}}if(!r.ok){toast(r.message||"Flashlight unavailable");return false}torchOn=on;return true}
   try{if(on){torchStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});await torchStream.getVideoTracks()[0].applyConstraints({advanced:[{torch:true}]})}else{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null}torchOn=on;return true}
   catch{torchStream&&torchStream.getTracks().forEach(t=>t.stop());torchStream=null;torchOn=false;return false}}
 
@@ -1045,7 +1045,7 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
   if(/^(?:open|launch|start|go to)\s+(.+)/.test(s)){const t=s.match(/^(?:open|launch|start|go to)\s+(.+)/)[1].replace(/^the /,"");
     if(/^(home|phone|tasks|system|settings)$/.test(t)){t==="settings"?openSettings():go(t==="system"?"sys":t);return"Opening "+t}if(openAppByName(t))return"Opening "+t+"."}
   if(m=s.match(/(flash ?light|torch)(?:.*\b(on|off)\b)?/)){const on=m[2]?m[2]==="on":!torchOn,ok=await setTorch(on);acts++;return ok?(on?"Flashlight on.":"Flashlight off."):"Flashlight isn't available here."}
-  if(hasN()&&(m=s.match(/volume (up|down|max|mute|\d+)/))){const v=m[1]==="up"?70:m[1]==="down"?30:m[1]==="max"?100:m[1]==="mute"?0:+m[1];N.vol(v);acts++;return"Volume set to "+v+" percent."}
+  if(hasN()&&(m=s.match(/volume (up|down|max|mute|\d+)/))){const v=m[1]==="up"?70:m[1]==="down"?30:m[1]==="max"?100:m[1]==="mute"?0:+m[1];let r;try{r=JSON.parse(N.vol(v))}catch{r={ok:false,message:"Invalid volume response"}}if(!r.ok)return r.message||"Volume control failed.";acts++;return r.message||("Media volume set to "+v+" percent.")}
   if(hasN()&&(m=s.match(/^(?:go |press |)(back|home screen|recents|lock (?:the )?screen|screenshot|take a screenshot)$/))){N.global(m[1].replace(/ the/,""));acts++;return"Done."}
   if(/^(?:turn on |open )?(wi-?fi|bluetooth) settings?$/.test(s)&&hasN()){N.settings(s.includes("blue")?"bluetooth":"wifi");return"Opening settings."}
   if(/\b(time)\b/.test(s)&&!/timer/.test(s))return"It is "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
