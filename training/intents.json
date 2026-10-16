@@ -338,7 +338,10 @@
       "utterance": "Call",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "contact"
+      ]
     },
     {
       "id": "incomplete-sms-01",
@@ -346,7 +349,11 @@
       "utterance": "SMS",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "contact",
+        "text"
+      ]
     },
     {
       "id": "incomplete-whatsapp-01",
@@ -354,7 +361,11 @@
       "utterance": "WhatsApp",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "contact",
+        "text"
+      ]
     },
     {
       "id": "incomplete-app-01",
@@ -362,7 +373,10 @@
       "utterance": "Open",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "target"
+      ]
     },
     {
       "id": "incomplete-timer-01",
@@ -370,7 +384,10 @@
       "utterance": "Set a timer",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "when"
+      ]
     },
     {
       "id": "incomplete-note-01",
@@ -378,7 +395,10 @@
       "utterance": "Remember",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
     },
     {
       "id": "incomplete-task-01",
@@ -386,7 +406,10 @@
       "utterance": "Add task",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
     },
     {
       "id": "incomplete-reminder-01",
@@ -394,7 +417,10 @@
       "utterance": "Remind me",
       "expected": {},
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "request"
+      ]
     },
     {
       "id": "incomplete-sms-recipient-01",
@@ -404,7 +430,10 @@
         "contact": "Dad"
       },
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
     },
     {
       "id": "incomplete-whatsapp-recipient-01",
@@ -414,7 +443,10 @@
         "contact": "Neha"
       },
       "needsClarification": true,
-      "pattern": null
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
     }
   ],
   "safety": [
