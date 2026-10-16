@@ -10,14 +10,14 @@ assert.doesNotThrow(() => new Function(source), "embedded JavaScript must parse"
 assert.equal((source.match(/(?<!\$)\$\([^)]*\)\.(?:forEach|map|filter)\(/g)||[]).length, 0, "DOM collection operations must use $()/querySelectorAll, not the single-element $() helper");
 assert.ok(source.includes('const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)]'), "single-element and collection DOM helpers must be distinct");
 assert.ok(!source.includes("$".repeat(3)), "undefined triple-dollar selector calls must not abort script initialization");
-assert.ok(source.includes('intent://"+target.replace(/^https:\\/\\//,"")+"#Intent;scheme=https;package="+p'), "web app shortcuts should attempt explicit package launch intents");
+assert.ok(source.includes("action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package="), "shortcuts should request the installed app launcher activity");
 assert.ok(source.includes('S.browser_fallback_url="+fallback+";end'), "app launch intents should have an HTTPS fallback if Android cannot resolve the app");
-assert.ok(source.includes('scheme=whatsapp;package=com.whatsapp'), "WhatsApp should try its installed app package first");
+assert.ok(source.includes('"com.whatsapp":"https://wa.me/"'), "WhatsApp should use its app-friendly universal link as fallback");
 assert.ok(source.includes('"com.google.android.youtube":"www.youtube.com/"'), "YouTube package launch should target its matching host");
 assert.ok(source.includes('"com.google.android.apps.youtube.music":"https://music.youtube.com/"'), "YouTube Music shortcut should use its service URL");
 assert.ok(source.includes('"com.openai.chatgpt":"https://chatgpt.com/"'), "ChatGPT shortcut should use its service URL");
 assert.ok(source.includes('"com.google.android.apps.bard":"https://gemini.google.com/app"'), "Gemini shortcut should use its service URL");
-assert.ok(source.includes('"com.netflix.mediaclient":"https://www.netflix.com/"'), "Netflix shortcut should use its service URL");
+assert.ok(source.includes('"com.netflix.mediaclient":"https://www.netflix.com/browse"'), "Netflix shortcut should use its browse URL as fallback");
 assert.ok(source.includes('"in.startv.hotstar":"https://www.hotstar.com/in"'), "Disney+ Hotstar shortcut should use its service URL");
 assert.ok(source.includes('"com.amazon.avod.thirdpartyclient":"https://www.primevideo.com/"'), "Amazon Prime Video shortcut should use its service URL");
 for (const label of ["YouTube Music","ChatGPT","Gemini","Netflix","Disney+ Hotstar","Amazon Prime"]) assert.ok(html.includes('"'+label+'"'), "missing requested app shortcut: "+label);
