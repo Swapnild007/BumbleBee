@@ -22,11 +22,26 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  await context.addInitScript(() => localStorage.setItem("jv_set", JSON.stringify({ voice: false, wake: false, haptic: false, autoloc: false, ai: { prov: "anthropic", keys: { anthropic: "test-key" }, models: {} } })));
+  await context.addInitScript(() => { if (!localStorage.getItem("jv_set")) localStorage.setItem("jv_set", JSON.stringify({ voice: false, wake: false, haptic: false, autoloc: false, ai: { prov: "anthropic", keys: { anthropic: "test-key" }, models: {} } })); });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
+  let gatewayConnected=false,gatewayMockHits=0;
+  await page.route("**/api/auth",async route=>{
+    if(route.request().method()==="GET")return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:gatewayConnected})});
+    const body=route.request().postDataJSON()||{};
+    if(body.logout===true){gatewayConnected=false;return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:false})})}
+    if(body.password!=="test-gateway-password")return route.fulfill({status:401,contentType:"application/json",body:JSON.stringify({error:"Incorrect gateway password."})});
+    gatewayConnected=true;return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({authenticated:true})});
+  });
+  await page.route("**/api/ai",async route=>{
+    gatewayMockHits++;
+    const body=route.request().postDataJSON()||{};
+    assert.equal(body.provider,"anthropic","secure gateway should receive the selected provider");
+    assert.ok(Array.isArray(body.messages),"secure gateway should receive a structured conversation");
+    return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({text:'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}'})});
+  });
   let aiMockHits=0;
   await page.route("**/v1/messages", route => { aiMockHits++; if(route.request().method()==="OPTIONS")return route.fulfill({status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type,x-api-key,anthropic-version,anthropic-dangerous-direct-browser-access"}}); return route.fulfill({ status: 200, headers: {"access-control-allow-origin":"*"}, contentType: "application/json", body: JSON.stringify({ content: [{ type: "text", text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' }] }) }); });
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
@@ -44,6 +59,9 @@ try {
   page.once("dialog", dialog => dialog.accept());
   await page.locator("#brainClear").click();
   await page.waitForFunction(() => JSON.parse(localStorage.getItem("jv_brain_traces_v1") || "[]").length === 0);
+  await page.locator("#gatewayPassword").fill("test-gateway-password");
+  await page.locator("#gatewayConnect").click();
+  await page.locator("#gatewayStatus").getByText("Connected · server-side").waitFor();
   await page.locator('nav a[data-t="home"]').click();
 
   // A blocked news feed must not block the Executive Briefing response or crash the page.
@@ -102,7 +120,8 @@ try {
   await page.locator("#vin").fill("Please organize my day");
   await page.locator("#vin").press("Enter");
   try { await page.locator("#vlog").getByText("I prepared a proposed action. Confirm below before I execute it.").waitFor({ timeout: 10000 }); } catch { throw new Error("AI action confirmation missing; mock hits="+aiMockHits+"; transcript="+await page.locator("#vlog").innerText()+"; core="+await page.locator("#core").innerText()+"; page errors="+errors.join("; ")); }
-  assert.ok(aiMockHits > 0, "open-ended request must exercise the mocked AI provider");
+  assert.ok(gatewayMockHits > 0, "open-ended request must use the authenticated server-side AI gateway");
+  assert.equal(aiMockHits, 0, "secure gateway mode must not send provider requests directly from the browser");
   assert.equal(await page.locator("#tasks").getByText("AI-proposed task").count(), 0, "AI-proposed task must not execute before confirmation");
   await page.locator("#vlog [data-b]").last().scrollIntoViewIfNeeded();
   await page.locator("#vlog [data-b]").last().click({ force: true });
