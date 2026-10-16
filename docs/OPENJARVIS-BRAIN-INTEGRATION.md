@@ -11,6 +11,7 @@ Reference: https://github.com/open-jarvis/OpenJarvis (Apache-2.0; review the ups
 - **Evaluation corpus:** `training/intents.json` remains the versioned regression dataset. `scripts/train-intents.mjs` validates expected intents, slots, and clarification behavior. This is evaluation, not model-weight training.
 - **Local trace ledger:** `brain/trace-store.js` stores the latest 100 command/response traces in browser local storage. Each trace records the intent, confidence, routing source, response, outcome, and duration. The user can rate the latest response and export traces as JSON.
 - **Privacy boundary:** traces are local-only by default. They are not uploaded, and user feedback does not automatically train a model.
+- **Explicit correction loop:** the System panel can teach an exact phrase-to-intent correction. Corrections are bounded to 100 entries in local storage, are not generalized to similar phrases, can be deleted, and are applied before default rule routing. This is a small local routing adaptation, not model-weight training. If a corrected consequential command lacks safely parsed slots, JARVIS asks for clarification; ordinary action confirmation remains in force.
 - **Safety boundary:** consequential actions still require explicit confirmation. A trace is evidence of what JARVIS attempted or replied, not proof that an external action succeeded.
 
 ## Target architecture
