@@ -986,7 +986,7 @@ function classifyIntent(raw){
  const original=String(raw||"");
  const text=cleanLocalText(original).trim().replace(/[.!?]+$/,"");
  if(!text)return{id:"general.query",confidence:0,slots:{query:""},source:"offline-rule",needsClarification:true};
- const learned=window.JarvisBrainLearning?.lookup(text);
+ const learned=typeof window!=="undefined"?window.JarvisBrainLearning?.lookup(text):null;
  if(learned){
   const learnedRule=INTENT_RULES.find(rule=>rule.id===learned.intent);
   if(learnedRule){
