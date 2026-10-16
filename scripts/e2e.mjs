@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 
 const root = resolve(".");
 const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".webmanifest": "application/manifest+json", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml" };
-let gatewayConnected = false, gatewayMockHits = 0, aiMockHits = 0;
+let gatewayConnected = false, gatewayMockHits = 0;
 const sendJson = (res, status, body, headers = {}) => { res.writeHead(status, { "content-type": "application/json", ...headers }); res.end(JSON.stringify(body)); };
 const readJson = async req => { let raw = ""; for await (const chunk of req) raw += chunk; try { return JSON.parse(raw || "{}"); } catch { return {}; } };
 const server = createServer(async (req, res) => {
