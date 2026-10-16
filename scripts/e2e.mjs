@@ -79,6 +79,8 @@ try {
   await page.locator("#notes").getByText("E2E saved memory").waitFor();
 
   await page.locator('nav a[data-t="sys"]').click();
+  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Secure gateway required"));
+  assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("jv_set") || "{}").ai?.keys), {}, "gateway-only deployment must clear browser-stored provider keys");
   await page.locator("#gatewayPassword").fill("test-gateway-password");
   await page.locator("#gatewayConnect").click();
   await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
