@@ -81,12 +81,13 @@ function mockResponse(){
 }
 
 test("authenticated AI gateway uses only server-side provider credentials",async()=>{
-  const names=["JARVIS_SESSION_SECRET","JARVIS_ACCESS_PASSWORD","ANTHROPIC_API_KEY"];
+  const names=["JARVIS_SESSION_SECRET","JARVIS_ACCESS_PASSWORD","ANTHROPIC_API_KEY","JARVIS_DISABLE_BROWSER_KEYS"];
   const prior=Object.fromEntries(names.map(name=>[name,process.env[name]]));
   const priorFetch=globalThis.fetch;
   process.env.JARVIS_SESSION_SECRET="test-session-secret-that-is-longer-than-thirty-two-characters";
   process.env.JARVIS_ACCESS_PASSWORD="test-gateway-password-long";
   process.env.ANTHROPIC_API_KEY="server-only-provider-secret";
+  process.env.JARVIS_DISABLE_BROWSER_KEYS="true";
   let upstream=null;
   globalThis.fetch=async(url,options)=>{
     upstream={url:String(url),options};
@@ -101,6 +102,9 @@ test("authenticated AI gateway uses only server-side provider credentials",async
     assert.match(cookie,/HttpOnly/);
     assert.match(cookie,/SameSite=Strict/);
     const sessionCookie=cookie.split(";")[0];
+    const policyRes=mockResponse();
+    authHandler({method:"GET",headers:{origin:"https://jarvis.test",host:"jarvis.test",cookie:sessionCookie}},policyRes);
+    assert.equal(policyRes.body.browserKeysAllowed,false,"public deployment policy must disable browser-stored provider keys");
 
     const aiRes=mockResponse();
     await aiHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test",cookie:sessionCookie},body:{provider:"anthropic",model:"claude-haiku-5-5",system:"You are JARVIS.",messages:[{role:"user",content:"Hello"}]}},aiRes);
