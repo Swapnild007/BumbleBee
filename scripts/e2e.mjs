@@ -30,6 +30,9 @@ try {
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
   await page.locator("#t-home").waitFor({ state: "visible" });
   assert.equal(await page.locator("#t-home h1").innerText(), "JARVIS", "home screen should render");
+  await page.locator("#q").fill("help");
+  await page.locator("#q").press("Enter");
+  await page.locator("#toast").getByText("I work without an AI API key").waitFor();
 
   await page.locator('nav a[data-t="tasks"]').click();
   await page.locator("#t-tasks").waitFor({ state: "visible" });
