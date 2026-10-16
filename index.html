@@ -500,7 +500,7 @@ const hasN=()=>!!window.JarvisNative;
 const nj=(f,...a)=>{try{return JSON.parse(window.JarvisNative[f](...a))}catch{return []}};
 const N={call:n=>JarvisNative.call(n),sms:(n,t)=>JarvisNative.sms(n,t),wa:(n,t)=>JarvisNative.whatsapp(n,t||"",!!S.autosend),app:p=>JarvisNative.openApp(p),torch:o=>JarvisNative.torch(o),
   alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
-  speak:t=>JarvisNative.speak(t),stopSpeak:()=>JarvisNative.stopSpeaking(),listen:()=>JarvisNative.listen(),wake:o=>JarvisNative.setWake(o),vol:p=>JarvisNative.setVolume(p),
+  speak:t=>nj("speak",t),stopSpeak:()=>nj("stopSpeaking"),listen:()=>nj("listen"),wake:o=>nj("setWake",o),vol:p=>nj("setVolume",p),
   global:a=>JarvisNative.globalAction(a),settings:p=>JarvisNative.openSettings(p),perms:()=>JarvisNative.requestPermissions(),notifAccess:()=>JarvisNative.hasNotificationAccess(),
   openNotifAccess:()=>JarvisNative.openNotificationAccessSettings(),a11y:()=>JarvisNative.isAccessibilityOn(),openA11y:()=>JarvisNative.openAccessibilitySettings(),recent:()=>nj("getNotifications")};
 
