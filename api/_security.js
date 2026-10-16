@@ -109,7 +109,6 @@ export function rateLimit(map, key, { now = Date.now(), limit = 20, windowMs = 1
       const recentTimestamps = timestamps.filter(timestamp => now - timestamp < windowMs);
       if (recentTimestamps.length) map.set(candidate, recentTimestamps);
       else map.delete(candidate);
-      if (map.size < maxKeys) break;
     }
     if (map.size >= maxKeys) {
       const oldestKey = map.keys().next().value;
