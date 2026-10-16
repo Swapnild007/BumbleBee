@@ -114,3 +114,6 @@ assert.ok(source.includes('COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.
 assert.ok(source.includes("function composeClarificationAnswer(pending,answer)"), "brain must preserve context across follow-up answers");
 assert.ok(source.includes("currentPlan.composedFromClarification"), "clarification answers must be merged before command dispatch");
 assert.ok(source.includes("pendingClarification=null;delete pendMap[id]"), "cancelling an action must discard pending clarification context");
+assert.ok(source.includes('pend={label:"Confirm AI action",fn:()=>runConfirmedAIAction(action)}'), "AI-proposed actions must wait for explicit user confirmation");
+assert.ok(source.includes("function validateActionProposal(a)"), "AI action payloads must be validated before a confirmation is offered");
+assert.ok(!source.includes("try{await runAction(JSON.parse(a[1]))}catch{}"), "AI action JSON must never be executed immediately from a model response");
