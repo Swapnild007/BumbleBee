@@ -120,7 +120,7 @@ assert.ok(html.includes('id="brainHelpful"') && html.includes('id="brainUnhelpfu
 assert.ok(html.includes('id="brainExport"'), "users must be able to export local brain traces");
 assert.ok(html.includes('id="brainClear"'), "users must be able to delete local brain traces");
 assert.ok(html.includes('id="gatewayPassword"') && html.includes('id="gatewayConnect"'), "System panel must expose authenticated secure gateway controls");
-assert.ok(source.includes('post("/api/ai",{}, {provider:p,model,system:sysPrompt(),messages:h})'), "connected gateway mode must route AI requests through the same-origin server endpoint");
+assert.ok(source.includes('fetch("/api/ai",{method:"POST",credentials:"same-origin"') && source.includes('body:JSON.stringify({provider:p,model,system:sysPrompt(),messages:h})'), "connected gateway mode must route AI requests through the same-origin server endpoint");
 assert.ok(source.includes('S.ai.gatewayRequired&&!S.ai.gateway'), "expired secure sessions must not silently fall back to browser-stored provider keys");
 assert.ok(source.includes('S.ai.gatewayRequired=true'), "successful secure gateway login must persist secure-mode preference");
 assert.ok(source.includes('fetch("/api/auth",{method:"POST",credentials:"same-origin"'), "gateway login must use same-origin cookie-based authentication");
