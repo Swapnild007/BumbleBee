@@ -331,6 +331,70 @@
       "utterance": "Explain quantum physics",
       "expected": {},
       "pattern": null
+    },
+    {
+      "id": "incomplete-call-01",
+      "intent": "phone.call",
+      "utterance": "Call",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-sms-01",
+      "intent": "message.sms",
+      "utterance": "SMS",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-whatsapp-01",
+      "intent": "message.whatsapp",
+      "utterance": "WhatsApp",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-app-01",
+      "intent": "app.open",
+      "utterance": "Open",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-timer-01",
+      "intent": "timer.create",
+      "utterance": "Set a timer",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-note-01",
+      "intent": "memory.save",
+      "utterance": "Remember",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-task-01",
+      "intent": "task.create",
+      "utterance": "Add task",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
+    },
+    {
+      "id": "incomplete-reminder-01",
+      "intent": "reminder.create",
+      "utterance": "Remind me",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null
     }
   ],
   "safety": [
