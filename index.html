@@ -467,7 +467,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
-    <div class="panel" id="trainingLab"><h3>JARVIS TRAINING LAB <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Run offline intent and slot checks against the current training set. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">38 regression examples loaded from the training corpus</small></div></div></div></div>
+    <div class="panel" id="trainingLab"><h3>JARVIS BRAIN EVALUATION <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Evaluate offline intent classification and slot extraction against a versioned test corpus. This measures rule-based routing; it does not train or fine-tune an AI model. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">Regression examples loaded from the versioned evaluation corpus</small></div></div></div></div>
   </section>
 </div>
 
@@ -919,9 +919,23 @@ const INTENT_RULES=[
  {id:"greeting",re:/^(?:(?:hello|hi|hey)(?: jarvis)?|jarvis)$/i,slots:()=>({})}
 ];
 function classifyIntent(raw){
- const text=String(raw||"").trim().replace(/[.!?]+$/,"");
- for(const rule of INTENT_RULES){const match=text.match(rule.re);if(match)return{id:rule.id,confidence:0.96,slots:rule.slots(match),source:"offline-rule"}}
- return{id:"general.query",confidence:0.35,slots:{query:text},source:"cloud-or-fallback"};
+ const original=String(raw||"");
+ const text=cleanLocalText(original).trim().replace(/[.!?]+$/,"");
+ if(!text)return{id:"general.query",confidence:0,slots:{query:""},source:"offline-rule",needsClarification:true};
+ for(const rule of INTENT_RULES){
+  const match=text.match(rule.re);
+  if(!match)continue;
+  const slots=rule.slots(match);
+  const required={
+   "memory.save":["text"],"task.create":["text"],"phone.call":["contact"],
+   "message.sms":["contact","text"],"message.whatsapp":["contact","text"],
+   "app.open":["target"],"timer.create":["when"],"reminder.create":["request"]
+  }[rule.id]||[];
+  const missing=required.filter(key=>!String(slots[key]||"").trim());
+  const confidence=missing.length?0.42:((rule.id==="weather.current"||rule.id==="news.latest"||rule.id==="task.list"||rule.id==="time.current")?0.86:0.94);
+  return{id:rule.id,confidence,slots,source:"offline-rule",needsClarification:missing.length>0,missingSlots:missing};
+ }
+ return{id:"general.query",confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true};
 }
 /* ===== Phase 03: structured command planning ===== */
 const COMMAND_CONFIRMATION_INTENTS=new Set([
@@ -947,7 +961,7 @@ async function runTrainingLab(){
  const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
  if(!button||!status||!out)return;
  button.disabled=true;button.textContent="Testing…";status.textContent="Running";
- out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running offline checks</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
+ out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running brain evaluation</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
  try{
   const response=await fetch("./training/intents.json",{cache:"no-store"});
   if(!response.ok)throw new Error("Training corpus unavailable (HTTP "+response.status+")");
@@ -965,7 +979,7 @@ async function runTrainingLab(){
   status.textContent=failures.length?"Needs fixes":"All checks passed";
   status.style.color=failures.length?"#ff9b9b":"#42e6b1";
   out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+corpus.cases.length+' examples passed</b><small class="d">'+failures.length+' failing checks · classifier only, not real device actions</small></div></div>'+
-    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent routing looks good</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
+    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent evaluation passed</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
   button.textContent="↻ Run self-test again";
  }catch(e){status.textContent="Test unavailable";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run training tests</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
  button.disabled=false;
