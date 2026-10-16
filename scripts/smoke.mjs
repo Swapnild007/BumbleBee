@@ -82,6 +82,8 @@ assert.ok(source.includes('"phone.call","message.whatsapp","message.sms","app.op
 import { spawnSync } from "node:child_process";
 const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { encoding: "utf8" });
 assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
+const traceTests = spawnSync(process.execPath, ["--test", "scripts/brain-traces.test.mjs"], { encoding: "utf8" });
+assert.equal(traceTests.status, 0, traceTests.stderr || traceTests.stdout || "brain trace unit tests failed");
 
 console.log("JARVIS smoke checks passed: JavaScript syntax, intent/slot evaluation, clarification and confirmation planning, AI action validation, news freshness, and voice safeguards.");
 
