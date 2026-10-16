@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "purpose": "JARVIS intent evaluation set. Regression examples for offline routing and slot extraction; not model fine-tuning data.",
+  "version": 3,
+  "purpose": "JARVIS offline intent evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification and confirmation planning; not model fine-tuning data.",
   "cases": [
     {
       "id": "hello-01",
