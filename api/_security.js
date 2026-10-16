@@ -101,7 +101,21 @@ export function validateAiPayload(body) {
   return { ok: true, value: { provider: body.provider, model, system, messages } };
 }
 
-export function rateLimit(map, key, { now = Date.now(), limit = 20, windowMs = 10 * 60_000 } = {}) {
+export function rateLimit(map, key, { now = Date.now(), limit = 20, windowMs = 10 * 60_000, maxKeys = 1000 } = {}) {
+  // Serverless instances can be long-lived. Bound the in-memory key space so
+  // rotating client identifiers cannot grow this map without limit.
+  if (!map.has(key) && map.size >= maxKeys) {
+    for (const [candidate, timestamps] of map) {
+      const recentTimestamps = timestamps.filter(timestamp => now - timestamp < windowMs);
+      if (recentTimestamps.length) map.set(candidate, recentTimestamps);
+      else map.delete(candidate);
+      if (map.size < maxKeys) break;
+    }
+    if (map.size >= maxKeys) {
+      const oldestKey = map.keys().next().value;
+      if (oldestKey !== undefined) map.delete(oldestKey);
+    }
+  }
   const prior = map.get(key) || [];
   const recent = prior.filter(timestamp => now - timestamp < windowMs);
   if (recent.length >= limit) {
