@@ -1022,7 +1022,7 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
   if(m=s.match(/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/)){const q=m[1].trim(),l=notes.filter(n=>!q||q.split(" ").some(w=>w.length>2&&n.t.toLowerCase().includes(w)));return l.length?`I have ${l.length} note${l.length>1?"s":""}: `+l.slice(0,4).map(n=>n.t).join(". "):"I don't have anything saved about that."}
   if(m=s.match(/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\s+(.+)/)){const k=m[1]==="alarm"?"Alarm":"Timer",p=parseWhen(k==="Timer"?"in "+m[2].replace(/^in /,""):"at "+m[2].replace(/^at /,""));
-    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return`${k} set for ${fmtT(p.at)}.`}}
+    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return hasN()?`${k} set for ${fmtT(p.at)}.`:`${k} set for ${fmtT(p.at)}. Browser reminders only run while JARVIS stays active; closing the page or device sleep may prevent the alert.`}}
   if(m=s.match(/^(?:remind me|reminder)\s+(.+)/)){const p=parseWhen(m[1]);if(p.at){addRem(p.at,p.rest||"Reminder");acts++;return`Okay, I'll remind you at ${fmtD(p.at)}${p.rest?" to "+p.rest:""}.`}return"When should I remind you? Say something like “in 20 minutes” or “at 5 pm”."}
   if(m=s.match(/^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)/)){addTask(m[1]);acts++;return`Added task: ${m[1]}`}
   if(m=s.match(/^(?:whatsapp|wa|message)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/)||s.match(/^send (?:a )?(?:whatsapp )?message to\s+(.+?)\s+(?:saying|say|that)\s+(.+)$/)){const c=await findContact(m[1]);if(!c)return`I can't find ${m[1]} — add them in Quick Contacts or say the number.`;act("💬 WhatsApp "+c.name,()=>sendWa(c.num,m[2]));return`WhatsApp to ${c.name}: “${m[2]}”.`+(hasN()&&S.autosend?"":" Tap send in WhatsApp.")}
@@ -1082,9 +1082,11 @@ async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}
 
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
-function renderLog(){const l=$("#vlog");if(!l)return;l.innerHTML=chat.slice(-14).map(m=>`<div class="msg ${m.r}">${esc(m.c)}${m.btn&&pendMap[m.btn]?`<div class="btns"><button class="btn sm" data-b="${m.btn}">${esc(pendMap[m.btn].label)}</button></div>`:""}</div>`).join("");
-  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
-async function runConfirmedCommand(t){const r=await safeHandle(t);addActivity("Command","Confirmed command",String(t).slice(0,240),"confirmed");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+function renderLog(){const l=$("#vlog");if(!l)return;
+l.innerHTML=chat.slice(-14).map(m=> '<div class="msg '+m.r+'">'+esc(m.c)+(m.btn&&pendMap[m.btn]? '<div class="btns"><button class="btn sm" data-b="'+m.btn+'">'+esc(pendMap[m.btn].label)+'</button><button class="btn sm red" data-b-cancel="'+m.btn+'">Cancel</button></div>':'')+'</div>').join("");
+  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();delete pendMap[b.dataset.b];renderLog();Promise.resolve().then(()=>p.fn()).catch(()=>toast("Action failed. Please try again."))}});
+  $$("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
+  l.scrollTop=l.scrollHeight}
 async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
   const plan=commandPlan(t);
