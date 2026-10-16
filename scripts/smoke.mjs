@@ -108,6 +108,14 @@ assert.ok(html.includes('JARVIS BRAIN EVALUATION'), "training UI must accurately
 assert.ok(html.includes('This measures rule-based routing; it does not train or fine-tune an AI model.'), "UI must not misrepresent a regression test as AI training");
 assert.ok(source.includes('needsClarification:missing.length>0'), "brain classifier must mark commands with missing required slots for clarification");
 assert.ok(source.includes('confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true'), "unknown requests must remain low-confidence rather than being falsely classified as understood");
+const traceStore = readFileSync(new URL("../brain/trace-store.js", import.meta.url), "utf8");
+assert.ok(html.includes('<script src="./brain/trace-store.js"></script>'), "local trace store must load before the command brain");
+assert.ok(traceStore.includes('const KEY="jv_brain_traces_v1",LIMIT=100'), "brain traces must be bounded and stored locally");
+assert.ok(traceStore.includes('root.JarvisTraceStore=Object.freeze({record,rate,list,summary,exportJson:'), "trace store must expose recording, explicit feedback, summary, and export");
+assert.ok(source.includes("window.JarvisTraceStore.record({input:t,intent:plan.intent.id"), "each handled turn must record intent and response evidence");
+assert.ok(html.includes('id="brainHelpful"') && html.includes('id="brainUnhelpful"'), "users must be able to rate the latest response");
+assert.ok(html.includes('id="brainExport"'), "users must be able to export local brain traces");
+assert.ok(html.includes("do not automatically train a model or upload your conversations"), "trace UI must disclose local-only storage and honest learning limits");
 assert.ok(source.includes("const incomplete=["), "incomplete command prefixes must be detected before dispatch");
 assert.ok(source.includes('intent.needsClarification&&intent.id!=="general.query"'), "incomplete supported commands must ask a targeted follow-up instead of falling through to unknown handling");
 assert.ok(source.includes('COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.needsClarification'), "incomplete consequential commands must be clarified before asking for confirmation");
