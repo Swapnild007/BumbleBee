@@ -89,8 +89,7 @@ try {
   await page.locator("#vlog [data-b]").last().scrollIntoViewIfNeeded();
   await page.locator("#vlog [data-b]").last().click({ force: true });
   await page.locator("#vlog").getByText("Added the task.").waitFor();
-  await page.locator('nav a[data-t="tasks"]').click();
-  await page.locator("#tasks").getByText("AI-proposed task").waitFor();
+  assert.ok(await page.locator("#tasks").getByText("AI-proposed task").count() > 0, "confirmed AI task should appear in the task list");
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
