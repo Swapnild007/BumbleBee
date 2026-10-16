@@ -467,6 +467,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
+    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button></div>
     <div class="panel" id="trainingLab"><h3>JARVIS BRAIN EVALUATION <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Evaluate offline intent classification and slot extraction against a versioned test corpus. This measures rule-based routing; it does not train or fine-tune an AI model. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">Regression examples loaded from the versioned evaluation corpus</small></div></div></div></div>
   </section>
 </div>
@@ -482,6 +483,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
 <div id="toast"></div>
 
+<script src="./brain/trace-store.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
@@ -1192,13 +1194,33 @@ async function runConfirmedCommand(t){
   if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}
   chat.push(e);saveAll();renderLog();say(r);return r
 }
-async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
+async function converse(t){const traceStartedAt=Date.now();chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
   const plan=commandPlan(t);
   let r;
   if(plan.requiresConfirmation){pend={label:"Confirm action",fn:()=>runConfirmedCommand(t)};r="This action may contact someone or open another app. Confirm below before I continue."}
   else r=await safeHandle(t);
-  addActivity("Command","Command received",String(t).slice(0,240),(plan.requiresConfirmation||pend)?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+  addActivity("Command","Command received",String(t).slice(0,240),(plan.requiresConfirmation||pend)?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");try{window.lastBrainTrace=window.JarvisTraceStore.record({input:t,intent:plan.intent.id,confidence:plan.intent.confidence,source:plan.intent.source,response:r,outcome:lastCommandFailed?"failed":plan.requiresConfirmation?"awaiting-confirmation":plan.intent.needsClarification?"clarification":"answered",durationMs:Date.now()-traceStartedAt});if(typeof renderBrainTraceStatus==="function")renderBrainTraceStatus()}catch(error){console.warn("Local brain trace could not be saved",error)}renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+function renderBrainTraceStatus(){
+ const status=$("#brainTraceStatus"),counts=$("#brainTraceCounts");
+ if(!window.JarvisTraceStore)return;
+ const s=window.JarvisTraceStore.summary(),totalRatings=s.helpful+s.unhelpful;
+ if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed";
+ if(status)status.textContent=window.lastBrainTrace?(window.lastBrainTrace.intent+" · "+window.lastBrainTrace.outcome):"No response rated yet";
+}
+function rateLatestBrainTrace(rating){
+ const trace=window.lastBrainTrace;
+ if(!trace){toast("Send a command first so there is a response to rate.");return}
+ if(!window.JarvisTraceStore.rate(trace.id,rating)){toast("Couldn't save feedback on this device.");return}
+ renderBrainTraceStatus();toast(rating==="helpful"?"Feedback saved: helpful.":"Feedback saved: needs improvement.");
+}
+$("#brainHelpful")&&$("#brainHelpful").addEventListener("click",()=>rateLatestBrainTrace("helpful"));
+$("#brainUnhelpful")&&$("#brainUnhelpful").addEventListener("click",()=>rateLatestBrainTrace("unhelpful"));
+$("#brainExport")&&$("#brainExport").addEventListener("click",()=>{
+ try{const payload=window.JarvisTraceStore.exportJson(),blob=new Blob([payload],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jarvis-brain-traces.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Local trace export prepared.");}
+ catch(error){console.error("Trace export failed",error);toast("Trace export is unavailable in this browser.")}
+});
+renderBrainTraceStatus();
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
 function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave"></canvas><div class="bigmic" id="bigmic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div>
   <p class="d" id="vstate" style="text-align:center;font-size:12px">${SR||hasN()?"Tap the mic and speak":"Voice input isn't supported here — type below"}</p>
