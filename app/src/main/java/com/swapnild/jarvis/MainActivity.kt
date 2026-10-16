@@ -14,6 +14,8 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.GeolocationPermissions
+import android.content.pm.PackageManager
 import android.webkit.WebView
 import android.widget.Toast
 import android.speech.RecognizerIntent
@@ -31,6 +33,9 @@ class MainActivity : Activity() {
     private var textToSpeech: TextToSpeech? = null
     private val requestAudioPermission = 4101
     private val requestSpeechRecognition = 4102
+    private val requestLocationPermission = 4103
+    private var pendingGeoOrigin: String? = null
+    private var pendingGeoCallback: GeolocationPermissions.Callback? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +64,18 @@ class MainActivity : Activity() {
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.setSupportMultipleWindows(false)
             settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+                    val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    val coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    if (fine || coarse) callback.invoke(origin, true, false)
+                    else {
+                        pendingGeoOrigin = origin
+                        pendingGeoCallback = callback
+                        requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), requestLocationPermission)
+                    }
+                }
+            }
             webViewClient = LocalOnlyWebViewClient()
             addJavascriptInterface(JarvisBridge(), "JarvisNative")
         }
@@ -311,6 +327,13 @@ class MainActivity : Activity() {
                 toast("Microphone permission is needed for voice input.")
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
             }
+        }
+        if (requestCode == requestLocationPermission) {
+            val granted = grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+            pendingGeoCallback?.invoke(pendingGeoOrigin, granted, false)
+            pendingGeoCallback = null
+            pendingGeoOrigin = null
+            if (!granted) toast("Location permission denied. Showing approximate IP location instead.")
         }
     }
 
