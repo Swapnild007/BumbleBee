@@ -92,3 +92,5 @@ assert.ok(source.includes("data-b-cancel"), "pending consequential actions must 
 assert.ok(source.includes("No external action was run"), "cancellation must be recorded as not executed");
 assert.ok(source.includes("This browser reminder may not fire if JARVIS is closed or the device sleeps"), "browser reminder limitations must be disclosed at creation time");
 assert.ok(source.includes("Browser reminders only run while JARVIS stays active"), "browser timer limitations must be disclosed at creation time");
+assert.ok(source.includes("I work without an AI API key for supported tasks"), "offline brain must explain its supported capabilities without requiring a provider key");
+assert.ok(source.includes("I will not require a Gemini key or invent an answer"), "unknown open-ended questions must fail honestly without requiring a Gemini key");
