@@ -274,6 +274,18 @@ class MainActivity : Activity() {
             result(false, "Notification replies are not implemented.")
         @JavascriptInterface fun callAction(action: String): String = result(false, "Unsupported action.")
 
+        private fun launchIntent(intent: Intent, error: String): String = try {
+            startActivity(intent)
+            result(true, "Action handed to Android.")
+        } catch (_: Exception) {
+            toast(error)
+            result(false, error)
+        }
+
+        private fun result(ok: Boolean, message: String) =
+            JSONObject().put("ok", ok).put("message", message).toString()
+    }
+
     private fun launchSpeechRecognition() {
         try {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -317,18 +329,6 @@ class MainActivity : Activity() {
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('jarvis-native-speech-error'))", null)
             }
         }
-    }
-
-        private fun launchIntent(intent: Intent, error: String): String = try {
-            startActivity(intent)
-            result(true, "Action handed to Android.")
-        } catch (_: Exception) {
-            toast(error)
-            result(false, error)
-        }
-
-        private fun result(ok: Boolean, message: String) =
-            JSONObject().put("ok", ok).put("message", message).toString()
     }
 
     override fun onBackPressed() {
