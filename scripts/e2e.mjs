@@ -107,7 +107,7 @@ try {
   await page.locator("#gatewayConnect").click();
   await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
   await page.locator("#runTraining").click();
-  await page.locator("#trainResults").getByText(/checks passed/).waitFor({ timeout: 10000 });
+  await page.locator("#trainResults").getByText(/(?:checks|assertions) passed/).waitFor({ timeout: 10000 });
   const evaluationSummary=await page.locator("#trainResults").innerText();
   const evaluationMatch=evaluationSummary.match(/(\d+)\/(\d+) checks passed/);
   assert.ok(evaluationMatch, "brain evaluation should report its check count: "+evaluationSummary);
