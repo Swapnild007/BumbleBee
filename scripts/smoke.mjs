@@ -97,3 +97,6 @@ assert.ok(source.includes("I will not require a Gemini key or invent an answer")
 
 assert.ok(source.includes('$("#brief").addEventListener("click",()=>{'), "Executive Briefing must respond immediately with a guarded click handler");
 assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(error=>console.warn("Background headline refresh failed",error))'), "headline refresh must run in the background and not block the briefing");
+
+assert.ok(source.includes("if(n-r.at<864e5)fire(r)"), "reminders due after a suspended tab must still be surfaced within 24 hours");
+assert.ok(source.includes('addActivity("Reminder","Missed reminder"'), "older reminders must be recorded as missed rather than silently discarded");
