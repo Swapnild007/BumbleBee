@@ -21,6 +21,7 @@ for (const c of cases.cases) {
     continue;
   }
   if (got.id !== c.intent) failures.push(c.id + ": expected " + c.intent + ", got " + got.id);
+  if (c.needsClarification !== undefined && got.needsClarification !== c.needsClarification) failures.push(c.id + ": expected needsClarification=" + c.needsClarification + ", got " + got.needsClarification);
   for (const key of ["text", "query", "contact", "target", "kind", "when"]) {
     if (c.expected[key] !== undefined && got.slots[key] !== c.expected[key]) {
       failures.push(c.id + ": expected " + key + "=" + JSON.stringify(c.expected[key]) + ", got " + JSON.stringify(got.slots[key]));
