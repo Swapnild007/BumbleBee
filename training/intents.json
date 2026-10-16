@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "purpose": "JARVIS intent evaluation set. Regression examples for offline routing and slot extraction; not model fine-tuning data.",
+  "version": 6,
+  "purpose": "JARVIS offline evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification, cancellation, false-positive resistance, command confirmation planning and model-action schema validation; not model fine-tuning data.",
   "cases": [
     {
       "id": "hello-01",
@@ -331,6 +331,164 @@
       "utterance": "Explain quantum physics",
       "expected": {},
       "pattern": null
+    },
+    {
+      "id": "incomplete-call-01",
+      "intent": "phone.call",
+      "utterance": "Call",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "contact"
+      ]
+    },
+    {
+      "id": "incomplete-sms-01",
+      "intent": "message.sms",
+      "utterance": "SMS",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "contact",
+        "text"
+      ]
+    },
+    {
+      "id": "incomplete-whatsapp-01",
+      "intent": "message.whatsapp",
+      "utterance": "WhatsApp",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "contact",
+        "text"
+      ]
+    },
+    {
+      "id": "incomplete-app-01",
+      "intent": "app.open",
+      "utterance": "Open",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "target"
+      ]
+    },
+    {
+      "id": "incomplete-timer-01",
+      "intent": "timer.create",
+      "utterance": "Set a timer",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "when"
+      ]
+    },
+    {
+      "id": "incomplete-note-01",
+      "intent": "memory.save",
+      "utterance": "Remember",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
+    },
+    {
+      "id": "incomplete-task-01",
+      "intent": "task.create",
+      "utterance": "Add task",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
+    },
+    {
+      "id": "incomplete-reminder-01",
+      "intent": "reminder.create",
+      "utterance": "Remind me",
+      "expected": {},
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "request"
+      ]
+    },
+    {
+      "id": "incomplete-sms-recipient-01",
+      "intent": "message.sms",
+      "utterance": "SMS Dad",
+      "expected": {
+        "contact": "Dad"
+      },
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
+    },
+    {
+      "id": "incomplete-whatsapp-recipient-01",
+      "intent": "message.whatsapp",
+      "utterance": "WhatsApp Neha",
+      "expected": {
+        "contact": "Neha"
+      },
+      "needsClarification": true,
+      "pattern": null,
+      "missingSlots": [
+        "text"
+      ]
+    },
+    {
+      "id": "cancel-01",
+      "intent": "command.cancel",
+      "utterance": "Cancel",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "cancel-02",
+      "intent": "command.cancel",
+      "utterance": "Never mind",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-weather-01",
+      "intent": "fallback.unknown",
+      "utterance": "I am studying weather patterns in ancient Rome",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-time-01",
+      "intent": "fallback.unknown",
+      "utterance": "What is the time complexity of quicksort?",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-news-01",
+      "intent": "fallback.unknown",
+      "utterance": "I read the news about technology yesterday",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-task-01",
+      "intent": "fallback.unknown",
+      "utterance": "I have a task to learn Python",
+      "expected": {},
+      "pattern": null
     }
   ],
   "safety": [
@@ -339,5 +497,86 @@
     "Ask a follow-up when a required slot such as time, contact, or message body is missing.",
     "Keep offline intents working without an AI key; do not invent unavailable native Android capabilities.",
     "Use only explicitly saved facts for memory recall; do not fabricate personal memories."
+  ],
+  "actionCases": [
+    {
+      "id": "action-call-valid",
+      "action": {
+        "type": "call",
+        "name": "Mom"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-sms-valid",
+      "action": {
+        "type": "sms",
+        "name": "Dad",
+        "text": "I will be home late"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-task-valid",
+      "action": {
+        "type": "task",
+        "text": "Submit report"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-timer-valid",
+      "action": {
+        "type": "timer",
+        "minutes": 15,
+        "label": "Break"
+      },
+      "valid": true
+    },
+    {
+      "id": "action-unknown-type",
+      "action": {
+        "type": "delete-all-data"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-sms-empty-body",
+      "action": {
+        "type": "sms",
+        "name": "Dad",
+        "text": " "
+      },
+      "valid": false
+    },
+    {
+      "id": "action-timer-out-of-range",
+      "action": {
+        "type": "timer",
+        "minutes": 99999,
+        "label": "Bad timer"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-torch-no-state",
+      "action": {
+        "type": "torch"
+      },
+      "valid": false
+    },
+    {
+      "id": "action-task-empty",
+      "action": {
+        "type": "task",
+        "text": " "
+      },
+      "valid": false
+    },
+    {
+      "id": "action-malformed",
+      "action": null,
+      "valid": false
+    }
   ]
 }

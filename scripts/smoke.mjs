@@ -46,6 +46,9 @@ assert.ok(html.includes("aria-pressed"), "theme swatches should expose accessibl
 assert.ok(html.includes('id="trainingLab"'), "System tab should expose the training self-test panel");
 assert.ok(html.includes("async function runTrainingLab()"), "in-app self-test runner should exist");
 assert.ok(html.includes('fetch("./training/intents.json"'), "self-test should load the shared training corpus");
+assert.ok(html.includes("let totalChecks=0,passedChecks=0"), "brain evaluation must count individual assertions accurately");
+assert.ok(html.includes("assertions passed"), "brain evaluation must display assertion-level results");
+assert.ok(html.includes("failed assertions across"), "brain evaluation should distinguish failed assertions from affected examples");
 
 assert.ok(html.includes('function go(t){document.querySelectorAll(".tab").forEach'), "bottom navigation must iterate over tab sections");
 assert.ok(html.includes('document.querySelectorAll(".nav a").forEach'), "bottom navigation must update active nav items");
@@ -75,12 +78,67 @@ for (const id of ["cTo", "cMsg", "cCall", "cWa", "cSms", "ctPick", "ctAdd", "sms
 
 assert.ok(source.includes("function commandPlan(raw)"), "Phase 03 structured command planner should exist");
 assert.ok(source.includes("const COMMAND_CONFIRMATION_INTENTS=new Set(["), "external-action intents should be explicitly listed for confirmation");
-assert.ok(source.includes('currentPlan=commandPlan(raw);currentIntent=currentPlan.intent'), "commands should pass through the planner before dispatch");
+assert.ok(source.includes('currentPlan=commandPlan(raw);if(currentPlan.composedFromClarification)'), "commands should pass through the planner and resolve clarification context before dispatch");
 assert.ok(source.includes('requiresConfirmation:needsConfirmation'), "planner should expose confirmation requirements");
 assert.ok(source.includes('"phone.call","message.whatsapp","message.sms","app.open"'), "calls, messages, and app launches should be identified as consequential actions");
 
 import { spawnSync } from "node:child_process";
 const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { encoding: "utf8" });
 assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
+const traceTests = spawnSync(process.execPath, ["--test", "scripts/brain-traces.test.mjs"], { encoding: "utf8" });
+assert.equal(traceTests.status, 0, traceTests.stderr || traceTests.stdout || "brain trace unit tests failed");
 
-console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
+console.log("JARVIS smoke checks passed: JavaScript syntax, intent/slot evaluation, clarification and confirmation planning, AI action validation, news freshness, and voice safeguards.");
+
+assert.ok(source.includes("async function runConfirmedCommand(t)"), "consequential web commands must have an explicit confirmation execution path");
+assert.ok(source.includes("if(plan.requiresConfirmation){pend={label:\"Confirm action\",fn:()=>runConfirmedCommand(t)}"), "the command planner's confirmation flag must gate dispatch before the local handler runs");
+assert.ok(source.includes("Confirm below before I continue."), "confirmation prompt must be explicit");
+assert.ok(source.includes("data-b-cancel"), "pending consequential actions must have a visible cancel path");
+assert.ok(source.includes("No external action was run"), "cancellation must be recorded as not executed");
+assert.ok(source.includes("This browser reminder may not fire if JARVIS is closed or the device sleeps"), "browser reminder limitations must be disclosed at creation time");
+assert.ok(source.includes("Browser reminders only run while JARVIS stays active"), "browser timer limitations must be disclosed at creation time");
+assert.ok(source.includes("I work without an AI API key for supported tasks"), "offline brain must explain its supported capabilities without requiring a provider key");
+assert.ok(source.includes("I will not require a Gemini key or invent an answer"), "unknown open-ended questions must fail honestly without requiring a Gemini key");
+
+assert.ok(source.includes('$("#brief").addEventListener("click",()=>{'), "Executive Briefing must respond immediately with a guarded click handler");
+assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(error=>console.warn("Background headline refresh failed",error))'), "headline refresh must run in the background and not block the briefing");
+
+assert.ok(source.includes("if(n-r.at<864e5)fire(r)"), "reminders due after a suspended tab must still be surfaced within 24 hours");
+assert.ok(source.includes('addActivity("Reminder","Missed reminder"'), "older reminders must be recorded as missed rather than silently discarded");
+
+assert.ok(source.includes('window.addEventListener("jarvis-native-speech",event=>{'), "Android speech results must be connected to the web command brain");
+assert.ok(source.includes('window.addEventListener("jarvis-native-speech-error",()=>{'), "Android speech errors must restore voice UI state and explain recovery");
+
+assert.ok(html.includes('JARVIS BRAIN EVALUATION'), "training UI must accurately describe itself as evaluation, not model training");
+assert.ok(html.includes('This measures rule-based routing; it does not train or fine-tune an AI model.'), "UI must not misrepresent a regression test as AI training");
+assert.ok(source.includes('needsClarification:missing.length>0'), "brain classifier must mark commands with missing required slots for clarification");
+assert.ok(source.includes('confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true'), "unknown requests must remain low-confidence rather than being falsely classified as understood");
+const traceStore = readFileSync(new URL("../brain/trace-store.js", import.meta.url), "utf8");
+assert.ok(html.includes('<script src="./brain/trace-store.js"></script>'), "local trace store must load before the command brain");
+assert.ok(traceStore.includes('const KEY="jv_brain_traces_v1",LIMIT=100'), "brain traces must be bounded and stored locally");
+assert.ok(traceStore.includes('root.JarvisTraceStore=Object.freeze({record,rate,list,clear,summary,exportJson:'), "trace store must expose recording, explicit feedback, deletion, summary, and export");
+assert.ok(source.includes("window.JarvisTraceStore.record({input:t,intent:plan.intent.id"), "each handled turn must record intent and response evidence");
+assert.ok(source.includes('$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");await runCmd(t)}});'), "quick text commands must use the same brain, confirmation, history, and trace pipeline as voice commands");
+assert.ok(html.includes('id="brainHelpful"') && html.includes('id="brainUnhelpful"'), "users must be able to rate the latest response");
+assert.ok(html.includes('id="brainExport"'), "users must be able to export local brain traces");
+assert.ok(html.includes('id="brainClear"'), "users must be able to delete local brain traces");
+assert.ok(html.includes('id="gatewayPassword"') && html.includes('id="gatewayConnect"'), "System panel must expose authenticated secure gateway controls");
+assert.ok(html.includes("Personal mode stores this key in browser storage and sends it directly to the provider."), "browser-key mode must disclose its security limitations");
+assert.ok(source.includes('fetch("/api/ai",{method:"POST",credentials:"same-origin"') && source.includes('body:JSON.stringify({provider:p,model,system:sysPrompt(),messages:h})'), "connected gateway mode must route AI requests through the same-origin server endpoint");
+assert.ok(source.includes('S.ai.gatewayRequired&&!S.ai.gateway'), "expired secure sessions must not silently fall back to browser-stored provider keys");
+assert.ok(source.includes('S.ai.browserKeysAllowed===false'), "public deployment policy must disable browser-key AI mode");
+assert.ok(source.includes('S.ai.browserKeysAllowed=result.browserKeysAllowed!==false'), "browser-key policy must be read from the authenticated server endpoint");
+assert.ok(source.includes('S.ai.gatewayRequired=true'), "successful secure gateway login must persist secure-mode preference");
+assert.ok(source.includes('fetch("/api/auth",{method:"POST",credentials:"same-origin"'), "gateway login must use same-origin cookie-based authentication");
+assert.ok(source.includes('window.JarvisTraceStore.clear()'), "trace deletion control must invoke the local trace-store deletion API");
+assert.ok(html.includes("do not automatically train a model or upload your conversations"), "trace UI must disclose local-only storage and honest learning limits");
+assert.ok(source.includes("const incomplete=["), "incomplete command prefixes must be detected before dispatch");
+assert.ok(source.includes('intent.needsClarification&&intent.id!=="general.query"'), "incomplete supported commands must ask a targeted follow-up instead of falling through to unknown handling");
+assert.ok(source.includes('COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.needsClarification'), "incomplete consequential commands must be clarified before asking for confirmation");
+assert.ok(source.includes("function composeClarificationAnswer(pending,answer)"), "brain must preserve context across follow-up answers");
+assert.ok(source.includes("currentPlan.composedFromClarification"), "clarification answers must be merged before command dispatch");
+assert.ok(source.includes("pendingClarification=null;delete pendMap[id]"), "cancelling an action must discard pending clarification context");
+assert.ok(source.includes('if(intent.id==="command.cancel"){pendingClarification=null;pend=null;'), "spoken cancellation must clear pending clarification and confirmation state");
+assert.ok(source.includes('pend={label:"Confirm AI action",fn:()=>runConfirmedAIAction(action)}'), "AI-proposed actions must wait for explicit user confirmation");
+assert.ok(source.includes("function validateActionProposal(a)"), "AI action payloads must be validated before a confirmation is offered");
+assert.ok(!source.includes("try{await runAction(JSON.parse(a[1]))}catch{}"), "AI action JSON must never be executed immediately from a model response");
