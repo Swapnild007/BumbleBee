@@ -108,3 +108,5 @@ assert.ok(html.includes('JARVIS BRAIN EVALUATION'), "training UI must accurately
 assert.ok(html.includes('This measures rule-based routing; it does not train or fine-tune an AI model.'), "UI must not misrepresent a regression test as AI training");
 assert.ok(source.includes('needsClarification:missing.length>0'), "brain classifier must mark commands with missing required slots for clarification");
 assert.ok(source.includes('confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true'), "unknown requests must remain low-confidence rather than being falsely classified as understood");
+assert.ok(source.includes("const incomplete=["), "incomplete command prefixes must be detected before dispatch");
+assert.ok(source.includes('intent.needsClarification&&intent.id!=="general.query"'), "incomplete supported commands must ask a targeted follow-up instead of falling through to unknown handling");
