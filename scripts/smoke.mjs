@@ -99,3 +99,6 @@ assert.ok(nativeMapGuard >= 0 && nativeMapFallback > nativeMapGuard, "native app
 assert.ok(source.includes('if(loc&&loc.src==="GPS"){toast("GPS refresh failed; keeping your last GPS location instead of replacing it with an IP estimate.");return}'), "IP fallback must not overwrite a known GPS fix");
 
 assert.ok(source.includes('if(!r.ok){toast(r.message||"Hands-free wake word is not available in this build.");wakeOn=false;renderCore();return false}'), "native wake-word UI must not show enabled when the Android service reports unsupported");
+
+assert.ok(source.includes('$("#brief").addEventListener("click",()=>{'), "Executive Briefing must use a guarded non-blocking click handler");
+assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(()=>{})'), "news refresh must run in the background without blocking Executive Briefing");
