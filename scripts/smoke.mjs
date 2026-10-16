@@ -95,3 +95,5 @@ assert.ok(androidManifest.includes('android:allowBackup="false"'), "personal ass
 const nativeMapGuard = source.indexOf('if(hasN()){', source.indexOf('function renderLoc()'));
 const nativeMapFallback = source.indexOf('map.src="https://www.openstreetmap.org/export/embed.html', nativeMapGuard);
 assert.ok(nativeMapGuard >= 0 && nativeMapFallback > nativeMapGuard, "native app must avoid loading the remote map iframe into the bridge-enabled WebView");
+
+assert.ok(source.includes('if(loc&&loc.src==="GPS"){toast("GPS refresh failed; keeping your last GPS location instead of replacing it with an IP estimate.");return}'), "IP fallback must not overwrite a known GPS fix");
