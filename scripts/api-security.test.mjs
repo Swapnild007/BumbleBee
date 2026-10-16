@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import authHandler from "../api/auth.js";
+import aiHandler from "../api/ai.js";
 import {
   SESSION_TTL_SECONDS,
   createSession,
@@ -72,4 +74,51 @@ test("rate limiting blocks after the configured budget", () => {
   assert.equal(blocked.allowed, false);
   assert.ok(blocked.retryAfterSeconds > 0);
   assert.equal(rateLimit(map, "user", { now: 12000, limit: 2, windowMs: 10000 }).allowed, true);
+});
+
+function mockResponse(){
+  return {headers:{},statusCode:200,body:null,setHeader(name,value){this.headers[name]=value},status(code){this.statusCode=code;return this},json(value){this.body=value;return this}};
+}
+
+test("authenticated AI gateway uses only server-side provider credentials",async()=>{
+  const names=["JARVIS_SESSION_SECRET","JARVIS_ACCESS_PASSWORD","ANTHROPIC_API_KEY"];
+  const prior=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+  const priorFetch=globalThis.fetch;
+  process.env.JARVIS_SESSION_SECRET="test-session-secret-that-is-longer-than-thirty-two-characters";
+  process.env.JARVIS_ACCESS_PASSWORD="test-gateway-password-long";
+  process.env.ANTHROPIC_API_KEY="server-only-provider-secret";
+  let upstream=null;
+  globalThis.fetch=async(url,options)=>{
+    upstream={url:String(url),options};
+    return new Response(JSON.stringify({content:[{type:"text",text:"Secure response"}]}),{status:200,headers:{"content-type":"application/json"}});
+  };
+  try{
+    const loginRes=mockResponse();
+    authHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test"},body:{password:"test-gateway-password-long"},socket:{remoteAddress:"127.0.0.1"}},loginRes);
+    assert.equal(loginRes.statusCode,200);
+    assert.equal(loginRes.body.authenticated,true);
+    const cookie=loginRes.headers["Set-Cookie"];
+    assert.match(cookie,/HttpOnly/);
+    assert.match(cookie,/SameSite=Strict/);
+    const sessionCookie=cookie.split(";")[0];
+
+    const aiRes=mockResponse();
+    await aiHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test",cookie:sessionCookie},body:{provider:"anthropic",model:"claude-haiku-5-5",system:"You are JARVIS.",messages:[{role:"user",content:"Hello"}]}},aiRes);
+    assert.equal(aiRes.statusCode,200);
+    assert.deepEqual(aiRes.body,{text:"Secure response"});
+    assert.equal(upstream.url,"https://api.anthropic.com/v1/messages");
+    assert.equal(upstream.options.headers["x-api-key"],"server-only-provider-secret");
+    assert.equal(JSON.stringify(upstream.options.body).includes("server-only-provider-secret"),false,"provider secret must not be sent in the request body");
+
+    const unauthRes=mockResponse();
+    await aiHandler({method:"POST",headers:{origin:"https://jarvis.test",host:"jarvis.test"},body:{provider:"anthropic",model:"claude-haiku-5-5",system:"",messages:[{role:"user",content:"Hello"}]}},unauthRes);
+    assert.equal(unauthRes.statusCode,401);
+
+    const crossOriginRes=mockResponse();
+    await aiHandler({method:"POST",headers:{origin:"https://attacker.test",host:"jarvis.test",cookie:sessionCookie},body:{provider:"anthropic",model:"claude-haiku-5-5",system:"",messages:[{role:"user",content:"Hello"}]}},crossOriginRes);
+    assert.equal(crossOriginRes.statusCode,403);
+  }finally{
+    globalThis.fetch=priorFetch;
+    for(const name of names){if(prior[name]===undefined)delete process.env[name];else process.env[name]=prior[name]}
+  }
 });
