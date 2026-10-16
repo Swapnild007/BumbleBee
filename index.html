@@ -925,9 +925,9 @@ function classifyIntent(raw){
  const incomplete=[
   [/^(?:call|dial|phone|ring)$/i,"phone.call",["contact"]],
   [/^(?:text|sms)$/i,"message.sms",["contact","text"]],
-  [/^(?:text|sms)\\s+(?!.*\\s+(?:saying|say|that|:)\\s+)(.+)$/i,"message.sms",["text"]],
+  [/^(?:text|sms)\s+(?!.*\s+(?:saying|say|that|:)\s+)(.+)$/i,"message.sms",["text"]],
   [/^(?:whatsapp|wa|message)$/i,"message.whatsapp",["contact","text"]],
-  [/^(?:whatsapp|wa|message)\\s+(?!.*\\s+(?:saying|say|that|:)\\s+)(.+)$/i,"message.whatsapp",["text"]],
+  [/^(?:whatsapp|wa|message)\s+(?!.*\s+(?:saying|say|that|:)\s+)(.+)$/i,"message.whatsapp",["text"]],
   [/^(?:open|launch|start|go to)$/i,"app.open",["target"]],
   [/^(?:set (?:a |an )?)?(?:timer|alarm)(?: (?:for|at|of))?$/i,"timer.create",["when"]],
   [/^(?:remember|note|save|make a note)(?: that| this)?$/i,"memory.save",["text"]],
