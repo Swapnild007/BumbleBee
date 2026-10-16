@@ -725,7 +725,7 @@ $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.n
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🎵","YouTube Music","com.google.android.apps.youtube.music"],["✦","ChatGPT","com.openai.chatgpt"],["✧","Gemini","com.google.android.apps.bard"],["🎬","Netflix","com.netflix.mediaclient"],["📺","Disney+ Hotstar","in.startv.hotstar"],["▶","Amazon Prime","com.amazon.avod.thirdpartyclient"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["📷","Instagram","com.instagram.android"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
-  /* Some Android apps do not claim their home-page HTTPS links. For those, request the installed package's launcher activity directly, then fall back to the service URL. */
+  /* A webpage cannot reliably launch arbitrary installed Android packages. Use only verified HTTPS app links, and use ordinary web fallbacks for the rest. */
   const web={
     "com.whatsapp":"https://wa.me/",
     "com.google.android.youtube":"https://www.youtube.com/",
@@ -741,8 +741,6 @@ function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.setting
     "com.instagram.android":"https://www.instagram.com/"
   };
   if(web[p]){
-    const fallback=encodeURIComponent(web[p]);
-    /* These shortcuts already route through verified app links on this phone. Preserve that working path. */
     const appLinks=new Set(["com.google.android.youtube","com.google.android.apps.maps","com.google.android.apps.youtube.music","in.startv.hotstar","com.instagram.android"]);
     if(appLinks.has(p)){
       const hosts={
@@ -752,11 +750,11 @@ function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.setting
         "in.startv.hotstar":"www.hotstar.com/in",
         "com.instagram.android":"www.instagram.com/"
       };
-      location.href="intent://"+hosts[p]+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+fallback+";end";
+      location.href="intent://"+hosts[p]+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+encodeURIComponent(web[p])+";end";
       return;
     }
-    /* MAIN + LAUNCHER asks Android to open the installed app itself, not merely its website. */
-    location.href="intent://launch/#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package="+p+";S.browser_fallback_url="+fallback+";end";
+    toast("Web version: opening the service website. Launching this installed app requires the JARVIS Android app.");
+    location.href=web[p];
     return;
   }
   if(p==="tel:"){toast("Opening the dialer requires the JARVIS Android app.");return}
