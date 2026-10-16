@@ -11,7 +11,7 @@ const marker = "/* ===== command brain: local intents first (instant, offline), 
 const endAt = source.indexOf(marker, start);
 assert.ok(endAt > start, "classifier block must end before command handler");
 const classifierSource = source.slice(start, endAt);
-const { classifyIntent, commandPlan } = new Function(classifierSource + "\nreturn { classifyIntent, commandPlan };")();
+const { classifyIntent, commandPlan, composeClarificationAnswer } = new Function(classifierSource + "\nreturn { classifyIntent, commandPlan, composeClarificationAnswer };")();
 
 const failures = [];
 for (const c of cases.cases) {
@@ -36,5 +36,8 @@ assert.equal(commandPlan("call Mom").requiresConfirmation, true, "complete calls
 assert.equal(commandPlan("SMS Dad").requiresConfirmation, false, "incomplete messages must clarify before confirmation");
 assert.equal(commandPlan("SMS Dad saying I will be home late").requiresConfirmation, true, "complete messages must require confirmation");
 assert.equal(commandPlan("Explain quantum physics").requiresConfirmation, false, "unknown questions must not trigger external-action confirmation");
+assert.equal(composeClarificationAnswer({ intentId: "phone.call", slots: {} }, "Mom"), "call Mom", "call follow-up should fill the contact slot");
+assert.equal(composeClarificationAnswer({ intentId: "message.sms", slots: { contact: "Dad" } }, "I will be home late"), "sms Dad saying I will be home late", "message follow-up should preserve recipient and fill body");
+assert.equal(composeClarificationAnswer({ intentId: "message.sms", slots: {} }, "Dad"), "sms Dad", "recipient follow-up should support staged clarification");
 assert.ok(cases.safety.length >= 5, "safety rules should remain part of the training corpus");
 console.log("JARVIS intent evaluation: " + (cases.cases.length - failures.length) + "/" + cases.cases.length + " cases passed.");
