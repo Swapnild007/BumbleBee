@@ -83,7 +83,7 @@ import { spawnSync } from "node:child_process";
 const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { encoding: "utf8" });
 assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
 
-console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
+console.log("JARVIS smoke checks passed: JavaScript syntax, intent/slot evaluation, clarification and confirmation planning, AI action validation, news freshness, and voice safeguards.");
 
 assert.ok(source.includes("async function runConfirmedCommand(t)"), "consequential web commands must have an explicit confirmation execution path");
 assert.ok(source.includes("if(plan.requiresConfirmation){pend={label:\"Confirm action\",fn:()=>runConfirmedCommand(t)}"), "the command planner's confirmation flag must gate dispatch before the local handler runs");
