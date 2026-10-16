@@ -61,7 +61,7 @@ try {
   await page.waitForFunction(() => JSON.parse(localStorage.getItem("jv_brain_traces_v1") || "[]").length === 0);
   await page.locator("#gatewayPassword").fill("test-gateway-password");
   await page.locator("#gatewayConnect").click();
-  await page.locator("#gatewayStatus").getByText("Connected · server-side").waitFor();
+  await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
   await page.locator('nav a[data-t="home"]').click();
 
   // A blocked news feed must not block the Executive Briefing response or crash the page.
