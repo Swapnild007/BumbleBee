@@ -113,6 +113,7 @@ assert.ok(html.includes('<script src="./brain/trace-store.js"></script>'), "loca
 assert.ok(traceStore.includes('const KEY="jv_brain_traces_v1",LIMIT=100'), "brain traces must be bounded and stored locally");
 assert.ok(traceStore.includes('root.JarvisTraceStore=Object.freeze({record,rate,list,summary,exportJson:'), "trace store must expose recording, explicit feedback, summary, and export");
 assert.ok(source.includes("window.JarvisTraceStore.record({input:t,intent:plan.intent.id"), "each handled turn must record intent and response evidence");
+assert.ok(source.includes('$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");await runCmd(t)}});'), "quick text commands must use the same brain, confirmation, history, and trace pipeline as voice commands");
 assert.ok(html.includes('id="brainHelpful"') && html.includes('id="brainUnhelpful"'), "users must be able to rate the latest response");
 assert.ok(html.includes('id="brainExport"'), "users must be able to export local brain traces");
 assert.ok(html.includes("do not automatically train a model or upload your conversations"), "trace UI must disclose local-only storage and honest learning limits");
