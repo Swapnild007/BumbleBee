@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "purpose": "JARVIS offline evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification, cancellation, command confirmation planning and model-action schema validation; not model fine-tuning data.",
+  "version": 6,
+  "purpose": "JARVIS offline evaluation set. Versioned regression examples for intent classification, slot extraction, confidence, clarification, cancellation, false-positive resistance, command confirmation planning and model-action schema validation; not model fine-tuning data.",
   "cases": [
     {
       "id": "hello-01",
@@ -459,6 +459,34 @@
       "id": "cancel-02",
       "intent": "command.cancel",
       "utterance": "Never mind",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-weather-01",
+      "intent": "fallback.unknown",
+      "utterance": "I am studying weather patterns in ancient Rome",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-time-01",
+      "intent": "fallback.unknown",
+      "utterance": "What is the time complexity of quicksort?",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-news-01",
+      "intent": "fallback.unknown",
+      "utterance": "I read the news about technology yesterday",
+      "expected": {},
+      "pattern": null
+    },
+    {
+      "id": "negative-task-01",
+      "intent": "fallback.unknown",
+      "utterance": "I have a task to learn Python",
       "expected": {},
       "pattern": null
     }
