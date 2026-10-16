@@ -19,7 +19,8 @@ test("signed sessions validate, expire, and reject tampering", () => {
   const token = createSession(secret, now);
   assert.equal(verifySession(token, secret, now + 1), true);
   assert.equal(verifySession(token, secret, now + SESSION_TTL_SECONDS * 1000 + 1), false);
-  const tampered = token.slice(0, -1) + (token.endsWith("a") ? "b" : "a");
+  const [payload, signature] = token.split(".");
+  const tampered = payload + "." + (signature[0] === "a" ? "b" : "a") + signature.slice(1);
   assert.equal(verifySession(tampered, secret, now + 1), false);
   assert.equal(verifySession(token, "short", now + 1), false);
 });
