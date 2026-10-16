@@ -725,38 +725,39 @@ $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.n
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
 const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🎵","YouTube Music","com.google.android.apps.youtube.music"],["✦","ChatGPT","com.openai.chatgpt"],["✧","Gemini","com.google.android.apps.bard"],["🎬","Netflix","com.netflix.mediaclient"],["📺","Disney+ Hotstar","in.startv.hotstar"],["▶","Amazon Prime","com.amazon.avod.thirdpartyclient"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["📷","Instagram","com.instagram.android"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
-  /* Try an explicit Android package launch first. If Android cannot resolve the app, return to that service's HTTPS website. */
+  /* Some Android apps do not claim their home-page HTTPS links. For those, request the installed package's launcher activity directly, then fall back to the service URL. */
   const web={
-    "com.whatsapp":"https://www.whatsapp.com/",
+    "com.whatsapp":"https://wa.me/",
     "com.google.android.youtube":"https://www.youtube.com/",
     "com.google.android.apps.maps":"https://maps.google.com/",
     "com.google.android.gm":"https://mail.google.com/",
-    "com.android.chrome":"https://www.google.com/chrome/",
+    "com.android.chrome":"https://www.google.com/",
     "com.google.android.apps.youtube.music":"https://music.youtube.com/",
     "com.openai.chatgpt":"https://chatgpt.com/",
     "com.google.android.apps.bard":"https://gemini.google.com/app",
-    "com.netflix.mediaclient":"https://www.netflix.com/",
+    "com.netflix.mediaclient":"https://www.netflix.com/browse",
     "in.startv.hotstar":"https://www.hotstar.com/in",
     "com.amazon.avod.thirdpartyclient":"https://www.primevideo.com/",
     "com.instagram.android":"https://www.instagram.com/"
   };
   if(web[p]){
     const fallback=encodeURIComponent(web[p]);
-    const target=p==="com.whatsapp"?"https://wa.me/":"https://"+({
-      "com.google.android.youtube":"www.youtube.com/",
-      "com.google.android.apps.maps":"maps.google.com/",
-      "com.google.android.gm":"mail.google.com/",
-      "com.android.chrome":"www.google.com/chrome/",
-      "com.google.android.apps.youtube.music":"music.youtube.com/",
-      "com.openai.chatgpt":"chatgpt.com/",
-      "com.google.android.apps.bard":"gemini.google.com/app",
-      "com.netflix.mediaclient":"www.netflix.com/",
-      "in.startv.hotstar":"www.hotstar.com/in",
-      "com.amazon.avod.thirdpartyclient":"www.primevideo.com/",
-      "com.instagram.android":"www.instagram.com/"
-    }[p]||"");
-    if(p==="com.whatsapp"){location.href="intent://send/#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url="+fallback+";end";return}
-    location.href="intent://"+target.replace(/^https:\/\//,"")+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+fallback+";end";return
+    /* These shortcuts already route through verified app links on this phone. Preserve that working path. */
+    const appLinks=new Set(["com.google.android.youtube","com.google.android.apps.maps","com.google.android.apps.youtube.music","in.startv.hotstar","com.instagram.android"]);
+    if(appLinks.has(p)){
+      const hosts={
+        "com.google.android.youtube":"www.youtube.com/",
+        "com.google.android.apps.maps":"maps.google.com/",
+        "com.google.android.apps.youtube.music":"music.youtube.com/",
+        "in.startv.hotstar":"www.hotstar.com/in",
+        "com.instagram.android":"www.instagram.com/"
+      };
+      location.href="intent://"+hosts[p]+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+fallback+";end";
+      return;
+    }
+    /* MAIN + LAUNCHER asks Android to open the installed app itself, not merely its website. */
+    location.href="intent://launch/#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package="+p+";S.browser_fallback_url="+fallback+";end";
+    return;
   }
   if(p==="tel:"){toast("Opening the dialer requires the JARVIS Android app.");return}
   if(p.startsWith("android.")){toast("This system action requires the JARVIS Android app.");return}
