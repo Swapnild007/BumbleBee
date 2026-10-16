@@ -76,6 +76,19 @@ test("rate limiting blocks after the configured budget", () => {
   assert.equal(rateLimit(map, "user", { now: 12000, limit: 2, windowMs: 10000 }).allowed, true);
 });
 
+test("rate-limit storage prunes expired keys and stays bounded under identifier churn", () => {
+  const map = new Map();
+  rateLimit(map, "old-a", { now: 1000, limit: 2, windowMs: 100, maxKeys: 2 });
+  rateLimit(map, "old-b", { now: 1001, limit: 2, windowMs: 100, maxKeys: 2 });
+  rateLimit(map, "new-c", { now: 1200, limit: 2, windowMs: 100, maxKeys: 2 });
+  assert.equal(map.size, 1, "expired entries should be pruned before adding a new identifier");
+  assert.equal(map.has("new-c"), true);
+  rateLimit(map, "new-d", { now: 1201, limit: 2, windowMs: 1000, maxKeys: 2 });
+  rateLimit(map, "new-e", { now: 1202, limit: 2, windowMs: 1000, maxKeys: 2 });
+  assert.ok(map.size <= 2, "rate-limit storage must not exceed its configured key budget");
+  assert.equal(map.has("new-e"), true);
+});
+
 function mockResponse(){
   return {headers:{},statusCode:200,body:null,setHeader(name,value){this.headers[name]=value},status(code){this.statusCode=code;return this},json(value){this.body=value;return this}};
 }
