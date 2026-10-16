@@ -891,20 +891,21 @@ async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!S.ai.gateway&&!key
   if(p==="anthropic"){const j=await post("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},{model,max_tokens:500,system:sysPrompt(),messages:h});return j.content.map(b=>b.text||"").join("")}
   if(p==="gemini"){const j=await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{},{systemInstruction:{parts:[{text:sysPrompt()}]},contents:h.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))});return(j.candidates[0].content.parts||[]).map(x=>x.text).join("")}
   const j=await post(BASE[p]+"/chat/completions",{Authorization:"Bearer "+key},{model,max_tokens:500,messages:[{role:"system",content:sysPrompt()},...h]});return j.choices[0].message.content}
+let gatewayCheckId=0;
 async function refreshGatewayStatus(){
- const status=$("#gatewayStatus");if(status)status.textContent="Checking…";
- try{const response=await fetch("/api/auth",{credentials:"same-origin",cache:"no-store"}),result=await response.json();S.ai.gateway=response.ok&&result.authenticated===true;if(status)status.textContent=S.ai.gateway?"Connected · server-side":"Not connected";save();renderCore()}
- catch{S.ai.gateway=false;if(status)status.textContent="Gateway unavailable";save();renderCore()}
+ const checkId=++gatewayCheckId,status=$("#gatewayStatus");if(status)status.textContent="Checking…";
+ try{const response=await fetch("/api/auth",{credentials:"same-origin",cache:"no-store"}),result=await response.json();if(checkId!==gatewayCheckId)return;S.ai.gateway=response.ok&&result.authenticated===true;if(status)status.textContent=S.ai.gateway?"Connected · server-side":"Not connected";save();renderCore()}
+ catch{if(checkId!==gatewayCheckId)return;S.ai.gateway=false;if(status)status.textContent="Gateway unavailable";save();renderCore()}
 }
 async function connectGateway(){
- const input=$("#gatewayPassword"),password=input&&input.value||"";if(!password){toast("Enter the secure gateway access password.");return}
+ gatewayCheckId++;const input=$("#gatewayPassword"),password=input&&input.value||"";if(!password){toast("Enter the secure gateway access password.");return}
  const button=$("#gatewayConnect");if(button){button.disabled=true;button.textContent="Connecting…"}
  try{const response=await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({password})}),result=await response.json();if(!response.ok||result.authenticated!==true)throw new Error(result.error||"Secure gateway connection failed.");S.ai.gateway=true;save();if(input)input.value="";const status=$("#gatewayStatus");if(status)status.textContent="Connected · server-side";renderCore();toast("Secure AI gateway connected. Provider keys stay on the server.")}
  catch(error){S.ai.gateway=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";toast(error.message||"Could not connect to the secure gateway.")}
  finally{if(button){button.disabled=false;button.textContent="Connect"}}
 }
 async function disconnectGateway(){
- try{await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({logout:true})})}catch{}
+ gatewayCheckId++;try{await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({logout:true})})}catch{}
  S.ai.gateway=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";renderCore();toast("Secure AI gateway disconnected.");
 }
 $("#gatewayConnect")&&$("#gatewayConnect").addEventListener("click",connectGateway);
