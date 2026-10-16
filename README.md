@@ -27,7 +27,7 @@ The current offline brain is a deterministic rule-based command classifier with 
 
 ## Security
 
-An authenticated same-origin server-side AI gateway is available at `api/auth.js` and `api/ai.js`. In System → Secure AI Gateway, connect with the deployment's `JARVIS_ACCESS_PASSWORD`; the server also requires `JARVIS_SESSION_SECRET` and the selected provider's environment key (for example `ANTHROPIC_API_KEY`). While connected, JARVIS sends the conversation to `/api/ai` and the provider key remains on the server. Direct BYOK mode still stores and sends a user key from the browser, so it is for personal/prototype use only and is not safe for a public deployment. Before public production, configure the gateway and disable or explicitly restrict browser-key mode.
+An authenticated same-origin server-side AI gateway is available at `api/auth.js` and `api/ai.js`. In System → Secure AI Gateway, connect with the deployment's `JARVIS_ACCESS_PASSWORD`; the server also requires `JARVIS_SESSION_SECRET` and the selected provider's environment key (for example `ANTHROPIC_API_KEY`). While connected, JARVIS sends the conversation to `/api/ai` and the provider key remains on the server. Direct BYOK mode still stores and sends a user key from the browser, so it is for personal/prototype use only and is not safe for a public deployment. For public production, set `JARVIS_DISABLE_BROWSER_KEYS=true` so the UI disables browser-key mode and requires the secure gateway. See `docs/SECURE-DEPLOYMENT.md`.
 
 ## Native Android status
 
