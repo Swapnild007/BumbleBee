@@ -723,7 +723,7 @@ async function composeTarget(){const v=$("#cTo").value.trim();if(!v){toast("Ente
 $("#cCall").onclick=async()=>{const c=await composeTarget();if(c){hap();dial(c.num)}};
 $("#cWa").onclick=async()=>{const c=await composeTarget();if(c){hap();sendWa(c.num,$("#cMsg").value.trim())}};
 $("#cSms").onclick=async()=>{const c=await composeTarget();if(c){hap();sendSms(c.num,$("#cMsg").value.trim())}};
-const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["🎵","Spotify","com.spotify.music"],["📷","Instagram","com.instagram.android"],["✈","Telegram","org.telegram.messenger"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
+const APPS=[["💬","WhatsApp","com.whatsapp"],["▶","YouTube","com.google.android.youtube"],["🎵","YouTube Music","com.google.android.apps.youtube.music"],["✦","ChatGPT","com.openai.chatgpt"],["✧","Gemini","com.google.android.apps.bard"],["🎬","Netflix","com.netflix.mediaclient"],["📺","Disney+ Hotstar","in.startv.hotstar"],["▶","Amazon Prime","com.amazon.avod.thirdpartyclient"],["🗺","Maps","com.google.android.apps.maps"],["✉","Gmail","com.google.android.gm"],["🌐","Chrome","com.android.chrome"],["📷","Instagram","com.instagram.android"],["📸","Camera","android.media.action.IMAGE_CAPTURE"],["⏰","Clock","android.intent.action.SHOW_ALARMS"],["⚙","Settings","android.settings.SETTINGS"],["📞","Dialer","tel:"]];
 function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.settings("dialer");else N.app(p);return}
   /* Try an explicit Android package launch first. If Android cannot resolve the app, return to that service's HTTPS website. */
   const web={
@@ -732,9 +732,13 @@ function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.setting
     "com.google.android.apps.maps":"https://maps.google.com/",
     "com.google.android.gm":"https://mail.google.com/",
     "com.android.chrome":"https://www.google.com/chrome/",
-    "com.spotify.music":"https://open.spotify.com/",
-    "com.instagram.android":"https://www.instagram.com/",
-    "org.telegram.messenger":"https://t.me/"
+    "com.google.android.apps.youtube.music":"https://music.youtube.com/",
+    "com.openai.chatgpt":"https://chatgpt.com/",
+    "com.google.android.apps.bard":"https://gemini.google.com/app",
+    "com.netflix.mediaclient":"https://www.netflix.com/",
+    "in.startv.hotstar":"https://www.hotstar.com/in",
+    "com.amazon.avod.thirdpartyclient":"https://www.primevideo.com/",
+    "com.instagram.android":"https://www.instagram.com/"
   };
   if(web[p]){
     const fallback=encodeURIComponent(web[p]);
@@ -743,9 +747,13 @@ function openApp(a){hap();acts++;const p=a[2];if(hasN()){if(p==="tel:")N.setting
       "com.google.android.apps.maps":"maps.google.com/",
       "com.google.android.gm":"mail.google.com/",
       "com.android.chrome":"www.google.com/chrome/",
-      "com.spotify.music":"open.spotify.com/",
-      "com.instagram.android":"www.instagram.com/",
-      "org.telegram.messenger":"t.me/"
+      "com.google.android.apps.youtube.music":"music.youtube.com/",
+      "com.openai.chatgpt":"chatgpt.com/",
+      "com.google.android.apps.bard":"gemini.google.com/app",
+      "com.netflix.mediaclient":"www.netflix.com/",
+      "in.startv.hotstar":"www.hotstar.com/in",
+      "com.amazon.avod.thirdpartyclient":"www.primevideo.com/",
+      "com.instagram.android":"www.instagram.com/"
     }[p]||"");
     if(p==="com.whatsapp"){location.href="intent://send/#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url="+fallback+";end";return}
     location.href="intent://"+target.replace(/^https:\/\//,"")+"#Intent;scheme=https;package="+p+";S.browser_fallback_url="+fallback+";end";return
