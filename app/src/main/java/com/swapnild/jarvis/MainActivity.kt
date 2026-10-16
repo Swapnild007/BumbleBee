@@ -1,5 +1,6 @@
 package com.swapnild.jarvis
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.provider.AlarmClock
 import android.content.ActivityNotFoundException
@@ -15,6 +16,9 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.widget.Toast
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 import android.app.Activity
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
@@ -24,6 +28,9 @@ import org.json.JSONObject
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var assetLoader: WebViewAssetLoader
+    private var textToSpeech: TextToSpeech? = null
+    private val requestAudioPermission = 4101
+    private val requestSpeechRecognition = 4102
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +39,12 @@ class MainActivity : Activity() {
         window.navigationBarColor = android.graphics.Color.rgb(2, 8, 19)
         window.decorView.systemUiVisibility = 0
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.language = Locale.getDefault()
+            }
+        }
 
         assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
@@ -208,13 +221,31 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface fun speak(text: String): String {
-            toast("Native speech output is not wired yet.")
-            return result(false, "Native speech output is not implemented.")
+            val clean = text.trim().take(4000)
+            if (clean.isBlank()) return result(false, "Nothing to speak.")
+            runOnUiThread {
+                val engine = textToSpeech
+                if (engine == null) {
+                    toast("Speech engine is not ready.")
+                } else {
+                    engine.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "jarvis-" + System.currentTimeMillis())
+                }
+            }
+            return result(true, "Speech queued.")
         }
-        @JavascriptInterface fun stopSpeaking(): String = result(true, "No native speech session is active.")
+        @JavascriptInterface fun stopSpeaking(): String {
+            runOnUiThread { textToSpeech?.stop() }
+            return result(true, "Speech stopped.")
+        }
         @JavascriptInterface fun listen(): String {
-            toast("Native voice input is not wired yet.")
-            return result(false, "Native voice input is not implemented.")
+            runOnUiThread {
+                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), requestAudioPermission)
+                } else {
+                    launchSpeechRecognition()
+                }
+            }
+            return result(true, "Voice input requested.")
         }
         @JavascriptInterface fun setWake(enabled: Boolean): String =
             result(false, "Always-on wake listening is not implemented.")
