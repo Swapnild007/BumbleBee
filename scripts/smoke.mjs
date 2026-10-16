@@ -100,3 +100,6 @@ assert.ok(source.includes('Promise.resolve().then(()=>loadHeads(true)).catch(err
 
 assert.ok(source.includes("if(n-r.at<864e5)fire(r)"), "reminders due after a suspended tab must still be surfaced within 24 hours");
 assert.ok(source.includes('addActivity("Reminder","Missed reminder"'), "older reminders must be recorded as missed rather than silently discarded");
+
+assert.ok(source.includes('window.addEventListener("jarvis-native-speech",event=>{'), "Android speech results must be connected to the web command brain");
+assert.ok(source.includes('window.addEventListener("jarvis-native-speech-error",()=>{'), "Android speech errors must restore voice UI state and explain recovery");
