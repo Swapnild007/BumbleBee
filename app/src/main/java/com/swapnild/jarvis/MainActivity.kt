@@ -59,6 +59,7 @@ class MainActivity : Activity() {
             setBackgroundColor(android.graphics.Color.rgb(2, 8, 19))
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
+            settings.setGeolocationEnabled(true)
             settings.allowFileAccess = false
             settings.allowContentAccess = false
             settings.javaScriptCanOpenWindowsAutomatically = false
