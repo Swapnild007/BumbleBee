@@ -1173,7 +1173,7 @@ function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("s
   }catch{}
 }}
 let wl=null;async function toggleFocus(){const on=document.body.classList.toggle("focus");try{if(on&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen");else if(wl){wl.release();wl=null}}catch{}}
-$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");const r=await safeHandle(t);toast(r);if(pend){openVoice()}}});
+$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");await runCmd(t)}});
 let lastCommandFailed=false;
 async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}catch(e){lastCommandFailed=true;return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
 
