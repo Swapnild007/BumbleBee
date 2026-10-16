@@ -16,6 +16,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.GeolocationPermissions
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
 import android.webkit.WebView
 import android.widget.Toast
 import android.speech.RecognizerIntent
@@ -34,6 +36,8 @@ class MainActivity : Activity() {
     private val requestAudioPermission = 4101
     private val requestSpeechRecognition = 4102
     private val requestLocationPermission = 4103
+    private val requestCameraPermission = 4104
+    private var pendingTorchState: Boolean? = null
     private var pendingGeoOrigin: String? = null
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
 
@@ -266,12 +270,26 @@ class MainActivity : Activity() {
         }
         @JavascriptInterface fun setWake(enabled: Boolean): String =
             result(false, "Always-on wake listening is not implemented.")
-        @JavascriptInterface fun setVolume(percent: Int): String =
-            result(false, "System volume control is not implemented.")
+        @JavascriptInterface fun setVolume(percent: Int): String {
+            return try {
+                val audio = getSystemService(AUDIO_SERVICE) as AudioManager
+                val safePercent = percent.coerceIn(0, 100)
+                val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                val target = ((safePercent / 100.0) * max).toInt()
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0)
+                result(true, "Media volume changed.")
+            } catch (_: Exception) { result(false, "Could not change media volume.") }
+        }
         @JavascriptInterface fun globalAction(action: String): String =
             result(false, "System-wide accessibility actions are not implemented.")
-        @JavascriptInterface fun torch(enabled: Boolean): String =
-            result(false, "Flashlight control is not implemented.")
+        @JavascriptInterface fun torch(enabled: Boolean): String {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                pendingTorchState = enabled
+                runOnUiThread { requestPermissions(arrayOf(Manifest.permission.CAMERA), requestCameraPermission) }
+                return result(false, "Camera permission is required to control the flashlight.")
+            }
+            return applyTorch(enabled)
+        }
         @JavascriptInterface fun requestPermissions(): String =
             result(false, "No runtime permissions are requested by this first APK foundation.")
         @JavascriptInterface fun hasNotificationAccess(): Boolean = false
@@ -303,6 +321,15 @@ class MainActivity : Activity() {
             JSONObject().put("ok", ok).put("message", message).toString()
     }
 
+    private fun applyTorch(enabled: Boolean): String {
+        return try {
+            val manager = getSystemService(CAMERA_SERVICE) as CameraManager
+            val id = manager.cameraIdList.firstOrNull { cameraId -> manager.getCameraCharacteristics(cameraId).get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true }
+                ?: return result(false, "No camera flash is available.")
+            manager.setTorchMode(id, enabled)
+            result(true, if (enabled) "Flashlight turned on." else "Flashlight turned off.")
+        } catch (_: Exception) { result(false, "Could not control flashlight. Check permission and device availability.") }
+    }
     private fun launchSpeechRecognition() {
         try {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -335,6 +362,13 @@ class MainActivity : Activity() {
             pendingGeoCallback = null
             pendingGeoOrigin = null
             if (!granted) toast("Location permission denied. Showing approximate IP location instead.")
+        }
+        if (requestCode == requestCameraPermission) {
+            val desired = pendingTorchState
+            pendingTorchState = null
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && desired != null) {
+                toast(try { JSONObject(applyTorch(desired)).optString("message") } catch (_: Exception) { "Flashlight request finished." })
+            } else toast("Camera permission is required for the flashlight.")
         }
     }
 
