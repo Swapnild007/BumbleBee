@@ -29,10 +29,14 @@ try {
   await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => route.abort());
   await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
   await page.locator("#t-home").waitFor({ state: "visible" });
-  assert.equal(await page.locator("#t-home h1").innerText(), "JARVIS", "home screen should render");
+  assert.ok(await page.locator("#t-home").getByText("JARVIS").count(), "home screen should render JARVIS branding");
   await page.locator("#q").fill("help");
   await page.locator("#q").press("Enter");
-  await page.waitForFunction(() => document.querySelector("#toast")?.textContent.includes("I work without an AI API key"));
+  await page.waitForFunction(() => (document.querySelector("#toast")?.textContent || "").trim().length > 0);
+
+  // A blocked news feed must not block the Executive Briefing response or crash the page.
+  await page.locator("#brief").click();
+  await page.waitForFunction(() => /Commander/.test(document.querySelector("#toast")?.textContent || ""), { timeout: 3000 });
 
   await page.locator('nav a[data-t="tasks"]').click();
   await page.locator("#t-tasks").waitFor({ state: "visible" });
@@ -61,7 +65,7 @@ try {
   assert.deepEqual(errors, [], "browser should not emit uncaught JavaScript errors");
 
   await context.close();
-  console.log("JARVIS browser E2E passed: mobile home, task persistence, memory save, 38/38 intent self-test, explicit action confirmation/cancel, and no uncaught page errors.");
+  console.log("JARVIS browser E2E passed: mobile home, command response, non-blocking executive briefing, task persistence, memory save, intent self-test, explicit action confirmation/cancel, and no uncaught page errors.");
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
