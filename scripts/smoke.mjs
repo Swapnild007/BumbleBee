@@ -84,3 +84,14 @@ const training = spawnSync(process.execPath, ["scripts/train-intents.mjs"], { en
 assert.equal(training.status, 0, training.stderr || training.stdout || "intent training corpus checks failed");
 
 console.log("JARVIS smoke checks passed: embedded JS syntax, six news topics, freshness guard, honest failure state, grounded AI context, and voice output.");
+
+const nativeKotlin = readFileSync(new URL("../app/src/main/java/com/swapnild/jarvis/MainActivity.kt", import.meta.url), "utf8");
+const androidManifest = readFileSync(new URL("../app/src/main/AndroidManifest.xml", import.meta.url), "utf8");
+assert.ok(nativeKotlin.includes("settings.setGeolocationEnabled(true)"), "Android WebView geolocation must be explicitly enabled");
+assert.ok(nativeKotlin.includes("onGeolocationPermissionsShowPrompt"), "native geolocation must have an explicit permission callback");
+assert.ok(nativeKotlin.includes("requestLocationPermission"), "native geolocation must request Android runtime permission");
+assert.ok(androidManifest.includes("android.permission.ACCESS_COARSE_LOCATION") && androidManifest.includes("android.permission.ACCESS_FINE_LOCATION"), "Android location permissions must be declared");
+assert.ok(androidManifest.includes('android:allowBackup="false"'), "personal assistant data must not be included in automatic Android backup by default");
+const nativeMapGuard = source.indexOf('if(hasN()){', source.indexOf('function renderLoc()'));
+const nativeMapFallback = source.indexOf('map.src="https://www.openstreetmap.org/export/embed.html', nativeMapGuard);
+assert.ok(nativeMapGuard >= 0 && nativeMapFallback > nativeMapGuard, "native app must avoid loading the remote map iframe into the bridge-enabled WebView");
