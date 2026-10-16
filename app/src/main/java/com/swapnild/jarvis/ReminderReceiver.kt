@@ -91,6 +91,19 @@ internal object ReminderScheduler {
         write(context, updated)
     }
 
+    @Synchronized
+    fun consume(context: Context, id: String): JSONObject? {
+        val items = read(context)
+        val updated = JSONArray()
+        var found: JSONObject? = null
+        for (i in 0 until items.length()) {
+            val item = items.optJSONObject(i) ?: continue
+            if (item.optString("id") == id) found = item else updated.put(item)
+        }
+        write(context, updated)
+        return found
+    }
+
     private fun scheduleAlarm(context: Context, reminder: JSONObject) {
         val at = reminder.optLong("at")
         val triggerAt = maxOf(at, System.currentTimeMillis() + 1000L)
@@ -175,23 +188,8 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra("id").orEmpty()
         if (id.isBlank()) return
-        val pending = goAsync()
-        Thread {
-            try {
-                val prefs = context.getSharedPreferences("jarvis_reminders_v1", Context.MODE_PRIVATE)
-                val items = try { JSONArray(prefs.getString("items", "[]")) } catch (_: Exception) { JSONArray() }
-                var found: JSONObject? = null
-                val remaining = JSONArray()
-                for (i in 0 until items.length()) {
-                    val item = items.optJSONObject(i) ?: continue
-                    if (item.optString("id") == id) found = item else remaining.put(item)
-                }
-                prefs.edit().putString("items", remaining.toString()).apply()
-                found?.let { ReminderScheduler.showNotification(context, it) }
-            } finally {
-                pending.finish()
-            }
-        }.start()
+        val reminder = ReminderScheduler.consume(context, id) ?: return
+        ReminderScheduler.showNotification(context, reminder)
     }
 }
 
