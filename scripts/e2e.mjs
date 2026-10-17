@@ -39,7 +39,7 @@ const server = createServer(async (req, res) => {
       assert.ok(Array.isArray(body.messages), "secure gateway should receive a structured conversation");
       const lastUser = Array.isArray(body.messages) ? [...body.messages].reverse().find(m => m && m.role === "user")?.content : "";
       const text = /Create a proposed plan only/i.test(String(lastUser))
-        ? 'I can prepare that.\\nPLAN:[{"type":"weather"},{"type":"reminder","minutes":30,"text":"Take an umbrella"}]'
+        ? 'I can prepare that.\nPLAN:[{"type":"weather"},{"type":"reminder","minutes":30,"text":"Take an umbrella"}]'
         : 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}';
       sendJson(res, 200, { text });
       return;
