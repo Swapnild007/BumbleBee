@@ -1249,7 +1249,7 @@ async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}
    if(!text){show("Describe what you want JARVIS to do first.");input.focus();return}
    build.disabled=true;build.textContent="Planning…";show("Preparing a proposal. No actions have run yet.");
    try{
-     const response=await converse(text);
+     const response=await converse("__jarvis_plan_request__ "+text);
      const proposed=/proposed plan[\s\S]*awaiting your confirmation|say ['"]confirm plan['"]/i.test(String(response));
      show(response,proposed);
    }catch(error){show("Planner error: "+String(error&&error.message||error))}
