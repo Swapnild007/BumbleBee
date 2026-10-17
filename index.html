@@ -409,6 +409,14 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 
   <section class="tab on" id="t-home">
     <div class="search"><span class="d">🔍</span><input id="q" placeholder="Type a command or ask anything…" enterkeyhint="go" autocomplete="off"></div>
+    <div class="panel" id="planPanel" style="padding:0 12px 12px">
+      <h3>JARVIS ACTION PLANNER <span class="live">● CONFIRM FIRST</span></h3>
+      <p class="d" style="font-size:12px;line-height:1.45;padding:0 2px 8px">Build a short plan for supported actions. JARVIS previews each step before doing anything.</p>
+      <textarea class="in" id="planInput" rows="2" placeholder="Example: Check the weather and remind me in 30 minutes to take an umbrella" style="margin-top:0;min-height:72px"></textarea>
+      <div class="btns"><button class="btn" id="planBuild">✦ Propose plan</button><button class="btn sm" id="planExample">Use example</button></div>
+      <div id="planResult" class="msg j" aria-live="polite" style="display:none;max-width:100%;margin-top:10px"></div>
+      <div id="planActions" class="btns" style="display:none"><button class="btn" id="planConfirm">✓ Confirm plan</button><button class="btn red" id="planCancel">Cancel</button></div>
+    </div>
     <div class="panel hero"><canvas id="globe"></canvas><div class="txt"><h1>JARVIS</h1><h2>AI CORE</h2><p>v4.0</p></div></div>
     <div class="chips">
       <div class="chip" id="chLoc"><small>📍 Location</small><b id="cLoc">Locating…</b></div>
@@ -458,6 +466,7 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="kv"><div class="chip"><small>Network type</small><b id="kNet">—</b></div><div class="chip"><small>Downlink / RTT</small><b id="kDl">—</b></div>
         <div class="chip"><small>Device memory</small><b id="kMem">—</b></div><div class="chip"><small>CPU cores</small><b id="kCpu">—</b></div></div></div>
     <div class="panel"><h3>AI & PROVIDERS <span class="g" id="llmN" style="font-weight:400"></span></h3><div class="llm" id="llms"></div></div>
+    <div class="panel" id="secureGatewayPanel"><h3>SECURE AI GATEWAY <span class="d" id="gatewayStatus" style="font-weight:400">Checking…</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Use a protected server-side provider key instead of sending your key from this browser. For public deployments set JARVIS_DISABLE_BROWSER_KEYS=true and configure the gateway password, session secret, and provider key.</p><div class="add"><input id="gatewayPassword" type="password" placeholder="Gateway access password" autocomplete="current-password"><button class="btn" id="gatewayConnect">Connect</button></div><div class="btns" style="padding:10px 12px 0"><button class="btn sm" id="gatewayDisconnect">Disconnect secure gateway</button></div></div>
     <div class="panel"><h3>LOCATION <button class="link" id="relocate">↻ Refresh</button></h3>
       <div class="rows"><div class="row"><div class="ico">📍</div><div><b id="lPlace">Locating…</b><small class="d" id="lMeta"></small></div></div></div>
       <iframe class="map" id="map" loading="lazy" title="map"></iframe>
@@ -467,7 +476,8 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
       <div class="hours" id="hours"></div><div class="rows" id="days"></div></div>
     <div class="panel"><h3>MEMORY INSIGHTS</h3>
       <div class="mem"><canvas id="memc"></canvas><div class="st"><b id="m1">0</b>Memories<br><br><b id="m2">0</b>Session Turns<br><br><b id="m3">0</b>Actions Run</div></div></div>
-    <div class="panel" id="trainingLab"><h3>JARVIS TRAINING LAB <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Run offline intent and slot checks against the current training set. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">38 regression examples loaded from the training corpus</small></div></div></div></div>
+    <div class="panel" id="brainTracePanel"><h3>LOCAL BRAIN TRACES <span class="d" id="brainTraceStatus">No response rated yet</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">JARVIS keeps the latest 100 command/response traces on this device only. Your ratings help identify weak responses; they do not automatically train a model or upload your conversations.</p><div class="rows"><div class="row"><div class="ico">🧠</div><div><b id="brainTraceCounts">0 traces · 0 ratings</b><small class="d">Local trace history and explicit feedback</small></div></div></div><div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" id="brainHelpful">👍 Helpful</button><button class="btn" id="brainUnhelpful">👎 Not helpful</button></div><button class="btn" id="brainExport" style="width:100%;margin-top:8px">Export local traces (JSON)</button><button class="btn red" id="brainClear" style="width:100%;margin-top:8px">Delete local traces</button><div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px"><b style="display:block;margin-bottom:6px">TEACH JARVIS</b><p class="d" style="font-size:12px;line-height:1.5;margin-bottom:8px">Correct the last command's intent. JARVIS saves an exact-phrase rule on this device only. External actions still require their usual details and confirmation.</p><select id="brainCorrectIntent" class="btn" style="width:100%;text-align:left;margin-bottom:8px"><option value="">Choose the correct intent…</option></select><button class="btn" id="brainTeach" style="width:100%">Teach from last command</button><small class="d" id="brainLearningCount" style="display:block;margin-top:6px">0 learned phrases</small><button class="btn red" id="brainLearningClear" style="width:100%;margin-top:8px">Delete learned corrections</button></div></div>
+    <div class="panel" id="trainingLab"><h3>JARVIS BRAIN EVALUATION <span class="d" id="trainStatus">Ready to test</span></h3><p class="d" style="font-size:12px;line-height:1.5;margin:0 0 12px">Evaluate offline intent classification and slot extraction against a versioned test corpus. This measures rule-based routing; it does not train or fine-tune an AI model. Tests do not place calls, send messages, or create tasks.</p><button class="btn" id="runTraining" style="width:100%">▶ Run full self-test</button><div id="trainResults" class="rows" style="margin-top:10px"><div class="row"><div class="ico">🧠</div><div><b>Intent understanding</b><small class="d">Regression examples loaded from the versioned evaluation corpus</small></div></div></div></div>
   </section>
 </div>
 
@@ -482,6 +492,8 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
 <div id="toast"></div>
 
+<script src="./brain/trace-store.js"></script>
+<script src="./brain/feedback-learning.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
@@ -490,7 +502,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const TZ=(Intl.DateTimeFormat().resolvedOptions().timeZone)||"";
 const tzCC={"Asia/Kolkata":"91","Asia/Calcutta":"91","Asia/Karachi":"92","Asia/Dhaka":"880","Europe/London":"44","Asia/Dubai":"971","Australia/Sydney":"61","Asia/Singapore":"65"};
 const S=Object.assign({voice:true,haptic:true,autoloc:true,wake:false,readmsg:true,autosend:false,theme:"blue",cc:tzCC[TZ]||(TZ.startsWith("America/")?"1":""),pin:""},store.get("jv_set",{}));
-S.ai=Object.assign({prov:"anthropic",keys:{},models:{}},S.ai||{});
+S.ai=Object.assign({prov:"anthropic",keys:{},models:{},browserKeysAllowed:true},S.ai||{});
 const save=()=>store.set("jv_set",S);
 const hap=()=>{if(S.haptic&&navigator.vibrate)navigator.vibrate(12)};
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),3200)}
@@ -499,7 +511,7 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");cl
 const hasN=()=>!!window.JarvisNative;
 const nj=(f,...a)=>{try{return JSON.parse(window.JarvisNative[f](...a))}catch{return []}};
 const N={call:n=>JarvisNative.call(n),sms:(n,t)=>JarvisNative.sms(n,t),wa:(n,t)=>JarvisNative.whatsapp(n,t||"",!!S.autosend),app:p=>JarvisNative.openApp(p),torch:o=>JarvisNative.torch(o),
-  alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
+  alarm:(at,l)=>JarvisNative.setAlarm(String(at),l),reminder:(id,at,t,k)=>nj("scheduleReminder",String(id),String(at),t,k),cancelReminder:id=>nj("cancelReminder",String(id)),contacts:q=>nj("getContacts",q),smsIn:n=>nj("getSms",n),reply:(k,t)=>JarvisNative.replyNotification(k,t),
   speak:t=>JarvisNative.speak(t),stopSpeak:()=>JarvisNative.stopSpeaking(),listen:()=>JarvisNative.listen(),wake:o=>JarvisNative.setWake(o),vol:p=>JarvisNative.setVolume(p),
   global:a=>JarvisNative.globalAction(a),settings:p=>JarvisNative.openSettings(p),perms:()=>JarvisNative.requestPermissions(),notifAccess:()=>JarvisNative.hasNotificationAccess(),
   openNotifAccess:()=>JarvisNative.openNotificationAccessSettings(),a11y:()=>JarvisNative.isAccessibilityOn(),openA11y:()=>JarvisNative.openAccessibilitySettings(),recent:()=>nj("getNotifications")};
@@ -528,7 +540,7 @@ function tick(){const n=new Date();$("#date").textContent=n.toLocaleDateString("
   $("#time").textContent=n.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).toLowerCase()}
 tick();setInterval(tick,1000);
 function updateLiquidNav(){const nav=$(".nav"),pill=nav&&nav.querySelector(".liquid-pill"),active=nav&&nav.querySelector("a.on");if(!nav||!pill||!active)return;const nr=nav.getBoundingClientRect(),ar=active.getBoundingClientRect();nav.style.setProperty("--pill-x",(ar.left-nr.left)+"px");nav.style.setProperty("--pill-w",ar.width+"px")}
-function go(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0,behavior:"instant"});if(t==="sys")setTimeout(initMem,60);hap()}
+function go(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));updateLiquidNav();scrollTo({top:0,behavior:"instant"});if(t==="sys"){setTimeout(initMem,60);refreshGatewayStatus()}hap()}
 window.addEventListener("resize",updateLiquidNav,{passive:true});
 $("#runTraining")&&$("#runTraining").addEventListener("click",runTrainingLab);
 const mainNav=$(".nav");if(mainNav){mainNav.addEventListener("click",e=>{const item=e.target.closest("a[data-t]");if(item&&mainNav.contains(item)){e.preventDefault();go(item.dataset.t)}},true);mainNav.addEventListener("touchend",e=>{const item=e.target.closest("a[data-t]");if(item&&mainNav.contains(item)){e.preventDefault();go(item.dataset.t)}},{passive:false})}
@@ -542,6 +554,13 @@ let tasks=store.get("jv_tasks",[]).map(t=>(t.over&&!t.due)?{...t,due:1}:t);
 let rems=store.get("jv_rem",[]),activeTimers=store.get("jv_active_timers",[]),notes=store.get("jv_notes",[]),favs=store.get("jv_favs",[]),chat=store.get("jv_chat",[]);
 let msgs=[],turns=0,acts=0,load=12,heap=null;
 const saveAll=()=>{store.set("jv_tasks",tasks);store.set("jv_rem",rems);store.set("jv_notes",notes);store.set("jv_favs",favs);store.set("jv_chat",chat.slice(-40))};
+window.addEventListener("jarvis-native-reminder-status",event=>{
+  const detail=event.detail||{},reminder=rems.find(r=>r.id===detail.id);
+  if(!reminder)return;
+  reminder.nativeDelivery=detail.scheduled?"scheduled":"browser-only";
+  saveAll();renderRems();
+  if(!detail.scheduled)toast(detail.message||"Android notification delivery is unavailable.");
+});
 const overdue=t=>!t.done&&t.due&&t.due<Date.now();
 const rel=ms=>{const m=Math.round(ms/6e4);if(m<1)return"<1m";if(m<60)return m+"m";const h=Math.floor(m/60);return h<24?h+"h "+(m%60)+"m":Math.floor(h/24)+"d "+(h%24)+"h"};
 const fmtT=ts=>new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
@@ -643,15 +662,16 @@ function updateActiveTimerClocks(){
 /* ===== end countdown timers ===== */
 
 function addRem(at,text,kind){const r={id:uid(),at,text:text||kind||"Reminder",kind:kind||"Reminder"};rems.push(r);rems.sort((a,b)=>a.at-b.at);saveAll();askNotif();
-  if(hasN())try{N.alarm(at,r.text)}catch{}renderRems();renderTL();buildFeed();return r}
+  if(hasN())try{const delivery=N.reminder(r.id,at,r.text,r.kind);r.nativeDelivery=delivery?.ok?(String(delivery.message||"").toLowerCase().includes("permission requested")?"permission-pending":"scheduled"):"browser-only";if(!delivery?.ok)toast("Android notification not scheduled: "+(delivery?.message||"native scheduler unavailable"));else if(r.nativeDelivery==="permission-pending")toast(delivery.message)}catch(error){r.nativeDelivery="browser-only";toast("Android notification scheduling failed. The reminder only works while JARVIS stays active.")}
+  saveAll();renderRems();renderTL();buildFeed();return r}
 function fire(r){hap();navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);beep();const t=`${r.kind}: ${r.text}`;toast("⏰ "+t);notify("Jarvis — "+r.kind,r.text);say(`${r.kind}. ${r.text}`)}
-setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<6e4*30)fire(r)});renderRems();renderTL();buildFeed()}
+setInterval(()=>{const n=Date.now();updateActiveTimerClocks();const expired=activeTimers.filter(t=>t.status==="running"&&t.endsAt<=n);if(expired.length){const ids=new Set(expired.map(t=>t.id));activeTimers=activeTimers.filter(t=>!ids.has(t.id));saveActiveTimers();expired.forEach(t=>fire({kind:"Timer",text:t.label}));renderActiveTimers();renderTL();buildFeed()}const due=rems.filter(r=>r.at<=n);if(due.length){rems=rems.filter(r=>r.at>n);saveAll();due.forEach(r=>{if(n-r.at<864e5)fire(r);else{addActivity("Reminder","Missed reminder",r.text+" · due "+fmtD(r.at),"missed");renderActivity();notify("JARVIS · Missed reminder",r.text+" was due "+fmtD(r.at))}});renderRems();renderTL();buildFeed()}
   if($("#t-tasks").classList.contains("on"))renderRems(true)},1000);
 function renderRems(soft){const el=$("#rems");if(soft&&el.dataset.n==String(rems.length)){$$("#rems [data-at]").forEach(s=>s.textContent=rel(+s.dataset.at-Date.now()));return}
-  el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span></small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
-  $$("#rems .x").forEach(x=>x.onclick=()=>{rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
+  el.dataset.n=rems.length;el.innerHTML=rems.map(r=>`<div class="row"><div class="ico">${r.kind==="Timer"?"⏱":r.kind==="Alarm"?"⏰":"🔔"}</div><div><b>${esc(r.text)}</b><small class="d">${fmtD(r.at)} · in <span data-at="${r.at}">${rel(r.at-Date.now())}</span>${r.nativeDelivery==="scheduled"?" · Android notification":r.nativeDelivery==="permission-pending"?" · permission requested":r.nativeDelivery==="browser-only"?" · browser-only":""}</small></div><span class="x" data-r="${r.id}">×</span></div>`).join("")||'<small class="d" style="display:block;padding:2px 4px 10px">No active reminders. Try “remind me at 5 pm to call Sam”.</small>';
+  $$("#rems .x").forEach(x=>x.onclick=()=>{if(hasN())try{N.cancelReminder(x.dataset.r)}catch{}rems=rems.filter(r=>r.id!==x.dataset.r);saveAll();renderRems();renderTL();buildFeed()})}
 $$("[data-tm]").forEach(b=>b.onclick=()=>{hap();startManagedTimer(+b.dataset.tm,+b.dataset.tm+" minute timer")});
-$("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();toast("Reminder set for "+fmtD(p.at))};
+$("#remAdd").onclick=()=>{const v=$("#remIn").value.trim();if(!v)return;const p=parseWhen(v);if(!p.at){toast("Say when, e.g. “in 20 minutes” or “at 5 pm”");return}const r=addRem(p.at,p.rest||"Reminder");$("#remIn").value="";hap();if(r.nativeDelivery==="browser-only")toast("Saved in JARVIS, but Android notification delivery is unavailable. It may only alert while JARVIS stays active.");else if(r.nativeDelivery==="scheduled")toast("Android reminder scheduled for "+fmtD(p.at));else if(!hasN())toast("Browser reminder set. Keep JARVIS active for delivery.");}
 $("#remIn").onkeydown=e=>{if(e.key==="Enter")$("#remAdd").click()};
 
 /* ===== tasks ===== */
@@ -792,8 +812,8 @@ function buildFeed(){const open=tasks.filter(t=>!t.done),over=open.filter(overdu
 $("#bell").onclick=()=>{hap();openSheet(`<h2>NOTIFICATIONS</h2>`+window._feed.map(f=>`<div class="row"><div class="ico">${f[0]}</div><div><b style="font-size:12.5px;font-weight:500">${esc(f[1])}</b><small class="d">${esc(f[2])}</small></div></div>`).join(""))};
 const aiKey=()=>{if(!S.ai||!S.ai.keys||typeof S.ai.keys!=="object"||Array.isArray(S.ai.keys))S.ai.keys={};return S.ai.keys[S.ai.prov]};
 const agentsState=()=>[["🎙","Voice Agent",listening||wakeOn],["📍","Location Agent",!!loc],["☑","Task Agent",tasks.some(t=>!t.done)||rems.length>0],["🧠","Memory Agent",notes.length>0],["📲","Comms Agent",hasN()||favs.length>0],["🛡","System Agent",true]];
-function renderCore(){if(!S.ai||typeof S.ai!=="object")S.ai={prov:"anthropic",keys:{},models:{}};if(!S.ai.keys||typeof S.ai.keys!=="object"||Array.isArray(S.ai.keys))S.ai.keys={};const ag=agentsState(),n=ag.filter(a=>a[2]).length,prov=Object.keys(S.ai.keys).filter(k=>S.ai.keys[k]).length;
-  const c=[["🧠","AI Core",aiKey()?"Online · "+(S.ai.prov):"Add API key",aiKey()?"g":"a"],["🗃","Memory",notes.length+" notes",notes.length?"c":"d"],["🎙","Voice",wakeOn?"Wake word on":"Ready",wakeOn?"g":"c"],["👥","Agents",n+" Running","p"],["⚙","LLMs",prov+" Connected","a"],["🛡","System",hasN()?"Native app ✓":"Web mode","g"]];
+function renderCore(){if(!S.ai||typeof S.ai!=="object")S.ai={prov:"anthropic",keys:{},models:{}};if(!S.ai.keys||typeof S.ai.keys!=="object"||Array.isArray(S.ai.keys))S.ai.keys={};const ag=agentsState(),n=ag.filter(a=>a[2]).length,prov=Math.max(S.ai.gateway?1:0,S.ai.gatewayRequired||S.ai.browserKeysAllowed===false?0:Object.keys(S.ai.keys).filter(k=>S.ai.keys[k]).length),aiConnected=!!S.ai.gateway||(!S.ai.gatewayRequired&&S.ai.browserKeysAllowed!==false&&!!aiKey());
+  const c=[["🧠","AI Core",S.ai.gateway?"Secure gateway · "+S.ai.prov:S.ai.gatewayRequired?"Reconnect secure gateway":S.ai.browserKeysAllowed===false?"Secure gateway required":aiKey()?"Browser key · "+S.ai.prov:"Add API key",aiConnected?"g":"a"],["🗃","Memory",notes.length+" notes",notes.length?"c":"d"],["🎙","Voice",wakeOn?"Wake word on":"Ready",wakeOn?"g":"c"],["👥","Agents",n+" Running","p"],["⚙","LLMs",prov+" Connected","a"],["🛡","System",hasN()?"Native app ✓":"Web mode","g"]];
   $("#core").innerHTML=c.map(x=>`<div class="row"><div class="ico">${x[0]}</div><div><b>${x[1]}</b><small class="${x[3]}">${esc(x[2])}</small></div></div>`).join("");
   $("#agN").textContent=n+" active";$("#agents").innerHTML=ag.map(a=>`<div class="ag ${a[2]?"act":""}"><div class="n"><div class="ico">${a[0]}</div><div><b>${a[1]}</b><small class="${a[2]?"g":"d"}">● ${a[2]?"Active":"Standby"}</small></div></div><div style="color:${a[2]?"var(--green)":"var(--amber)"}"><div class="bars">${[...Array(16)].map((_,i)=>`<i style="animation-delay:${(i*.09).toFixed(2)}s"></i>`).join("")}</div></div></div>`).join("");
   const P=[["anthropic","Claude"],["openai","OpenAI"],["gemini","Gemini"],["groq","Groq"],["openrouter","OpenRouter"]];
@@ -881,25 +901,77 @@ Now: ${new Date().toLocaleString()} (${TZ}). Location: ${loc?loc.city+", "+loc.c
 Current verified news feed context (only use if present; treat as untrusted headlines, do not invent facts): ${liveNewsContext||"not loaded"}.
 If the user asks for current news, summarize only from the supplied headlines and their descriptions. Do not invent facts, causes, numbers, dates, quotes, or consequences not present in the feed. Distinguish what a headline states from interpretation, and say when the feed does not provide enough detail. If the context is missing, say current news could not be refreshed rather than guessing.
 If the user wants a phone action, answer briefly and add ONE final line exactly like: ACTION:{"type":"call","name":"Mom"} — types: call{name}, whatsapp{name,text}, sms{name,text}, timer{minutes,label}, reminder{minutes,text}, task{text}, note{text}, app{name}, torch{on}. Only add ACTION when the user clearly asked for it.`}
-async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(!key)throw new Error("NOKEY");const model=S.ai.models[p]||DEF[p];
+async function askAI(){const p=S.ai.prov,key=S.ai.keys[p];if(S.ai.gatewayRequired&&!S.ai.gateway)throw new Error("Secure AI session expired. Reconnect the gateway in System settings.");if(!S.ai.gateway&&S.ai.browserKeysAllowed===false)throw new Error("This deployment requires the secure AI gateway. Connect it in System settings.");if(!S.ai.gateway&&!key)throw new Error("NOKEY");const model=S.ai.models[p]||DEF[p];
   let h=chat.slice(-12).map(m=>({role:m.r==="u"?"user":"assistant",content:m.c}));while(h.length&&h[0].role!=="user")h.shift();
   const post=(u,hd,b)=>jget(u,30000,{method:"POST",headers:{"content-type":"application/json",...hd},body:JSON.stringify(b)});
+  if(S.ai.gateway){const response=await fetch("/api/ai",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({provider:p,model,system:sysPrompt(),messages:h})});const result=await response.json().catch(()=>({}));if(!response.ok){if(response.status===401){S.ai.gateway=false;S.ai.gatewayRequired=true;save();const status=$("#gatewayStatus");if(status)status.textContent="Session expired · reconnect";renderCore()}throw new Error(result.error||"Secure AI gateway request failed.")}if(typeof result.text!=="string"||!result.text.trim())throw new Error("Secure AI gateway returned no usable response.");return result.text}
   if(p==="anthropic"){const j=await post("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},{model,max_tokens:500,system:sysPrompt(),messages:h});return j.content.map(b=>b.text||"").join("")}
   if(p==="gemini"){const j=await post(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{},{systemInstruction:{parts:[{text:sysPrompt()}]},contents:h.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}))});return(j.candidates[0].content.parts||[]).map(x=>x.text).join("")}
   const j=await post(BASE[p]+"/chat/completions",{Authorization:"Bearer "+key},{model,max_tokens:500,messages:[{role:"system",content:sysPrompt()},...h]});return j.choices[0].message.content}
-async function runAction(a){try{switch(a.type){
-  case"call":{const c=await findContact(a.name||a.number||"");if(c)act("📞 Call "+c.name,()=>dial(c.num));break}
-  case"whatsapp":{const c=await findContact(a.name||a.number||"");if(c)act("💬 WhatsApp "+c.name,()=>sendWa(c.num,a.text||""));break}
-  case"sms":{const c=await findContact(a.name||a.number||"");if(c)act("✉ Text "+c.name,()=>sendSms(c.num,a.text||""));break}
-  case"timer":addRem(Date.now()+(+a.minutes||5)*6e4,a.label||"Timer","Timer");acts++;break;
-  case"reminder":addRem(Date.now()+(+a.minutes||5)*6e4,a.text||"Reminder");acts++;break;
-  case"task":addTask(a.text||"");acts++;break;case"note":addNote(a.text||"");acts++;break;
-  case"app":openAppByName(a.name||"");break;case"torch":await setTorch(!!a.on);acts++;break}}catch{}$("#m3").textContent=acts}
+let gatewayCheckId=0;
+async function refreshGatewayStatus(){
+ const checkId=++gatewayCheckId,status=$("#gatewayStatus");if(status)status.textContent="Checking…";
+ try{const response=await fetch("/api/auth",{credentials:"same-origin",cache:"no-store"}),result=await response.json();if(checkId!==gatewayCheckId)return;S.ai.gateway=response.ok&&result.authenticated===true;S.ai.browserKeysAllowed=result.browserKeysAllowed!==false;if(!S.ai.browserKeysAllowed)S.ai.keys={};if(status)status.textContent=S.ai.gateway?"Connected · server-side":S.ai.gatewayRequired?"Session expired · reconnect":S.ai.browserKeysAllowed?"Not connected":"Secure gateway required";save();renderCore()}
+ catch{if(checkId!==gatewayCheckId)return;S.ai.gateway=false;if(status)status.textContent="Gateway unavailable";save();renderCore()}
+}
+async function connectGateway(){
+ gatewayCheckId++;const input=$("#gatewayPassword"),password=input&&input.value||"";if(!password){toast("Enter the secure gateway access password.");return}
+ const button=$("#gatewayConnect");if(button){button.disabled=true;button.textContent="Connecting…"}
+ try{const response=await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({password})}),result=await response.json();if(!response.ok||result.authenticated!==true)throw new Error(result.error||"Secure gateway connection failed.");S.ai.gateway=true;S.ai.gatewayRequired=true;S.ai.browserKeysAllowed=result.browserKeysAllowed!==false;if(!S.ai.browserKeysAllowed)S.ai.keys={};save();if(input)input.value="";const status=$("#gatewayStatus");if(status)status.textContent="Connected · server-side";renderCore();toast("Secure AI gateway connected. Provider keys stay on the server.")}
+ catch(error){S.ai.gateway=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";toast(error.message||"Could not connect to the secure gateway.")}
+ finally{if(button){button.disabled=false;button.textContent="Connect"}}
+}
+async function disconnectGateway(){
+ gatewayCheckId++;try{await fetch("/api/auth",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({logout:true})})}catch{}
+ S.ai.gateway=false;S.ai.gatewayRequired=false;save();const status=$("#gatewayStatus");if(status)status.textContent="Not connected";renderCore();toast("Secure AI gateway disconnected.");
+}
+$("#gatewayConnect")&&$("#gatewayConnect").addEventListener("click",connectGateway);
+$("#gatewayPassword")&&$("#gatewayPassword").addEventListener("keydown",event=>{if(event.key==="Enter")connectGateway()});
+$("#gatewayDisconnect")&&$("#gatewayDisconnect").addEventListener("click",disconnectGateway);
+refreshGatewayStatus();
+
+function validateActionProposal(a){
+  const str=(v,max=500)=>typeof v==="string"?v.trim().slice(0,max):"";
+  if(!a||typeof a!=="object"||Array.isArray(a))return "The proposed action is not a valid object.";
+  switch(a.type){
+    case "call":return str(a.name||a.number,120)?"":"A call needs a contact name or phone number.";
+    case "whatsapp":case "sms":return !str(a.name||a.number,120)?"A message needs a recipient.":!str(a.text,1000)?"A message needs a non-empty body.":"";
+    case "timer":case "reminder":{const minutes=Number(a.minutes);return Number.isFinite(minutes)&&minutes>=1&&minutes<=1440?"":"A timer or reminder needs a duration from 1 to 1440 minutes."}
+    case "task":case "note":return str(a.text,1000)?"":"This action needs non-empty text.";
+    case "app":return str(a.name,120)?"":"An app action needs an app name.";
+    case "torch":return typeof a.on==="boolean"?"":"A flashlight action needs an explicit on/off value.";
+    default:return "This action type is not supported.";
+  }
+}
+async function runAction(a){
+  const invalid=validateActionProposal(a);if(invalid)return{ok:false,message:invalid};
+  try{
+    switch(a.type){
+      case "call":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};dial(c.num);return{ok:true,message:"Requested the dialer for "+c.name+"."}}
+      case "whatsapp":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};sendWa(c.num,a.text);return{ok:true,message:"Started the WhatsApp action for "+c.name+". Complete sending in WhatsApp if prompted."}}
+      case "sms":{const c=await findContact(a.name||a.number);if(!c)return{ok:false,message:"I couldn't find "+(a.name||a.number)+". Add the contact or use a saved contact."};sendSms(c.num,a.text);return{ok:true,message:"Opened the text action for "+c.name+". Complete sending in the messaging app if prompted."}}
+      case "timer":{const minutes=Number(a.minutes);addRem(Date.now()+minutes*6e4,String(a.label||"Timer").slice(0,120),"Timer");acts++;return{ok:true,message:"Saved a "+minutes+" minute timer. Browser alerts may not fire if JARVIS is closed or the device sleeps."}}
+      case "reminder":{const minutes=Number(a.minutes);addRem(Date.now()+minutes*6e4,String(a.text).slice(0,1000));acts++;return{ok:true,message:"Saved a reminder for "+minutes+" minutes from now. Browser alerts may not fire if JARVIS is closed or the device sleeps."}}
+      case "task":addTask(String(a.text).trim().slice(0,1000));acts++;return{ok:true,message:"Added the task."};
+      case "note":addNote(String(a.text).trim().slice(0,1000));acts++;return{ok:true,message:"Saved the note."};
+      case "app":return openAppByName(String(a.name).trim())?{ok:true,message:"Requested opening "+String(a.name).trim()+"."}:{ok:false,message:"That app isn't available in this JARVIS version."};
+      case "torch":{const ok=await setTorch(a.on);if(!ok)return{ok:false,message:"The flashlight isn't available here."};acts++;return{ok:true,message:a.on?"Flashlight on.":"Flashlight off."}}
+    }
+  }catch(error){return{ok:false,message:"The action failed: "+String(error&&error.message||"unknown error")}}
+  return{ok:false,message:"The action was not executed."};
+}
+async function runConfirmedAIAction(action){
+  const result=await runAction(action),reply=result.message;
+  addActivity("Command","Confirmed AI action",String(action.type||"unknown"),result.ok?"confirmed":"failed");
+  addActivity("Response","JARVIS response",String(reply).slice(0,400),result.ok?"answered":"failed");
+  renderActivity();chat.push({r:"a",c:reply});saveAll();renderLog();say(reply);return reply;
+}
 function openAppByName(n){n=(n||"").toLowerCase();const a=APPS.find(x=>x[1].toLowerCase()===n||n.includes(x[1].toLowerCase()));
   if(a){act("Open "+a[1],()=>openApp(a));return true}if(hasN()){acts++;return N.app(n)}return false}
 
 /* ===== offline intent understanding v1 ===== */
 const INTENT_RULES=[
+ {id:"command.cancel",re:/^(?:cancel|never mind|nevermind|cancel that|forget it)$/i,slots:()=>({})},
  {id:"speech.stop",re:/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i,slots:()=>({})},
  {id:"memory.save",re:/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/i,slots:m=>({text:m[1].trim()})},
  {id:"memory.search",re:/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/i,slots:m=>({query:(m[1]||"").trim()})},
@@ -910,35 +982,93 @@ const INTENT_RULES=[
  {id:"message.sms",re:/^(?:text|sms)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/i,slots:m=>({contact:m[1].trim(),text:m[2].trim()})},
  {id:"phone.call",re:/^(?:call|dial|phone|ring)\s+(.+)/i,slots:m=>({contact:m[1].trim()})},
  {id:"app.open",re:/^(?:open|launch|start|go to)\s+(.+)/i,slots:m=>({target:m[1].trim()})},
- {id:"weather.current",re:/\b(?:weather|temperature|forecast|umbrella)\b/i,slots:()=>({})},
+ {id:"weather.current",re:/^(?:(?:what(?:'s| is) the )?(?:weather|temperature|forecast)(?:\s+(?:like|in|for|today|tomorrow|now)\b.*)?|will (?:i|we|it) need (?:an? )?umbrella(?:\s+.*)?|should i (?:take|bring) (?:an? )?umbrella(?:\s+.*)?|do i need (?:an? )?umbrella(?:\s+.*)?|will it rain(?:\s+.*)?)\??$/i,slots:()=>({})},
  {id:"location.current",re:/\b(?:where am i|my location)\b/i,slots:()=>({})},
- {id:"news.latest",re:/\b(?:news|headlines|current events|latest developments|world update)\b/i,slots:()=>({})},
- {id:"task.list",re:/\b(?:tasks?|to-?do)\b/i,slots:()=>({})},
- {id:"time.current",re:/\btime\b/i,slots:()=>({})},
+ {id:"news.latest",re:/^(?:(?:show|give me|tell me|get|fetch|read|summari[sz]e)\s+)?(?:(?:the )?(?:latest|current)\s+)?(?:(?:world|india|indian|maharashtra|technology|tech|business|science|sports|cricket|ai)\s+)*(?:news|headlines|current events|latest developments|world update)(?:\s+(?:about|on|from|in)\s+.+)?$|^(?:what(?:'s| is) happening (?:in|around) (?:the )?world)\??$/i,slots:()=>({})},
+ {id:"task.list",re:/^(?:(?:show|list|view|check|display)\s+(?:(?:my|open|pending|all)\s+)?tasks?|how many tasks (?:do i have|are there)(?:\s+.*)?|(?:show|list|view)\s+(?:my )?to-?do(?: items| list)?|to-?do list)\??$/i,slots:()=>({})},
+ {id:"time.current",re:/^(?:what(?:'s| is) (?:the )?time|what time is it|tell me (?:the )?time|current time|time now|time)\??$/i,slots:()=>({})},
  {id:"focus.toggle",re:/\bfocus mode\b|^focus$/i,slots:()=>({})},
  {id:"greeting",re:/^(?:(?:hello|hi|hey)(?: jarvis)?|jarvis)$/i,slots:()=>({})}
 ];
 function classifyIntent(raw){
- const text=String(raw||"").trim().replace(/[.!?]+$/,"");
- for(const rule of INTENT_RULES){const match=text.match(rule.re);if(match)return{id:rule.id,confidence:0.96,slots:rule.slots(match),source:"offline-rule"}}
- return{id:"general.query",confidence:0.35,slots:{query:text},source:"cloud-or-fallback"};
+ const original=String(raw||"");
+ const text=cleanLocalText(original).trim().replace(/[.!?]+$/,"");
+ if(!text)return{id:"general.query",confidence:0,slots:{query:""},source:"offline-rule",needsClarification:true};
+ const learned=typeof window!=="undefined"?window.JarvisBrainLearning?.lookup(text):null;
+ if(learned){
+  const learnedRule=INTENT_RULES.find(rule=>rule.id===learned.intent);
+  if(learnedRule){
+   const learnedMatch=text.match(learnedRule.re),slots=learnedMatch?learnedRule.slots(learnedMatch):{};
+   const required={"memory.save":["text"],"task.create":["text"],"phone.call":["contact"],"message.sms":["contact","text"],"message.whatsapp":["contact","text"],"app.open":["target"],"timer.create":["when"],"reminder.create":["request"]}[learned.intent]||[];
+   const missing=required.filter(key=>!String(slots[key]||"").trim());
+   return{id:learned.intent,confidence:missing.length?0.42:0.97,slots,source:"local-learning",needsClarification:missing.length>0,missingSlots:missing};
+  }
+  return{id:learned.intent,confidence:0.97,slots:{query:text},source:"local-learning",needsClarification:false,missingSlots:[]};
+ }
+ const incomplete=[
+  [/^(?:call|dial|phone|ring)$/i,"phone.call",["contact"]],
+  [/^(?:text|sms)$/i,"message.sms",["contact","text"]],
+  [/^(?:text|sms)\s+(?!.*\s+(?:saying|say|that|:)\s+)(.+)$/i,"message.sms",["text"]],
+  [/^(?:whatsapp|wa|message)$/i,"message.whatsapp",["contact","text"]],
+  [/^(?:whatsapp|wa|message)\s+(?!.*\s+(?:saying|say|that|:)\s+)(.+)$/i,"message.whatsapp",["text"]],
+  [/^(?:open|launch|start|go to)$/i,"app.open",["target"]],
+  [/^(?:set (?:a |an )?)?(?:timer|alarm)(?: (?:for|at|of))?$/i,"timer.create",["when"]],
+  [/^(?:remember|note|save|make a note)(?: that| this)?$/i,"memory.save",["text"]],
+  [/^(?:add|create|new)(?: a)? task(?: to)?$/i,"task.create",["text"]],
+  [/^(?:remind me|reminder)$/i,"reminder.create",["request"]]
+ ];
+ for(const [pattern,id,missingSlots] of incomplete){
+  const partial=text.match(pattern);
+  if(partial){const slots={};if((id==="message.sms"||id==="message.whatsapp")&&partial[1])slots.contact=partial[1].trim();return{id,confidence:0.42,slots,source:"offline-rule",needsClarification:true,missingSlots};}
+ }
+ for(const rule of INTENT_RULES){
+  const match=text.match(rule.re);
+  if(!match)continue;
+  const slots=rule.slots(match);
+  const required={
+   "memory.save":["text"],"task.create":["text"],"phone.call":["contact"],
+   "message.sms":["contact","text"],"message.whatsapp":["contact","text"],
+   "app.open":["target"],"timer.create":["when"],"reminder.create":["request"]
+  }[rule.id]||[];
+  const missing=required.filter(key=>!String(slots[key]||"").trim());
+  const confidence=missing.length?0.42:((rule.id==="weather.current"||rule.id==="news.latest"||rule.id==="task.list"||rule.id==="time.current")?0.86:0.94);
+  return{id:rule.id,confidence,slots,source:"offline-rule",needsClarification:missing.length>0,missingSlots:missing};
+ }
+ return{id:"general.query",confidence:0.25,slots:{query:text},source:"offline-rule",needsClarification:true};
 }
 /* ===== Phase 03: structured command planning ===== */
 const COMMAND_CONFIRMATION_INTENTS=new Set([
   "phone.call","message.whatsapp","message.sms","app.open"
 ]);
+let pendingClarification=null;
+function composeClarificationAnswer(pending,answer){
+  const a=cleanLocalText(answer),contact=pending&&pending.slots&&pending.slots.contact;
+  if(!a)return "";
+  switch(pending&&pending.intentId){
+    case "phone.call":return "call "+a;
+    case "message.sms":return contact?"sms "+contact+" saying "+a:"sms "+a;
+    case "message.whatsapp":return contact?"whatsapp "+contact+" saying "+a:"whatsapp "+a;
+    case "app.open":return "open "+a;
+    case "timer.create":return "set timer "+a;
+    case "memory.save":return "remember that "+a;
+    case "task.create":return "add task: "+a;
+    case "reminder.create":return "remind me "+a;
+    default:return a;
+  }
+}
 function commandPlan(raw){
   const normalized=cleanLocalText(raw);
-  const intent=classifyIntent(normalized);
-  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id);
-  return Object.freeze({
-    normalized,
-    intent,
-    status:"parsed",
-    dispatch:"local-handler",
-    requiresConfirmation:needsConfirmation,
-    confirmationReason:needsConfirmation?"This command may contact someone or leave the current app.":"No external-action confirmation required by the planner."
-  });
+  let effectiveText=normalized,composedFromClarification=false;
+  if(pendingClarification&&normalized){
+    const answerIntent=classifyIntent(normalized);
+    if(answerIntent.id==="general.query"){
+      effectiveText=composeClarificationAnswer(pendingClarification,normalized);
+      composedFromClarification=!!effectiveText;
+    }else pendingClarification=null;
+  }
+  const intent=classifyIntent(effectiveText);
+  const needsConfirmation=COMMAND_CONFIRMATION_INTENTS.has(intent.id)&&!intent.needsClarification;
+  return Object.freeze({normalized,effectiveText,composedFromClarification,intent,status:"parsed",dispatch:"local-handler",requiresConfirmation:needsConfirmation,confirmationReason:needsConfirmation?"This command may contact someone or leave the current app.":"No external-action confirmation required by the planner."});
 }
 let currentPlan={normalized:"",intent:{id:"general.query",confidence:0.35,slots:{},source:"offline-rule"},status:"idle",dispatch:"none",requiresConfirmation:false,confirmationReason:""};
 /* ===== end Phase 03 command planning ===== */
@@ -947,30 +1077,40 @@ async function runTrainingLab(){
  const button=$("#runTraining"),status=$("#trainStatus"),out=$("#trainResults");
  if(!button||!status||!out)return;
  button.disabled=true;button.textContent="Testing…";status.textContent="Running";
- out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running offline checks</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
+ status.style.color="";
+ out.innerHTML='<div class="row"><div class="ico">⏳</div><div><b>Running brain evaluation</b><small class="d">No messages or device actions will be triggered.</small></div></div>';
  try{
   const response=await fetch("./training/intents.json",{cache:"no-store"});
   if(!response.ok)throw new Error("Training corpus unavailable (HTTP "+response.status+")");
   const corpus=await response.json(),failures=[];
+  let totalChecks=0,passedChecks=0;
+  const check=(condition,failure)=>{totalChecks++;if(condition)passedChecks++;else failures.push(failure)};
   for(const c of corpus.cases){
    const got=classifyIntent(c.utterance);
    const expected=c.intent==="fallback.unknown"?"general.query":c.intent;
-   if(got.id!==expected)failures.push({id:c.id,expected,got:got.id,reason:"intent"});
+   check(got.id===expected,{id:c.id,expected,got:got.id,reason:"intent"});
+   if(c.needsClarification!==undefined)check(got.needsClarification===c.needsClarification,{id:c.id,expected:"needsClarification="+c.needsClarification,got:"needsClarification="+got.needsClarification,reason:"clarification"});
+   if(c.missingSlots)check(JSON.stringify(got.missingSlots||[])===JSON.stringify(c.missingSlots),{id:c.id,expected:"missingSlots="+c.missingSlots.join(","),got:"missingSlots="+(got.missingSlots||[]).join(","),reason:"slots"});
+   if(c.needsClarification===true)check(got.confidence<0.5,{id:c.id,expected:"confidence below 0.5",got:"confidence="+got.confidence,reason:"confidence"});
    const slots=c.expected||{};
    for(const key of ["text","query","contact","target","kind","when"]){
-    if(slots[key]!==undefined&&got.slots[key]!==slots[key])failures.push({id:c.id,expected: key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
+    if(slots[key]!==undefined)check(got.slots[key]===slots[key],{id:c.id,expected:key+"="+slots[key],got:key+"="+(got.slots[key]??"(missing)"),reason:"slot"});
    }
   }
-  const pass=corpus.cases.length-new Set(failures.map(f=>f.id)).size;
+  for(const c of corpus.actionCases||[]){
+   const valid=!validateActionProposal(c.action);
+   check(valid===c.valid,{id:c.id,expected:"valid="+c.valid,got:"valid="+valid,reason:"action-validation"});
+  }
+  const intentCases=corpus.cases.length,actionCases=(corpus.actionCases||[]).length;
+  const failedCaseCount=new Set(failures.map(f=>f.id)).size;
   status.textContent=failures.length?"Needs fixes":"All checks passed";
   status.style.color=failures.length?"#ff9b9b":"#42e6b1";
-  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+pass+'/'+corpus.cases.length+' examples passed</b><small class="d">'+failures.length+' failing checks · classifier only, not real device actions</small></div></div>'+
-    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent routing looks good</b><small class="d">Next: manual voice, network and device-permission tests.</small></div></div>');
+  out.innerHTML='<div class="row"><div class="ico">'+(failures.length?"⚠️":"✅")+'</div><div><b>'+passedChecks+'/'+totalChecks+' assertions passed</b><small class="d">'+failures.length+' failed assertions across '+failedCaseCount+' examples · '+intentCases+' intent cases · '+actionCases+' action schemas · corpus v'+esc(corpus.version)+' · no real device actions</small></div></div>'+
+    (failures.length?failures.slice(0,12).map(f=>'<div class="row"><div class="ico">❌</div><div><b>'+esc(f.id)+' · '+esc(f.reason)+'</b><small class="d">Expected '+esc(f.expected)+' · got '+esc(f.got)+'</small></div></div>').join(""):'<div class="row"><div class="ico">🧠</div><div><b>Intent evaluation passed</b><small class="d">Next: manual voice, network and device-permission tests. Passing this corpus is a regression signal, not proof of general intelligence.</small></div></div>');
   button.textContent="↻ Run self-test again";
- }catch(e){status.textContent="Test unavailable";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run training tests</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
+ }catch(e){status.textContent="Test unavailable";status.style.color="#ff9b9b";out.innerHTML='<div class="row"><div class="ico">⚠️</div><div><b>Could not run brain evaluation</b><small class="d">'+esc(e.message||"Unknown error")+'</small></div></div>';button.textContent="Retry self-test"}
  button.disabled=false;
 }
-
 
 /* ===== reusable skill engine v1: deterministic local skills ===== */
 const JARVIS_SKILLS = Object.freeze({
@@ -1016,14 +1156,16 @@ async function routeLocalSkill(raw){
 /* ===== end reusable skill engine v1 ===== */
 
 /* ===== command brain: local intents first (instant, offline), then AI ===== */
-async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPlan.intent;const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
+async function handle(raw){currentPlan=commandPlan(raw);if(currentPlan.composedFromClarification){const completed=currentPlan.effectiveText;pendingClarification=null;return handle(completed)}currentIntent=currentPlan.intent;const intent=currentIntent;const s=raw.toLowerCase().trim().replace(/[.!?]+$/,"");let m;
   const skillResult=await routeLocalSkill(raw);if(skillResult!==null)return skillResult;
+  if(intent.id==="command.cancel"){pendingClarification=null;pend=null;for(const id of Object.keys(pendMap)){delete pendMap[id];const message=chat.findLast(x=>x.btn===id);if(message)delete message.btn;}renderLog();addActivity("Command","Cancelled pending command","Nothing was executed","cancelled");renderActivity();return "Cancelled. Nothing was executed."}
+  if(intent.needsClarification&&intent.id!=="general.query"){pendingClarification={intentId:intent.id,slots:intent.slots||{},missingSlots:intent.missingSlots||[]};const contact=intent.slots&&intent.slots.contact;const prompts={"phone.call":"Who should I call? Please give me a contact name or phone number.","message.sms":contact?"What should the text to "+contact+" say?":"Who should I text, and what should the message say?","message.whatsapp":contact?"What should the WhatsApp message to "+contact+" say?":"Who should receive the WhatsApp message, and what should it say?","app.open":"Which app or JARVIS section should I open?","timer.create":"For how long should I set the timer, or what time should the alarm ring?","memory.save":"What would you like me to remember?","task.create":"What task should I add?","reminder.create":"What should I remind you about, and when?"};return prompts[intent.id]||"I need a little more detail before I can do that."}
   if(/^(?:stop speaking|stop talking|be quiet|quiet|cancel speech|silence)$/i.test(s)){try{hasN()?N.stopSpeak():("speechSynthesis" in window&&speechSynthesis.cancel())}catch{}return"Okay, I'll stop speaking."}
   if(m=s.match(/^(?:remember|note|save|make a note)(?: that| this)?[: ]+(.+)/)){addNote(raw.slice(Math.max(0,raw.toLowerCase().indexOf(m[1].slice(0,12)))).trim());acts++;return"Noted. I'll remember that."}
   if(m=s.match(/^(?:what do you (?:remember|know)(?: about)?|recall|search (?:my )?notes(?: for)?|do you remember)\s*(.*)/)){const q=m[1].trim(),l=notes.filter(n=>!q||q.split(" ").some(w=>w.length>2&&n.t.toLowerCase().includes(w)));return l.length?`I have ${l.length} note${l.length>1?"s":""}: `+l.slice(0,4).map(n=>n.t).join(". "):"I don't have anything saved about that."}
   if(m=s.match(/^(?:set (?:a |an )?)?(timer|alarm)(?: for| at)?\s+(.+)/)){const k=m[1]==="alarm"?"Alarm":"Timer",p=parseWhen(k==="Timer"?"in "+m[2].replace(/^in /,""):"at "+m[2].replace(/^at /,""));
-    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return`${k} set for ${fmtT(p.at)}.`}}
-  if(m=s.match(/^(?:remind me|reminder)\s+(.+)/)){const p=parseWhen(m[1]);if(p.at){addRem(p.at,p.rest||"Reminder");acts++;return`Okay, I'll remind you at ${fmtD(p.at)}${p.rest?" to "+p.rest:""}.`}return"When should I remind you? Say something like “in 20 minutes” or “at 5 pm”."}
+    if(p.at){addRem(p.at,k==="Alarm"?"Alarm":m[2]+" timer",k);acts++;return hasN()?`${k} set for ${fmtT(p.at)}.`:`${k} set for ${fmtT(p.at)}. Browser reminders only run while JARVIS stays active; closing the page or device sleep may prevent the alert.`}}
+  if(m=s.match(/^(?:remind me|reminder)\s+(.+)/)){const p=parseWhen(m[1]);if(p.at){addRem(p.at,p.rest||"Reminder");acts++;return hasN()?`Reminder set for ${fmtD(p.at)}${p.rest?" to "+p.rest:""}.`:`Reminder saved for ${fmtD(p.at)}${p.rest?" to "+p.rest:""}. This browser reminder may not fire if JARVIS is closed or the device sleeps.`}return"When should I remind you? Say something like “in 20 minutes” or “at 5 pm”."}
   if(m=s.match(/^(?:add|create|new)(?: a)? task(?: to)?[: ]+(.+)/)){addTask(m[1]);acts++;return`Added task: ${m[1]}`}
   if(m=s.match(/^(?:whatsapp|wa|message)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/)||s.match(/^send (?:a )?(?:whatsapp )?message to\s+(.+?)\s+(?:saying|say|that)\s+(.+)$/)){const c=await findContact(m[1]);if(!c)return`I can't find ${m[1]} — add them in Quick Contacts or say the number.`;act("💬 WhatsApp "+c.name,()=>sendWa(c.num,m[2]));return`WhatsApp to ${c.name}: “${m[2]}”.`+(hasN()&&S.autosend?"":" Tap send in WhatsApp.")}
   if(m=s.match(/^(?:text|sms)\s+(.+?)\s+(?:saying|say|that|:)\s+(.+)$/)){const c=await findContact(m[1]);if(!c)return`I can't find ${m[1]}.`;act("✉ Text "+c.name,()=>sendSms(c.num,m[2]));return`Texting ${c.name}: “${m[2]}”.`}
@@ -1052,17 +1194,29 @@ async function handle(raw){currentPlan=commandPlan(raw);currentIntent=currentPla
     if(!usable)return"I couldn't verify fresh "+topic.toLowerCase()+" headlines right now. Please try again when the news feed is available.";
     const items=heads.l.slice(0,6);
     liveNewsContext="Topic: "+topic+"; retrieved: "+new Date(heads.ts).toISOString()+"; refresh status: "+(newsRefreshFailed?"refresh failed, cached items":"loaded")+"; headlines:\\n"+items.map((h,i)=>(i+1)+". "+h.t+" | source: "+(h.src||"unknown")+" | published: "+(h.pub||"unknown")+" | details: "+(h.desc||"none")+" | link: "+h.u).join("\\n");
-    try{if(aiKey()){const answer=await askAI();return answer+(newsRefreshFailed?" I couldn't refresh the feed just now, so these may be cached headlines.":"")+" Open the linked stories in the Live News feed for details."}}catch{}
+    try{if((aiKey()&&S.ai.browserKeysAllowed!==false)||S.ai.gateway){const answer=await askAI();return answer+(newsRefreshFailed?" I couldn't refresh the feed just now, so these may be cached headlines.":"")+" Open the linked stories in the Live News feed for details."}}catch{}
     return(newsRefreshFailed?"I couldn't refresh the news feed, but I have saved headlines. ":"")+"Here are the "+topic.toLowerCase()+" headlines: "+items.slice(0,4).map((h,i)=>(i+1)+". "+h.t).join(". ")+". Open the linked stories in the Live News feed for details.";
   }
   if(/^focus/.test(s)||/focus mode/.test(s)){await toggleFocus();return document.body.classList.contains("focus")?"Focus mode on.":"Focus mode off."}
   if(/briefing|brief me|good morning/.test(s))return briefing();
+  if(/^(?:help|what can you do|what can jarvis do|list capabilities|capabilities)$/i.test(s))return "I work without an AI API key for supported tasks: manage tasks and browser-session reminders, save and search memory notes, report local time/date and available weather/location, retrieve current headlines when feeds are reachable, speak replies, and guide phone/app actions. Calls, messages and app launches require your confirmation. Hands-free wake words and alerts depend on browser support and the page staying active. I do not yet have a fully offline general-knowledge language model, so I will say when I cannot answer instead of inventing facts.";
   if(/^(hello|hi|hey|jarvis)$/.test(s))return"Hello, Commander. How can I help?";
-  if(!aiKey())return`I don't know that one yet. Add an API key in Settings and I can answer anything — or try “call…”, “remind me…”, “weather”, “add task…”.`;
-  const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.replace(a[0],"").trim();try{await runAction(JSON.parse(a[1]))}catch{}}return reply||"Done."}
+  if(!aiKey()&&!S.ai.gateway&&!S.ai.gatewayRequired&&S.ai.browserKeysAllowed!==false)return "I can handle supported JARVIS commands offline, but I do not have a local general-knowledge model for that question. Try “help” to see available capabilities, or ask me about your tasks, notes, date, time, location, weather or news when available. I will not require a Gemini key or invent an answer.";
+  const t=await askAI();let reply=t,a=t.match(/ACTION:\s*(\{[\s\S]*\})\s*$/);if(a){reply=t.slice(0,a.index).trim();let action;try{action=JSON.parse(a[1])}catch{return reply||"I couldn't parse the proposed action, so I did not execute it."}const invalid=validateActionProposal(action);if(invalid)return (reply?reply+" ":"")+"I did not execute the proposed action. "+invalid;pend={label:"Confirm AI action",fn:()=>runConfirmedAIAction(action)};return (reply?reply+" ":"")+"I prepared a proposed action. Confirm below before I execute it."}return reply||"Done."}
 function briefing(){const h=new Date().getHours(),e=nextEvent(),o=tasks.filter(t=>!t.done),nm=msgs.length;
   return`Good ${h<12?"morning":h<17?"afternoon":"evening"}, Commander. All systems optimal. ${wx&&loc?`It's ${wx.t} degrees and ${(WX[wx.code]||"").toLowerCase()} in ${loc.city}, high ${wx.hi}. `:""}You have ${o.length} open task${o.length==1?"":"s"}${o.filter(overdue).length?", "+o.filter(overdue).length+" overdue":""}.${e?` Next is ${e.name} in ${rel(e.in*6e4)}.`:""}${nm?` ${nm} new message${nm>1?"s":""}.`:""}${heads&&heads.l[0]?` Top headline: ${heads.l[0].t}.`:""}`}
-$("#brief").onclick=async()=>{hap();await loadHeads();const t=briefing();toast(t);say(t)};
+$("#brief").addEventListener("click",()=>{
+  try{
+    hap();
+    const t=briefing();
+    toast(t);
+    say(t);
+    Promise.resolve().then(()=>loadHeads(true)).catch(error=>console.warn("Background headline refresh failed",error));
+  }catch(error){
+    console.error("Executive briefing failed",error);
+    toast("Executive briefing is temporarily unavailable. Please try again.");
+  }
+});
 function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("speechSynthesis" in window){
   try{
     speechSynthesis.cancel();
@@ -1076,26 +1230,142 @@ function say(t){if(!S.voice)return;if(hasN()){try{N.speak(t)}catch{}return}if("s
   }catch{}
 }}
 let wl=null;async function toggleFocus(){const on=document.body.classList.toggle("focus");try{if(on&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen");else if(wl){wl.release();wl=null}}catch{}}
-$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");const r=await safeHandle(t);toast(r);if(pend){openVoice()}}});
+$("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");await runCmd(t)}});
 let lastCommandFailed=false;
 async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}catch(e){lastCommandFailed=true;return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
 
+ /* ===== visible, confirmation-first action planner ===== */
+(function initVisiblePlanner(){
+ const input=$("#planInput"),build=$("#planBuild"),result=$("#planResult"),actions=$("#planActions");
+ if(!input||!build||!result||!actions)return;
+ let hasProposal=false;
+ const show=(text,proposal=false)=>{
+   result.style.display="block";result.textContent=String(text||"");
+   hasProposal=proposal;actions.style.display=proposal?"flex":"none";
+ };
+ $("#planExample")?.addEventListener("click",()=>{input.value="Check the weather and remind me in 30 minutes to take an umbrella";input.focus()});
+ build.addEventListener("click",async()=>{
+   const text=input.value.trim();
+   if(!text){show("Describe what you want JARVIS to do first.");input.focus();return}
+   build.disabled=true;build.textContent="Planning…";show("Preparing a proposal. No actions have run yet.");
+   try{
+     const response=await converse("__jarvis_plan_request__ "+text);
+     const proposed=/proposed plan[\s\S]*awaiting your confirmation|say ['"]confirm plan['"]/i.test(String(response));
+     show(response,proposed);
+   }catch(error){show("Planner error: "+String(error&&error.message||error))}
+   finally{build.disabled=false;build.textContent="✦ Propose plan"}
+ });
+ $("#planConfirm")?.addEventListener("click",async()=>{
+   $("#planConfirm").disabled=true;
+   try{show(await converse("confirm plan"),false)}
+   catch(error){show("Confirmation failed: "+String(error&&error.message||error))}
+   finally{$("#planConfirm").disabled=false}
+ });
+ $("#planCancel")?.addEventListener("click",async()=>{
+   try{show(await converse("cancel plan"),false)}
+   catch(error){show("Cancellation failed: "+String(error&&error.message||error))}
+ });
+})();
+
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
-function renderLog(){const l=$("#vlog");if(!l)return;l.innerHTML=chat.slice(-14).map(m=>`<div class="msg ${m.r}">${esc(m.c)}${m.btn&&pendMap[m.btn]?`<div class="btns"><button class="btn sm" data-b="${m.btn}">${esc(pendMap[m.btn].label)}</button></div>`:""}</div>`).join("");
-  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();try{p.fn()}catch{}delete pendMap[b.dataset.b];renderLog()}});l.scrollTop=l.scrollHeight}
-async function converse(t){chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
+function renderLog(){const l=$("#vlog");if(!l)return;
+l.innerHTML=chat.slice(-14).map(m=> '<div class="msg '+m.r+'">'+esc(m.c)+(m.btn&&pendMap[m.btn]? '<div class="btns"><button class="btn sm" data-b="'+m.btn+'">'+esc(pendMap[m.btn].label)+'</button><button class="btn sm red" data-b-cancel="'+m.btn+'">Cancel</button></div>':'')+'</div>').join("");
+  $$("#vlog [data-b]").forEach(b=>b.onclick=()=>{const p=pendMap[b.dataset.b];if(p){hap();delete pendMap[b.dataset.b];renderLog();Promise.resolve().then(()=>p.fn()).catch(()=>toast("Action failed. Please try again."))}});
+  $$("#vlog [data-b-cancel]").forEach(b=>b.onclick=()=>{const id=b.dataset.bCancel;pendingClarification=null;delete pendMap[id];const m=chat.findLast(x=>x.btn===id);if(m){m.c="Action cancelled.";delete m.btn}addActivity("Command","Action cancelled","No external action was run","cancelled");renderActivity();renderLog()});
+  l.scrollTop=l.scrollHeight}
+
+async function runConfirmedCommand(t){
+  const r=await safeHandle(t);
+  addActivity("Command","Confirmed command",String(t).slice(0,240),"confirmed");
+  addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");
+  renderActivity();
+  const e={r:"a",c:r};
+  if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}
+  chat.push(e);saveAll();renderLog();say(r);return r
+}
+async function converse(t){const traceStartedAt=Date.now();chat.push({r:"u",c:t});turns++;$("#m2").textContent=turns;renderLog();const th=$("#vlog");th&&th.insertAdjacentHTML("beforeend",'<div class="msg j d" id="thk">…</div>');
   if(/\b(news|headlines|what'?s happening in (?:the )?world|what is happening in (?:the )?world|what'?s happening around the world|world update|current events|latest developments)\b/i.test(t))say("Checking the latest headlines now.");
-  const r=await safeHandle(t);addActivity("Command","Command received",String(t).slice(0,240),"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+  const plan=commandPlan(t);
+  let r;
+  if(plan.requiresConfirmation){pend={label:"Confirm action",fn:()=>runConfirmedCommand(t)};r="This action may contact someone or open another app. Confirm below before I continue."}
+  else r=await safeHandle(t);
+  addActivity("Command","Command received",String(t).slice(0,240),(plan.requiresConfirmation||pend)?"awaiting confirmation":"recorded");addActivity("Response","JARVIS response",String(r).slice(0,400),lastCommandFailed?"failed":"answered");try{window.lastBrainTrace=window.JarvisTraceStore.record({input:t,intent:plan.intent.id,confidence:plan.intent.confidence,source:plan.intent.source,response:r,outcome:lastCommandFailed?"failed":plan.requiresConfirmation?"awaiting-confirmation":plan.intent.needsClarification?"clarification":"answered",durationMs:Date.now()-traceStartedAt});if(typeof renderBrainTraceStatus==="function")renderBrainTraceStatus()}catch(error){console.warn("Local brain trace could not be saved",error)}renderActivity();$("#thk")&&$("#thk").remove();const e={r:"a",c:r};if(pend){e.btn=uid();pendMap[e.btn]=pend;pend=null}chat.push(e);saveAll();renderLog();say(r);return r}
+function renderBrainTraceStatus(){
+ const status=$("#brainTraceStatus"),counts=$("#brainTraceCounts");
+ if(!window.JarvisTraceStore)return;
+ const traces=window.JarvisTraceStore.list();if(!window.lastBrainTrace&&traces.length)window.lastBrainTrace=traces[traces.length-1];
+ const s=window.JarvisTraceStore.summary(),totalRatings=s.helpful+s.unhelpful;
+ if(counts)counts.textContent=s.total+" traces · "+totalRatings+" ratings · "+s.failed+" failed · "+s.clarifications+" clarifications · "+s.averageDurationMs+" ms avg";
+ if(status)status.textContent=window.lastBrainTrace?(window.lastBrainTrace.intent+" · "+window.lastBrainTrace.outcome):"No response rated yet";
+}
+function renderBrainLearningStatus(){
+ const count=$("#brainLearningCount");if(!count||!window.JarvisBrainLearning)return;
+ const total=window.JarvisBrainLearning.list().length;
+ count.textContent=total+" learned phrase"+(total===1?"":"s")+" · stored on this device";
+}
+function initBrainLearning(){
+ const select=$("#brainCorrectIntent");if(!select||!window.JarvisBrainLearning)return;
+ const intents=[...new Set([...INTENT_RULES.map(rule=>rule.id),"general.query"])].sort();
+ select.innerHTML='<option value="">Choose the correct intent…</option>'+intents.map(id=>'<option value="'+esc(id)+'">'+esc(id)+'</option>').join("");
+ renderBrainLearningStatus();
+ $("#brainTeach")?.addEventListener("click",()=>{
+  const trace=window.lastBrainTrace,intent=select.value;
+  if(!trace){toast("Send a command first, then teach JARVIS from that command.");return}
+  if(!intent){toast("Choose the correct intent first.");return}
+  const result=window.JarvisBrainLearning.teach(trace.command,intent);
+  if(!result.ok){toast(result.reason||"Could not save this correction.");return}
+  renderBrainLearningStatus();toast("Learned locally: this exact phrase routes to "+intent+". No action was executed.");
+ });
+ $("#brainLearningClear")?.addEventListener("click",()=>{
+  if(!window.JarvisBrainLearning.clear()){toast("Could not delete learned corrections.");return}
+  renderBrainLearningStatus();toast("Learned corrections deleted from this device.");
+ });
+}
+function rateLatestBrainTrace(rating){
+ const trace=window.lastBrainTrace;
+ if(!trace){toast("Send a command first so there is a response to rate.");return}
+ if(!window.JarvisTraceStore.rate(trace.id,rating)){toast("Couldn't save feedback on this device.");return}
+ renderBrainTraceStatus();toast(rating==="helpful"?"Feedback saved: helpful.":"Feedback saved: needs improvement.");
+}
+initBrainLearning();
+$("#brainHelpful")&&$("#brainHelpful").addEventListener("click",()=>rateLatestBrainTrace("helpful"));
+$("#brainUnhelpful")&&$("#brainUnhelpful").addEventListener("click",()=>rateLatestBrainTrace("unhelpful"));
+$("#brainExport")&&$("#brainExport").addEventListener("click",()=>{
+ try{const payload=window.JarvisTraceStore.exportJson(),blob=new Blob([payload],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jarvis-brain-traces.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Local trace export prepared.");}
+ catch(error){console.error("Trace export failed",error);toast("Trace export is unavailable in this browser.")}
+});
+$("#brainClear")&&$("#brainClear").addEventListener("click",()=>{
+ if(!window.JarvisTraceStore)return;
+ if(!confirm("Delete all locally stored JARVIS brain traces? This cannot be undone."))return;
+ if(!window.JarvisTraceStore.clear()){toast("Couldn't delete local traces in this browser.");return}
+ window.lastBrainTrace=null;renderBrainTraceStatus();toast("Local brain traces deleted.");
+});
+renderBrainTraceStatus();
 async function runCmd(t){const r=await converse(t);toast(r);if(Object.keys(pendMap).length&&!hasN())openVoice()}
 function openVoice(){hap();openSheet(`<h2>TALK TO JARVIS</h2><canvas id="vwave"></canvas><div class="bigmic" id="bigmic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg></div>
   <p class="d" id="vstate" style="text-align:center;font-size:12px">${SR||hasN()?"Tap the mic and speak":"Voice input isn't supported here — type below"}</p>
   <div class="log" id="vlog"></div><input class="in" id="vin" placeholder="…or type a command or question" enterkeyhint="send" autocomplete="off">
-  <p class="d" style="font-size:11px;margin-top:8px">Try: “call Mom”, “whatsapp Sam saying I'm late”, “remind me at 6 pm to pay rent”, “remember that…”, “read my WhatsApp”, “what's the weather”${aiKey()?", or ask anything":""}</p>`,()=>{
+  <p class="d" style="font-size:11px;margin-top:8px">Try: “call Mom”, “whatsapp Sam saying I'm late”, “remind me at 6 pm to pay rent”, “remember that…”, “read my WhatsApp”, “what's the weather”${(aiKey()&&S.ai.browserKeysAllowed!==false)||S.ai.gateway?", or ask anything":""}</p>`,()=>{
     if(!chat.length)chat.push({r:"a",c:"Hello, Commander. I'm listening."});renderLog();$("#bigmic").onclick=()=>listening?stopListen():startListen();
     $("#vin").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";converse(t)}};
     const c=$("#vwave"),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=46*d;const x=c.getContext("2d");x.scale(d,d);let stop=false;sheetCleanup=()=>{stop=true;stopListen();try{hasN()?N.stopSpeak():speechSynthesis.cancel()}catch{}};
     (function f(t){if(stop)return;x.clearRect(0,0,r.width,46);const n=46,bw=r.width/n;for(let i=0;i<n;i++){const env=Math.sin(Math.PI*i/n),v=(Math.sin(t/160+i*.7)+Math.sin(t/100+i*1.9))/4+.5,bh=Math.max(2,46*env*v*(listening?1:.16));x.fillStyle=`rgb(${ACC})`;x.fillRect(i*bw+1,(46-bh)/2,bw-2,bh)}requestAnimationFrame(f)})(0)})}
+// Android MainActivity dispatches these events when native speech recognition finishes.
+window.addEventListener("jarvis-native-speech",event=>{
+  const spoken=String(event.detail||"").trim();
+  listening=false;
+  $("#bigmic")&&$("#bigmic").classList.remove("live");
+  $("#vstate")&&($("#vstate").textContent=spoken?"Processing your request…":"Tap the mic and speak");
+  if(!spoken){toast("I didn't catch that. Please try again.");return}
+  converse(spoken).catch(error=>{console.error("Native speech command failed",error);toast("I couldn't process that voice command. Please try again.")});
+});
+window.addEventListener("jarvis-native-speech-error",()=>{
+  listening=false;
+  $("#bigmic")&&$("#bigmic").classList.remove("live");
+  $("#vstate")&&($("#vstate").textContent="Voice input failed. Tap the mic to retry.");
+  toast("Voice input failed. Check microphone permission and Android speech recognition.");
+});
 function startListen(){if(hasN()){N.listen();return}
   if(!SR){toast("Speech recognition isn't supported here — type instead");return}
   try{wakeRec&&wakeRec.abort()}catch{}
@@ -1130,8 +1400,8 @@ $("#pinGo").onclick=async()=>{if(await sha($("#pinIn").value)===S.pin){$("#lock"
 function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<small>${s}</small>`:""}</div><div class="tg ${S[k]?"on":""}" data-k="${k}"></div></div>`,p=S.ai.prov;
   openSheet(`<h2>SETTINGS</h2>
   <h4>AI BRAIN</h4><select class="in" id="aiP" style="margin-top:0"><option value="anthropic">Claude (Anthropic)</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="groq">Groq (free tier)</option><option value="openrouter">OpenRouter</option></select>
-  <input class="in" id="aiK" type="password" placeholder="API key" autocomplete="off"><input class="in" id="aiM" placeholder="Model"><div class="btns"><button class="btn sm" id="aiT">Test connection</button></div>
-  <small class="d" style="display:block;margin-top:6px">Your key stays on this device only and goes straight to the provider.</small>
+  <input class="in" id="aiK" type="password" placeholder="Personal-mode API key" autocomplete="off"><input class="in" id="aiM" placeholder="Model"><div class="btns"><button class="btn sm" id="aiT">Test connection</button></div>
+  <small class="d" style="display:block;margin-top:6px">Personal mode stores this key in browser storage and sends it directly to the provider. Use only on a trusted personal device. For a public deployment, connect the authenticated Secure AI Gateway in System settings instead.</small>
   <h4>VOICE</h4>${sw("voice","Spoken replies")}${sw("wake","“Jarvis…” wake word","Hands-free while the app is open")}${sw("readmsg","Read incoming messages aloud","Needs the Android app")}${sw("autosend","Auto-send WhatsApp messages","Android app + accessibility; use with care")}
   <h4>PHONE</h4><input class="in" id="cc" inputmode="numeric" placeholder="Default country code, e.g. 91" value="${esc(S.cc||"")}" style="margin-top:0">
   <h4>GENERAL</h4>${sw("haptic","Haptic feedback")}${sw("autoloc","Auto-refresh location (10 min)")}<div class="sw">Focus mode<div class="tg ${document.body.classList.contains("focus")?"on":""}" id="fm"></div></div>
@@ -1139,8 +1409,8 @@ function openSettings(){hap();const sw=(k,l,s)=>`<div class="sw"><div>${l}${s?`<
   <h4>SECURITY</h4><div class="btns"><button class="btn sm" id="pinSet">${S.pin?"Change PIN":"Set PIN lock"}</button>${S.pin?'<button class="btn sm red" id="pinOff">Remove PIN</button>':""}</div>
   <h4>ANDROID APP</h4><div class="btns"><button class="btn sm" id="nPerm">Grant permissions</button><button class="btn sm" id="nNa">Notification access</button><button class="btn sm" id="nA11">Accessibility</button></div>
   <h4>DATA</h4><div class="btns"><button class="btn sm" id="exp">Export backup</button><button class="btn sm" id="imp">Import backup</button><button class="btn sm red" id="reset">Reset all</button></div><input type="file" id="impF" accept=".json" hidden>`,()=>{
-  $("#aiP").value=p;const fill=()=>{const q=$("#aiP").value;$("#aiK").value=S.ai.keys[q]||"";$("#aiM").value=S.ai.models[q]||"";$("#aiM").placeholder="Model (default: "+DEF[q]+")"};fill();$("#aiP").onchange=()=>{S.ai.prov=$("#aiP").value;save();fill();renderCore()};
-  const sv=()=>{const q=$("#aiP").value;S.ai.keys[q]=$("#aiK").value.trim();S.ai.models[q]=$("#aiM").value.trim();S.cc=$("#cc").value.replace(/\D/g,"");save();renderCore()};$("#aiK").oninput=$("#aiM").oninput=$("#cc").oninput=sv;
+  $("#aiP").value=p;const fill=()=>{const q=$("#aiP").value,allow=S.ai.browserKeysAllowed!==false;$("#aiK").value=allow?(S.ai.keys[q]||""):"";$("#aiK").disabled=!allow;$("#aiK").placeholder=allow?"Personal-mode API key":"Disabled by deployment policy";$("#aiT").disabled=!allow&&!S.ai.gateway;$("#aiM").value=S.ai.models[q]||"";$("#aiM").placeholder="Model (default: "+DEF[q]+")"};fill();$("#aiP").onchange=()=>{S.ai.prov=$("#aiP").value;save();fill();renderCore()};
+  const sv=()=>{const q=$("#aiP").value;if(S.ai.browserKeysAllowed!==false)S.ai.keys[q]=$("#aiK").value.trim();S.ai.models[q]=$("#aiM").value.trim();S.cc=$("#cc").value.replace(/\D/g,"");save();renderCore()};$("#aiK").oninput=$("#aiM").oninput=$("#cc").oninput=sv;
   $("#aiT").onclick=async()=>{sv();toast("Testing…");try{const r=await askAI.call(null);toast("✓ Connected")}catch(e){toast(e.message==="NOKEY"?"Enter an API key":"Failed — check key, model and connection")}};
   $$(".tg[data-k]").forEach(t=>t.onclick=()=>{const k=t.dataset.k;S[k]=!S[k];t.classList.toggle("on");save();if(k==="wake"){if(S.wake){if(!startWake()){S.wake=false;t.classList.remove("on");save()}}else stopWake()}});
   $("#fm").onclick=async e=>{await toggleFocus();e.target.classList.toggle("on")};
