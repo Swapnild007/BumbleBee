@@ -111,6 +111,9 @@ try {
   await page.locator("#gatewayConnect").click();
   await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
 
+  // The planner is a home-screen panel. Return from System settings before interacting with it.
+  await page.locator('nav a[data-t="home"]').click();
+  await page.locator("#planInput").waitFor({ state: "visible" });
   // Planner must route a multi-step weather + reminder request to AI instead of letting the local weather intent swallow it.
   await page.locator("#planInput").fill("Check the weather and remind me in 30 minutes to take an umbrella");
   await page.locator("#planBuild").click();
