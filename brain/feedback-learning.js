@@ -59,3 +59,53 @@
  }
  root.JarvisToolPlanner=Object.freeze({MAX_STEPS,TYPES,validatePlan});
 })(window);
+
+/* Confirmation-first bridge from model plans into existing local command handlers. */
+(function(root){
+ "use strict";
+ function install(){
+  const planner=root.JarvisToolPlanner,baseHandle=root.handle,basePrompt=root.sysPrompt;
+  if(!planner||typeof baseHandle!=="function"||typeof basePrompt!=="function"||root.__jarvisPlanBridgeInstalled)return;
+  root.__jarvisPlanBridgeInstalled=true;
+  let pending=null;
+  root.sysPrompt=function(){
+   return basePrompt()+"\\nFor a multi-step request, you may append one final line: PLAN:[{\\"type\\":\\"weather\\"},{\\"type\\":\\"reminder\\",\\"minutes\\":30,\\"text\\":\\"Take an umbrella\\"}]. Use at most 4 steps. Allowed plan types: weather, timer, reminder, task, note, torch. Only propose a plan when all required details are explicit. Never invent a time. A plan is only a proposal and must wait for the user to say confirm plan. Otherwise ask a clarification question.";
+  };
+  function commandFor(step){
+   if(step.type==="weather")return "weather";
+   if(step.type==="timer")return "set timer for "+step.minutes+" minutes";
+   if(step.type==="reminder")return "remind me in "+step.minutes+" minutes to "+step.text;
+   if(step.type==="task")return "add task: "+step.text;
+   if(step.type==="note")return "remember that "+step.text;
+   if(step.type==="torch")return step.on?"turn flashlight on":"turn flashlight off";
+   return "";
+  }
+  root.handle=async function(raw){
+   const text=String(raw||"").trim();
+   if(pending&&/^(?:confirm plan|confirm|yes,? run it|run plan)$/i.test(text)){
+    const steps=pending;pending=null;const results=[];
+    for(let i=0;i<steps.length;i++){
+     const command=commandFor(steps[i]);
+     if(!command)return "Plan stopped because step "+(i+1)+" has no safe command mapping.";
+     let result;
+     try{result=await baseHandle(command)}catch(error){return "Plan stopped at step "+(i+1)+": "+String(error&&error.message||"step failed")+". Completed "+results.length+" of "+steps.length+" steps."}
+     if(/could not|couldn't|not available|failed|did not|no action/i.test(String(result)))return "Plan stopped at step "+(i+1)+": "+result+" Completed "+results.length+" of "+steps.length+" steps.";
+     results.push(String(result));
+    }
+    return "Plan completed. "+results.join(" ");
+   }
+   if(pending&&/^(?:cancel|cancel plan|never mind|nevermind|forget it)$/i.test(text)){pending=null;return "Plan cancelled. Nothing was executed.";}
+   const reply=await baseHandle.apply(this,arguments);
+   const match=String(reply||"").match(/(?:^|\\n)PLAN:\\s*(\\[[\\s\\S]*\\])\\s*$/);
+   if(!match)return reply;
+   let items;try{items=JSON.parse(match[1])}catch{return "I could not read the proposed plan, so nothing was executed."}
+   const checked=planner.validatePlan(items,a=>a.type==="weather"?"":root.validateActionProposal(a));
+   if(!checked.ok)return String(reply).slice(0,match.index)+"I rejected the plan. "+checked.error;
+   pending=checked.steps;
+   const lead=String(reply).slice(0,match.index).trim();
+   return (lead?lead+"\\n":"")+"Proposed plan, awaiting your confirmation:\\n"+checked.preview+"\\nSay 'confirm plan' to run it, or 'cancel' to discard it.";
+  };
+ }
+ if(root.document&&root.document.readyState==="loading")root.document.addEventListener("DOMContentLoaded",install,{once:true});
+ else Promise.resolve().then(install);
+})(window);
