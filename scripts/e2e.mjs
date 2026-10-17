@@ -37,7 +37,11 @@ const server = createServer(async (req, res) => {
       const body = await readJson(req);
       assert.equal(body.provider, "anthropic", "secure gateway should receive the selected provider");
       assert.ok(Array.isArray(body.messages), "secure gateway should receive a structured conversation");
-      sendJson(res, 200, { text: 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}' });
+      const lastUser = Array.isArray(body.messages) ? [...body.messages].reverse().find(m => m && m.role === "user")?.content : "";
+      const text = /Create a proposed plan only/i.test(String(lastUser))
+        ? 'I can prepare that.\\nPLAN:[{"type":"weather"},{"type":"reminder","minutes":30,"text":"Take an umbrella"}]'
+        : 'I can prepare that. ACTION:{"type":"task","text":"AI-proposed task"}';
+      sendJson(res, 200, { text });
       return;
     }
     const target = resolve(root, "." + pathname);
@@ -106,6 +110,18 @@ try {
   await page.locator("#gatewayPassword").fill("test-gateway-password");
   await page.locator("#gatewayConnect").click();
   await page.waitForFunction(() => (document.querySelector("#gatewayStatus")?.textContent || "").includes("Connected · server-side"));
+
+  // Planner must route a multi-step weather + reminder request to AI instead of letting the local weather intent swallow it.
+  await page.locator("#planInput").fill("Check the weather and remind me in 30 minutes to take an umbrella");
+  await page.locator("#planBuild").click();
+  await page.locator("#planResult").getByText(/Proposed plan, awaiting your confirmation/i).waitFor({ timeout: 10000 });
+  await page.locator("#planResult").getByText(/Check current weather/i).waitFor();
+  await page.locator("#planResult").getByText(/Reminder in 30 minutes: Take an umbrella/i).waitFor();
+  assert.equal(await page.locator("#planActions").isVisible(), true, "valid plan should expose explicit confirm/cancel controls");
+  await page.locator("#planCancel").click();
+  await page.locator("#planResult").getByText(/Plan cancelled. Nothing was executed./i).waitFor();
+  assert.equal(await page.locator("#planActions").isVisible(), false, "cancelled plan must hide confirmation controls");
+
   await page.locator("#runTraining").click();
   await page.locator("#trainResults").getByText(/(?:checks|assertions) passed/).waitFor({ timeout: 10000 });
   const evaluationSummary=await page.locator("#trainResults").innerText();
