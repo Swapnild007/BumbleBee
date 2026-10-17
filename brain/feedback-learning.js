@@ -89,12 +89,13 @@
      if(!command)return "Plan stopped because step "+(i+1)+" has no safe command mapping.";
      let result;
      try{result=await baseHandle(command)}catch(error){return "Plan stopped at step "+(i+1)+": "+String(error&&error.message||"step failed")+". Completed "+results.length+" of "+steps.length+" steps."}
-     if(/could not|couldn't|not available|failed|did not|no action/i.test(String(result)))return "Plan stopped at step "+(i+1)+": "+result+" Completed "+results.length+" of "+steps.length+" steps.";
+     if(/could not|couldn't|not available|isn't loaded|failed|did not|no action/i.test(String(result)))return "Plan stopped at step "+(i+1)+": "+result+" Completed "+results.length+" of "+steps.length+" steps.";
      results.push(String(result));
     }
     return "Plan completed. "+results.join(" ");
    }
    if(pending&&/^(?:cancel|cancel plan|never mind|nevermind|forget it)$/i.test(text)){pending=null;return "Plan cancelled. Nothing was executed.";}
+   if(pending)pending=null;
    const reply=await baseHandle.apply(this,arguments);
    const match=String(reply||"").match(/(?:^|\n)PLAN:\s*(\[[\s\S]*\])\s*$/);
    if(!match)return reply;
