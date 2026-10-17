@@ -6,6 +6,9 @@ on:
     paths:
       - "index.html"
       - "training/**"
+      - "brain/**"
+      - "scripts/**"
+      - "docs/**"
       - "orb-engine.js"
       - "sw.js"
       - "manifest.webmanifest"
@@ -31,7 +34,7 @@ on:
 
 concurrency:
   group: jarvis-android-apk-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
