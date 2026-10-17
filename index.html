@@ -409,6 +409,14 @@ button,.ib,.app,.chip,.lm,.th,.nav a,.row.tap,.tg,.link{
 
   <section class="tab on" id="t-home">
     <div class="search"><span class="d">🔍</span><input id="q" placeholder="Type a command or ask anything…" enterkeyhint="go" autocomplete="off"></div>
+    <div class="panel" id="planPanel" style="padding:0 12px 12px">
+      <h3>JARVIS ACTION PLANNER <span class="live">● CONFIRM FIRST</span></h3>
+      <p class="d" style="font-size:12px;line-height:1.45;padding:0 2px 8px">Build a short plan for supported actions. JARVIS previews each step before doing anything.</p>
+      <textarea class="in" id="planInput" rows="2" placeholder="Example: Check the weather and remind me in 30 minutes to take an umbrella" style="margin-top:0;min-height:72px"></textarea>
+      <div class="btns"><button class="btn" id="planBuild">✦ Propose plan</button><button class="btn sm" id="planExample">Use example</button></div>
+      <div id="planResult" class="msg j" aria-live="polite" style="display:none;max-width:100%;margin-top:10px"></div>
+      <div id="planActions" class="btns" style="display:none"><button class="btn" id="planConfirm">✓ Confirm plan</button><button class="btn red" id="planCancel">Cancel</button></div>
+    </div>
     <div class="panel hero"><canvas id="globe"></canvas><div class="txt"><h1>JARVIS</h1><h2>AI CORE</h2><p>v4.0</p></div></div>
     <div class="chips">
       <div class="chip" id="chLoc"><small>📍 Location</small><b id="cLoc">Locating…</b></div>
@@ -1225,6 +1233,39 @@ let wl=null;async function toggleFocus(){const on=document.body.classList.toggle
 $("#q").addEventListener("keydown",async e=>{if(e.key==="Enter"&&e.target.value.trim()){const t=e.target.value;e.target.value="";e.target.blur();toast("…");await runCmd(t)}});
 let lastCommandFailed=false;
 async function safeHandle(t){lastCommandFailed=false;try{return await handle(t)}catch(e){lastCommandFailed=true;return e&&e.message==="NOKEY"?"Add an API key in Settings first.":"AI request failed — check your key, model and connection."}}
+
+ /* ===== visible, confirmation-first action planner ===== */
+(function initVisiblePlanner(){
+ const input=$("#planInput"),build=$("#planBuild"),result=$("#planResult"),actions=$("#planActions");
+ if(!input||!build||!result||!actions)return;
+ let hasProposal=false;
+ const show=(text,proposal=false)=>{
+   result.style.display="block";result.textContent=String(text||"");
+   hasProposal=proposal;actions.style.display=proposal?"flex":"none";
+ };
+ $("#planExample")?.addEventListener("click",()=>{input.value="Check the weather and remind me in 30 minutes to take an umbrella";input.focus()});
+ build.addEventListener("click",async()=>{
+   const text=input.value.trim();
+   if(!text){show("Describe what you want JARVIS to do first.");input.focus();return}
+   build.disabled=true;build.textContent="Planning…";show("Preparing a proposal. No actions have run yet.");
+   try{
+     const response=await converse(text);
+     const proposed=/proposed plan[\s\S]*awaiting your confirmation|say ['"]confirm plan['"]/i.test(String(response));
+     show(response,proposed);
+   }catch(error){show("Planner error: "+String(error&&error.message||error))}
+   finally{build.disabled=false;build.textContent="✦ Propose plan"}
+ });
+ $("#planConfirm")?.addEventListener("click",async()=>{
+   $("#planConfirm").disabled=true;
+   try{show(await converse("confirm plan"),false)}
+   catch(error){show("Confirmation failed: "+String(error&&error.message||error))}
+   finally{$("#planConfirm").disabled=false}
+ });
+ $("#planCancel")?.addEventListener("click",async()=>{
+   try{show(await converse("cancel plan"),false)}
+   catch(error){show("Cancellation failed: "+String(error&&error.message||error))}
+ });
+})();
 
 /* ===== voice / chat sheet ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false,wakeOn=false,pendMap={};
