@@ -51,6 +51,7 @@
    if(a.type==="timer"){x.minutes=Number(a.minutes);x.label=String(a.label||"Timer").slice(0,120)}
    if(a.type==="reminder"){x.minutes=Number(a.minutes);x.text=String(a.text||"").trim().slice(0,1000)}
    if(a.type==="task"||a.type==="note")x.text=String(a.text||"").trim().slice(0,1000);
+   if(a.type==="reminder"&&!x.text)return{ok:false,error:"Step "+(i+1)+": reminder text is required."};
    if(a.type==="torch")x.on=a.on;
    const error=validate(x);if(error)return{ok:false,error:"Step "+(i+1)+": "+error};
    steps.push(Object.freeze(x));
