@@ -97,7 +97,21 @@
    }
    if(pending&&/^(?:cancel|cancel plan|never mind|nevermind|forget it)$/i.test(text)){pending=null;return "Plan cancelled. Nothing was executed.";}
    if(pending)pending=null;
-   const reply=await baseHandle.apply(this,arguments);
+   const planRequest=text.match(/^__jarvis_plan_request__\s+([\s\S]+)$/i);
+   let reply;
+   if(planRequest){
+    if(typeof root.askAI!=="function")return "The AI planner is unavailable. Check the AI connection in Settings.";
+    const request=planRequest[1].trim();
+    if(!request)return "Describe the task you want me to plan.";
+    try{
+     if(Array.isArray(root.chat))root.chat.push({r:"u",c:"Create a proposed plan only, do not execute any action: "+request});
+     reply=await root.askAI();
+    }catch(error){
+     return "I couldn't create a plan because the AI request failed: "+String(error&&error.message||error);
+    }
+   }else{
+    reply=await baseHandle.apply(this,arguments);
+   }
    const match=String(reply||"").match(/(?:^|\n)PLAN:\s*(\[[\s\S]*\])\s*$/);
    if(!match)return reply;
    let items;try{items=JSON.parse(match[1])}catch{return "I could not read the proposed plan, so nothing was executed."}
