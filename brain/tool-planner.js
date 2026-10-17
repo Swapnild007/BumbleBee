@@ -18,3 +18,12 @@ function validatePlan(items,validate){
 }
 root.JarvisToolPlanner=Object.freeze({MAX_STEPS,TYPES,validatePlan});
 })(typeof window!=="undefined"?window:globalThis);
+
+function describe(a){
+ if(a.type==="weather")return "Check current weather";
+ if(a.type==="timer")return "Set timer for "+a.minutes+" minutes";
+ if(a.type==="reminder")return "Reminder in "+a.minutes+" minutes: "+a.text;
+ if(a.type==="task")return "Add task: "+a.text;
+ if(a.type==="note")return "Save note: "+a.text;
+ return a.on?"Turn flashlight on":"Turn flashlight off";
+}
